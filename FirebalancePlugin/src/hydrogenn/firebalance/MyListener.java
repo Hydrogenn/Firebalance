@@ -45,50 +45,38 @@ public class MyListener implements Listener {
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		Player player = event.getPlayer();
 		if (!player.hasPlayedBefore()) {
-			event.setJoinMessage(ChatColor.GOLD + player.getName() + " has joined Firebalance for the first time!");
+			event.setJoinMessage("§6" + player.getName() + " has joined Firebalance for the first time!");
 		} else {
-			event.setJoinMessage(ChatColor.YELLOW + player.getName() + " has joined.");
+			event.setJoinMessage("§e" + player.getName() + " has joined.");
 			for (PlayerSpec s : Firebalance.playerSpecList) {
 				if (s.getName().equals(player.getName())) {
-					s.online = true;
-					s.setPlayer(player);
+					s.setOnline(true);
 					int rank = s.getKing();
 					String rankString = "citizen.";
-					String nationString = Firebalance.getNationColor(s.getNation(), false)
-							+ Firebalance.getNationName(s.getNation(), false);
-					if (rank == 1)
-						rankString = "leader.";
-					else if (rank != 0)
-						rankString = "official.";
-					Messenger.send(player,
-							ChatColor.GRAY + "You are a " + nationString + ChatColor.GRAY + " " + rankString);
+					String nationString = Firebalance.getNationColor(s.getNation(), false) + Firebalance.getNationName(s.getNation(), false);
+					if (rank == 1) rankString = "leader.";
+					else if (rank != 0) rankString = "official.";
+					player.sendMessage("§7You are a " + nationString + "§7 " + rankString);
 				}
 			}
 			if (Firebalance.killList.containsValue(player.getName())) {
 				for (String s : Firebalance.killList.keySet()) {
-					if (Firebalance.killList.get(s).equals(player.getName()))
-						Firebalance.killList.remove(s);
+					if (Firebalance.killList.get(s).equals(player.getName())) Firebalance.killList.remove(s);
 				}
 			}
 		}
-		if (Firebalance.getPlayerFromName(player.getName()) == null)
-			Firebalance.playerSpecList
-					.add(new PlayerSpec(event.getPlayer(), event.getPlayer().getName(), (byte) -1, 0, 0, true));
-		Messenger.send(player, "This server uses a plugin in-development. Issues may arise. Report them for credits.");
-		Messenger.send(player, "v1.4.1: Began internal code changes.");
+		if (Firebalance.getPlayerFromName(player.getName()) == null) Firebalance.playerSpecList.add(new PlayerSpec(event.getPlayer().getName(), (byte) -1, 0, 0, true));
+		player.sendMessage("This server uses a plugin in-development. Issues may arise. Report them for credits.");
+		player.sendMessage("v1.4.1: Began internal code changes.");
 	}
 
 	@EventHandler
 	public void onPlayerLeave(PlayerQuitEvent event) {
-		if (!event.getPlayer().hasPlayedBefore())
-			event.setQuitMessage(
-					ChatColor.GOLD + "" + event.getPlayer().getName() + " has left. We hope to see you again!");
-		else
-			event.setQuitMessage(ChatColor.YELLOW + event.getPlayer().getName() + " has left.");
+		if (!event.getPlayer().hasPlayedBefore()) event.setQuitMessage("§6" + event.getPlayer().getName() + " has left. We hope to see you again!");
+		else event.setQuitMessage("§e" + event.getPlayer().getName() + " has left.");
 		for (PlayerSpec s : Firebalance.playerSpecList)
 			if (s.getName().equals(event.getPlayer().getName())) {
-				s.online = false;
-				s.setPlayer(event.getPlayer());
+				s.setOnline(false);
 			}
 	}
 

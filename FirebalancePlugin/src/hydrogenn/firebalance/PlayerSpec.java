@@ -1,32 +1,20 @@
 
 package hydrogenn.firebalance;
 
-import org.bukkit.entity.Player;
-
 public class PlayerSpec {
 
-	private Player	player;
 	private String	name;
 	private byte	nation;
 	private int		king;
 	int				credits;
 	boolean			online;
 
-	public PlayerSpec(Player player, String name, byte nation, int king, int credits, boolean online) {
-		this.setPlayer(player);
+	public PlayerSpec(String name, byte nation, int king, int credits, boolean online) {
 		this.setName(name);
 		this.setNation(nation);
 		this.setKing(king);
 		this.credits = credits;
 		this.online = online;
-	}
-
-	public Player getPlayer() {
-		return player;
-	}
-
-	public void setPlayer(Player player) {
-		this.player = player;
 	}
 
 	public String getName() {
@@ -51,5 +39,12 @@ public class PlayerSpec {
 
 	public void setKing(int king) {
 		this.king = king;
+	}
+
+	public boolean getOnline() {
+		return online;
+	}
+	public void setOnline(boolean online) {
+		this.online = online;
 	}
 }
