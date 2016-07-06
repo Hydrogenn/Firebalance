@@ -401,8 +401,6 @@ public class MyListener implements Listener {
 	public void onInteractBlock(PlayerInteractEvent event) {
 		if (event.getAction() != Action.RIGHT_CLICK_BLOCK)
 			return;
-		if (event.getPlayer().isSneaking())
-			return;
 		if (event.getClickedBlock().getType() == Material.CHEST
 				|| event.getClickedBlock().getType() == Material.TRAPPED_CHEST) {
 			Player player = event.getPlayer();
@@ -449,7 +447,7 @@ public class MyListener implements Listener {
 									+ "****".substring(0, chestId.length() / 4));
 					event.setCancelled(true);
 				}
-			} else if (isKey) {
+			} else if (isKey && !player.isSneaking()) {
 				Firebalance.chestSpecList.add(
 						new ChestSpec(chest.getLocation(), keyMeta.getLore().get(0).replace(ChatColor.GRAY + "", "")));
 				event.setCancelled(true);
