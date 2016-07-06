@@ -1,5 +1,6 @@
 package hydrogenn.firebalance.utils;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -17,13 +18,25 @@ public class Messenger {
 
 	public static void send(Player p, String msg) {
 
-		p.sendMessage(TextUtils.colorize(getPrefix() + msg));
+		p.sendMessage(prefix + TextUtils.colorize(getPrefix() + msg));
 
 	}
 
 	public static void send(CommandSender s, String msg) {
 
-		s.sendMessage(TextUtils.stripColor(getPrefix() + msg));
+		s.sendMessage(prefix + TextUtils.stripColor(getPrefix() + msg));
+
+	}
+
+	public static void broadcast(String msg) {
+
+		Bukkit.broadcastMessage(prefix + TextUtils.colorize(msg));
+
+	}
+
+	public static void forceChat(Player p, String msg) {
+
+		p.chat(TextUtils.colorize(msg));
 
 	}
 

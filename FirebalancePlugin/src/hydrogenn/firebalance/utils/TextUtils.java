@@ -7,6 +7,9 @@ public class TextUtils {
 
 	public static String colorize(String text) {
 
+		if (text == null) {
+			return text;
+		}
 		return ChatColor.translateAlternateColorCodes('&', text);
 
 	}

@@ -10,6 +10,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import hydrogenn.firebalance.utils.Messenger;
+
 public class CommandMap implements CommandExecutor {
 
 	@Override
@@ -40,12 +42,14 @@ public class CommandMap implements CommandExecutor {
 			}
 			for (int z = 0; z <= dz * 2 + 1; z++) {
 				output.add(new StringBuilder());
-				if (z == 0) for (int x = 0; x < dx * 2 + 1; x++) {
-					output.get(z).append("§f-");
-				}
-				if (z != 0) for (int x = 0; x < dx * 2 + 1; x++) {
-					output.get(z).append("§0-");
-				}
+				if (z == 0)
+					for (int x = 0; x < dx * 2 + 1; x++) {
+						output.get(z).append("&f-");
+					}
+				if (z != 0)
+					for (int x = 0; x < dx * 2 + 1; x++) {
+						output.get(z).append("&0-");
+					}
 			}
 			for (ChunkSpec s : Firebalance.chunkSpecList) {
 				if (s.x <= cx + dx && s.x >= cx - dx && s.z <= cz + dz && s.z >= cz - dz) {
@@ -59,7 +63,7 @@ public class CommandMap implements CommandExecutor {
 				}
 			}
 			for (StringBuilder o : output) {
-				player.sendMessage(o.toString());
+				Messenger.send(player, o.toString());
 			}
 		}
 		return true;

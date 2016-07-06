@@ -19,8 +19,8 @@ public class CommandNationChat implements CommandExecutor {
 		}
 
 		if (args.length < 1) {
-			sender.sendMessage("You need to say something!");
-			sender.sendMessage("Usage: /nationchat <msg>");
+			Messenger.send(sender, "You need to say something!");
+			Messenger.send(sender, "Usage: /nationchat <msg>");
 			return true;
 		}
 
@@ -29,13 +29,13 @@ public class CommandNationChat implements CommandExecutor {
 		PlayerSpec spec = Firebalance.getPlayerFromName(p.getName());
 
 		if (spec == null) {
-			p.sendMessage("Something went HORRIBLY wrong");
+			Messenger.send(p, "&cSomething went &nHORRIBLY&c wrong");
 			return false;
 		}
 
 		if (spec.getNation() <= 0) {
 
-			p.sendMessage("You aren't part of a nation");
+			Messenger.send(p, "You aren't part of a nation");
 			return true;
 
 		}

@@ -26,6 +26,8 @@ import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import hydrogenn.firebalance.utils.TextUtils;
+
 //TODO let's make a plugin where you can enchant pumpkins like a helmet. You cannot place it.
 //TODO test adding multiple nations
 public class Firebalance extends JavaPlugin {
@@ -135,25 +137,26 @@ public class Firebalance extends JavaPlugin {
 	}
 
 	public static String getNationColor(byte nation, boolean filter) {
+		String output = null;
 		if (nation == -1 && !filter)
-			return "";
+			output = "";
 		if (nation == 0 && !filter)
-			return "§f";
+			output = "&f";
 		if (nation == 1)
-			return "§4";
+			output = "&4";
 		if (nation == 2)
-			return "§2";
+			output = "&2";
 		if (nation == 3)
-			return "§e";
+			output = "&e";
 		if (nation == 4)
-			return "§9";
+			output = "&9";
 		if (nation == 5)
-			return "§d";
+			output = "&d";
 		if (nation == 6)
-			return "§b";
+			output = "&b";
 		if (nation == 7)
-			return "§7";
-		return null;
+			output = "&7";
+		return TextUtils.colorize(output);
 	}
 
 	public static String getHeightString(int height) {
