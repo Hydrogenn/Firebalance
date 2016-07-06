@@ -1,0 +1,16 @@
+name: Notes
+main: hydrogenn.notes.Notes
+version: 1.4
+commands:
+  note:
+    description: Modifies a note.
+    usage: "/note name <name> OR\n/note desc <add/set> <lore> OR\n/note desc remove <lines>"
+  stamp:
+    description: Applies a held stamp to a held paper.
+    usage: /stamp
+  sign:
+    description: Adds your signature to a held note.
+    usage: /sign
+  unsign:
+    description: Removes your signature from a held note.
+    usage: /unsign

@@ -1,0 +1,13 @@
+name: QuotableRules
+main: hydrogenn.quotableRules.QuotableRules
+version: 1.0
+commands:
+  newrule:
+    description: Adds a rule.
+    usage: /newrule <remove/change/add> ...
+  rules:
+    description: Shows the rules.
+    usage: /rules
+  quote:
+    description: Quote a rule.
+    usage: /quote <rule>

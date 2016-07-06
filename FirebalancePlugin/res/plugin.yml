@@ -1,0 +1,38 @@
+name: Firebalance
+main: hydrogenn.firebalance.Firebalance
+version: 1.4.1
+commands:
+  nation:
+    description: Sets your nation.
+    usage: /nation <name>
+  chunk:
+    description: Performs chunk claiming functions.
+    usage: /chunk help
+  disclaim:
+    description: Removes your previous chunk claims.
+    usage: /disclaim [override]
+  enthrone:
+    description: Promote yourself or someone else king/official.
+    usage: "/enthrone OR\n§5/enthrone <playername>§f OR\n§5/enthrone <playername> <official/citizen>§f"
+  credits:
+    description: See your current credits.
+    usage: /credits
+  renation:
+    description: Rename your current nation.
+    usage: /renation <name>
+  map:
+    description: Maps nearby claims.
+    usage: /map
+  anonsign:
+    description: Sign a book & quill anonymously.
+    usage: /anonsign <book name>
+  sentence:
+    description: Vote on or create a ban sentence.
+    usage: "/sentence new OR\n/sentence <value> OR\n/sentence info \nExample: '4m30s-20m 1h-2h 2d-max'\ny, w, d, h, m, s can be used"
+  oopsmybad:
+    description: Revert the ban of your most recent victim.
+    usage: "/oopsmybad"
+  nationchat:
+    description: Send a message to your nation
+    usage: "/nationchat <msg>"
+    aliases: nc

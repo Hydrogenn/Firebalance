@@ -1,0 +1,8 @@
+### Eclipse folders
+.metadata/
+.recommenders/
+*/.classpath/
+
+### Compiled files
+*.class
+*.zip
