@@ -11,7 +11,9 @@ public class ChunkSpec {
 	boolean national;
 	boolean outpost;
 	ArrayList<String> shared;
-	public ChunkSpec (int x, int y, int z, byte nation, String owner, boolean national, boolean outpost, ArrayList<String> shared) {
+
+	public ChunkSpec(int x, int y, int z, byte nation, String owner, boolean national, boolean outpost,
+			ArrayList<String> shared) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
@@ -21,6 +23,7 @@ public class ChunkSpec {
 		this.outpost = outpost;
 		this.shared = shared;
 	}
+
 	public ChunkSpec(int x, int y, int z, byte nation, String owner, boolean national, boolean outpost) {
 		this.x = x;
 		this.y = y;

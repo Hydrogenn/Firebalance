@@ -1,2 +1,9 @@
 eclipse.preferences.version=1
+encoding//src/hydrogenn/firebalance/CommandAnonymBook.java=UTF-8
+encoding//src/hydrogenn/firebalance/CommandEnthrone.java=UTF-8
+encoding//src/hydrogenn/firebalance/CommandMap.java=UTF-8
+encoding//src/hydrogenn/firebalance/CommandRenameNation.java=UTF-8
+encoding//src/hydrogenn/firebalance/CommandSentence.java=UTF-8
+encoding//src/hydrogenn/firebalance/CommandSetNation.java=UTF-8
 encoding//src/hydrogenn/firebalance/Firebalance.java=UTF-8
+encoding//src/hydrogenn/firebalance/MyListener.java=UTF-8
