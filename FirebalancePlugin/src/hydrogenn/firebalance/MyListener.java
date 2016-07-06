@@ -67,7 +67,6 @@ public class MyListener implements Listener {
 		}
 		if (Firebalance.getPlayerFromName(player.getName()) == null) Firebalance.playerSpecList.add(new PlayerSpec(event.getPlayer().getName(), (byte) -1, 0, 0, true));
 		player.sendMessage("This server uses a plugin in-development. Issues may arise. Report them for credits.");
-		player.sendMessage("v1.4.1: Began internal code changes.");
 	}
 
 	@EventHandler
