@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -40,6 +41,7 @@ public class Firebalance extends JavaPlugin {
 	public static Hashtable<String, String>			killList		= new Hashtable<String, String>();
 	public static Hashtable<String, List<long[]>>	sentenceValues	= new Hashtable<String, List<long[]>>();
 	public static Hashtable<String, Long>			sentenceMaxes	= new Hashtable<String, Long>();
+	public static List<UUID>						aggressives		= new ArrayList<UUID>();
 	public static String							activeSentence	= null;
 
 	public static List<SchedulerCache>				scheduleList	= new ArrayList<>();
