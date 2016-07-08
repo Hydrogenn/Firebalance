@@ -1,0 +1,29 @@
+Plugin
+- New death ban; two states, passive or aggressive
+- Add a power system like factions has (to limit the power of /raze)
+- Re-add raze, but limit it (as a counter for overextending claims, mostly)
+- Change internal storage to use UUIDs not playernames
+- Finish dividing the plugin up
+- Alter /chunk to properly work with delays (eg make checks, wait x seconds, make checks again, do stuff)
+- Revise/fix current ban voting system
+- Random nation spawn for freelancers w/o bed and new players
+- Set nation spawn for players in a nation without a bed
+- Reorder all nation commands into one with subcommands (/nation or /na)
+ (THIS DOES NOT INCLUDE /chunk COMMANDS.)
+--- Anything else is trivial. These are from the suggested features forum post.
+- Improve chest security
+- Improve key forging's effectiveness (still super expensive, but not useless)
+- Rewrite embassies to have multiple leaders in charge, as opposed to none
+- Rewrite power transfer after a leader's death, to cover various other circumstances
+- Add a golden hoe for a GUI
+- Safe trading system via said GUI
+- Taking heads of other players using golden hoe
+- A means of stunning enemies, so that nonviolent discipline is possible
+- Prevent spam kill
+- Emit team colored particles while claiming land
+- Internal optimizations? I'm running out of things left to do...
+
+Server
+- Implement essentials
+- Antiswear filter of some sort
+- Remove spawn chunks (effectively)
