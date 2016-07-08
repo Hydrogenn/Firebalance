@@ -42,6 +42,7 @@ commands:
      - nc
      - n
   aggressive:
+    description: Toggles aggression. When enabled, victims are banned.
     usage: /aggressive
     aliases:
      - aggro
