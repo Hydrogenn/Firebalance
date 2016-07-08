@@ -325,6 +325,7 @@ public class Firebalance extends JavaPlugin {
 		keyCraft.shape("A", "A");
 		keyCraft.setIngredient('A', Material.GOLD_INGOT);
 		getServer().addRecipe(keyCraft);
+		
 		// Register key dupe recipe
 		ItemStack keyD = new ItemStack(Material.TRIPWIRE_HOOK);
 		keyMeta.setDisplayName("§fKeyD");
@@ -333,6 +334,7 @@ public class Firebalance extends JavaPlugin {
 		keyDupe.addIngredient(Material.GOLD_INGOT);
 		keyDupe.addIngredient(Material.TRIPWIRE_HOOK);
 		getServer().addRecipe(keyDupe);
+		
 		// Register key add recipe
 		ItemStack keyA = new ItemStack(Material.TRIPWIRE_HOOK);
 		keyMeta.setDisplayName("§fKeyA");
@@ -341,6 +343,7 @@ public class Firebalance extends JavaPlugin {
 		keyAdd.shape("AA");
 		keyAdd.setIngredient('A', Material.TRIPWIRE_HOOK);
 		getServer().addRecipe(keyAdd);
+		
 		// Set up configs
 		config.addDefault("test", true);
 		config.options().copyDefaults(true);

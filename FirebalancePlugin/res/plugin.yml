@@ -32,15 +32,18 @@ commands:
   oopsmybad:
     description: Revert the ban of your most recent victim.
     usage: "/oopsmybad"
-    aliases: oops
+    aliases:
+     - oops
      - o
   nationchat:
     description: Send a message to your nation
     usage: /nationchat <msg>
-    aliases: nc
+    aliases:
+     - nc
      - n
   aggressive:
     description: Toggle combat mode, involves bans.
     usage: /aggressive
-    aliases: aggro
+    aliases:
+     - aggro
      - a
