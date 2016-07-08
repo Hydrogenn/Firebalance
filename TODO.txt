@@ -1,5 +1,4 @@
 Plugin
-- New death ban; two states, passive or aggressive
 - Add a power system like factions has (to limit the power of /raze)
 - Re-add raze, but limit it (as a counter for overextending claims, mostly)
 - Change internal storage to use UUIDs not playernames
@@ -19,7 +18,6 @@ Plugin
 - Safe trading system via said GUI
 - Taking heads of other players using golden hoe
 - A means of stunning enemies, so that nonviolent discipline is possible
-- Prevent spam kill
 - Emit team colored particles while claiming land
 - Internal optimizations? I'm running out of things left to do...
 

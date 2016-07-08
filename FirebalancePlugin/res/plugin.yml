@@ -42,7 +42,6 @@ commands:
      - nc
      - n
   aggressive:
-    description: Toggle combat mode, involves bans.
     usage: /aggressive
     aliases:
      - aggro

@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 
 import hydrogenn.firebalance.utils.Messenger;
 
-public class CommandToggleAggression implements CommandExecutor {
+public class CommandAggressive implements CommandExecutor {
 	@Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (sender instanceof Player) {

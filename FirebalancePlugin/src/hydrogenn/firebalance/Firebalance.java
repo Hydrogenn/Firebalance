@@ -309,6 +309,7 @@ public class Firebalance extends JavaPlugin {
 		this.getCommand("anonsign").setExecutor(new CommandAnonymBook());
 		this.getCommand("sentence").setExecutor(new CommandSentence());
 		this.getCommand("oopsmybad").setExecutor(new CommandOops());
+		this.getCommand("aggressive").setExecutor(new CommandAggressive());
 
 		// Register the event listener
 		getServer().getPluginManager().registerEvents(new MyListener(), this);
