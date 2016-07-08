@@ -95,12 +95,12 @@ public class MyListener implements Listener {
 				}
 			}
 			if (att != null) {
-				double xpAtt = att.getLevel();
+				/*double xpAtt = att.getLevel();
 				double xpDef = def.getLevel();
 				if (xpDef == 0)
 					xpDef = 1;
 				if (xpAtt > xpDef)
-					event.setDamage(event.getDamage() * xpAtt / xpDef);
+					event.setDamage(event.getDamage() * xpAtt / xpDef);*/
 				for (Iterator<SchedulerCache> i = Firebalance.scheduleList.iterator(); i.hasNext();) {
 					SchedulerCache s = i.next();
 					if (s.type.contains("chunk") && s.callerName.equals(def.getName()))
@@ -180,10 +180,10 @@ public class MyListener implements Listener {
 		}
 		if (xp % 64 > 0)
 			drops.add(new ItemStack(Material.EXP_BOTTLE, xp % 64));
-		if (!perpName.equals("nature")) {
+		if (!perpName.equals("nature") && Firebalance.aggressives.contains(victim.getKiller().getUniqueId())) {
 			Firebalance.killList.put(perpName, victim.getName());
 			victim.getKiller().sendMessage(ChatColor.GRAY
-					+ "'/sentence new' or '/oopsmybad' if you want something other than the 5 minute wait.");
+					+ "Use '/sentence new' or '/oops' if you want something other than the 5 minute wait.");
 			banDate.setTime(System.currentTimeMillis() + 300000);
 			Bukkit.getBanList(Type.NAME)
 					.addBan(victim.getName(), "You've died recently and must wait 5 minutes.", banDate, "").save();
@@ -419,7 +419,7 @@ public class MyListener implements Listener {
 
 					if (keyMeta.getLore().get(0).contains(chestId)) {
 					} else {
-						player.sendMessage(
+						Messenger.send(player,
 								"&cThis chest is locked with id " + chestId.substring(0, chestId.length() * 3 / 4)
 										+ "****".substring(0, chestId.length() / 4));
 						event.setCancelled(true);
@@ -518,7 +518,7 @@ public class MyListener implements Listener {
 				ChestSpec s = (ChestSpec) i.next();
 				if (s.coords.equals(event.getBlock().getLocation())) {
 					i.remove();
-					event.getPlayer().sendMessage("Chest lock removed");
+					Messenger.send(event.getPlayer(),"Chest lock removed");
 				}
 			}
 		}
