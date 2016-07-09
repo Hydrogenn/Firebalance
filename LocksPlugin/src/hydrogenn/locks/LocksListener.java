@@ -23,7 +23,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import hydrogenn.firebalance.ChestSpec;
-import hydrogenn.firebalance.Firebalance;
 import hydrogenn.firebalance.utils.Messenger;
 
 public class LocksListener implements Listener {
@@ -122,9 +121,9 @@ public class LocksListener implements Listener {
 				}
 			} catch (NullPointerException e) {
 			}
-			for (ChestSpec s : Firebalance.chestSpecList) {
-				if (s.coords.equals(chest.getLocation())) {
-					chestId = s.id;
+			for (ChestSpec s : ChestSpec.list) {
+				if (s.getCoords().equals(chest.getLocation())) {
+					chestId = s.getId();
 					if (chestId.length() < 1) {
 						chestId = null;
 						return;
@@ -152,7 +151,7 @@ public class LocksListener implements Listener {
 					event.setCancelled(true);
 				}
 			} else if (isKey && !player.isSneaking()) {
-				Firebalance.chestSpecList.add(
+				ChestSpec.list.add(
 						new ChestSpec(chest.getLocation(), keyMeta.getLore().get(0).replace(ChatColor.GRAY + "", "")));
 				event.setCancelled(true);
 			}
@@ -165,9 +164,9 @@ public class LocksListener implements Listener {
 	public void onBreakBlock(BlockBreakEvent event) {
 
 		if (!event.isCancelled()) {
-			for (Iterator<ChestSpec> i = Firebalance.chestSpecList.iterator(); i.hasNext();) {
+			for (Iterator<ChestSpec> i = ChestSpec.list.iterator(); i.hasNext();) {
 				ChestSpec s = (ChestSpec) i.next();
-				if (s.coords.equals(event.getBlock().getLocation())) {
+				if (s.getCoords().equals(event.getBlock().getLocation())) {
 					i.remove();
 					Messenger.send(event.getPlayer(), "Chest lock removed");
 				}
