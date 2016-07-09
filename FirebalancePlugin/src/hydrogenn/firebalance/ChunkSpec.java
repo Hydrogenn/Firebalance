@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
+import org.bukkit.configuration.file.YamlConfiguration;
+
 public class ChunkSpec {
 	private int x;
 	private int y;
@@ -26,9 +28,9 @@ public class ChunkSpec {
 		this.setNational(national);
 		this.setOutpost(outpost);
 		this.setShared(shared);
-		//TODO send new items to table
-		//int[] xyz = {x,y,z};
-		//table.put(xyz, this);
+		// TODO send new items to table
+		// int[] xyz = {x,y,z};
+		// table.put(xyz, this);
 	}
 
 	public ChunkSpec(int x, int y, int z, byte nation, String owner, boolean national, boolean outpost) {
@@ -108,9 +110,41 @@ public class ChunkSpec {
 
 	public static String getHeightString(int height) {
 		String result = null;
-		if (height == -1) result = "Undergrounds";
-		if (height == 0) result = "Surface";
-		if (height == 1) result = "Skyloft";
+		if (height == -1)
+			result = "Undergrounds";
+		if (height == 0)
+			result = "Surface";
+		if (height == 1)
+			result = "Skyloft";
 		return result;
 	}
+
+	public static ChunkSpec loadFromConfig(YamlConfiguration config) {
+
+		int x = config.getInt("x");
+		int y = config.getInt("y");
+		int z = config.getInt("z");
+		byte nation = (byte) config.getInt("nation");
+		String owner = config.getString("owner");
+		boolean national = config.getBoolean("national");
+		boolean outpost = config.getBoolean("outpost");
+
+		return new ChunkSpec(x, y, z, nation, owner, national, outpost);
+
+	}
+
+	public YamlConfiguration saveToConfig(YamlConfiguration config) {
+
+		config.set("x", x);
+		config.set("y", y);
+		config.set("z", z);
+		config.set("nation", nation);
+		config.set("owner", owner);
+		config.set("national", national);
+		config.set("outpost", outpost);
+
+		return config;
+
+	}
+
 }

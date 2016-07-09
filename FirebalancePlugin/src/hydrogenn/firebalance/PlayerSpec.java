@@ -23,7 +23,7 @@ public class PlayerSpec {
 
 	public PlayerSpec(String name, UUID id, byte nation, int king, int credits, boolean online) {
 		this.setName(name);
-		this.setId(id);
+		this.setUUID(id);
 		this.setNation(nation);
 		this.setKing(king);
 		this.setCredits(credits);
@@ -49,11 +49,11 @@ public class PlayerSpec {
 		this.name = name;
 	}
 
-	public UUID getId() {
+	public UUID getUUID() {
 		return uuid;
 	}
 
-	public void setId(UUID id) {
+	public void setUUID(UUID id) {
 		this.uuid = id;
 	}
 
@@ -102,13 +102,15 @@ public class PlayerSpec {
 
 	}
 
-	public void saveToConfig(YamlConfiguration config) {
+	public YamlConfiguration saveToConfig(YamlConfiguration config) {
 
 		config.set("name", name);
 		config.set("uuid", uuid.toString());
 		config.set("nation", nation);
 		config.set("role", king);
 		config.set("credits", credits);
+		
+		return config;
 
 	}
 

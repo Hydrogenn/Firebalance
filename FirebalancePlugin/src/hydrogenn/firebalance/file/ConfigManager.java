@@ -1,12 +1,14 @@
 package hydrogenn.firebalance.file;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
+import hydrogenn.firebalance.ChunkSpec;
 import hydrogenn.firebalance.Firebalance;
 import hydrogenn.firebalance.PlayerSpec;
 
@@ -20,7 +22,9 @@ public class ConfigManager {
 	private static Firebalance plugin;
 
 	private static FileConfiguration config;
+
 	private static YamlConfiguration nationGlobal;
+
 	private static YamlConfiguration nation1;
 	private static YamlConfiguration nation2;
 	private static YamlConfiguration nation3;
@@ -29,21 +33,25 @@ public class ConfigManager {
 
 		ConfigManager.plugin = plugin;
 
-		loadConfig();
+		load();
 
 	}
 
-	public static void loadConfig() {
+	public static void load() {
 
 		config = getConfig("config.yml");
 		nationGlobal = getConfig("nations/global.yml");
-		nationGlobal = getConfig("nations/nation1.yml");
-		nationGlobal = getConfig("nations/nation2.yml");
-		nationGlobal = getConfig("nations/nation3.yml");
+		nation1 = getConfig("nations/nation1.yml");
+		nation2 = getConfig("nations/nation2.yml");
+		nation3 = getConfig("nations/nation3.yml");
 
 		loadPlayers();
 
 		loadChunks();
+
+	}
+
+	public static void save() {
 
 	}
 
@@ -57,15 +65,75 @@ public class ConfigManager {
 
 		for (File f : files) {
 
-			YamlConfiguration pconf = YamlConfiguration.loadConfiguration(f);
+			YamlConfiguration conf = YamlConfiguration.loadConfiguration(f);
 
-			PlayerSpec.list.add(PlayerSpec.loadFromConfig(pconf));
+			PlayerSpec.list.add(PlayerSpec.loadFromConfig(conf));
+
+		}
+
+	}
+
+	private static void savePlayers() {
+
+		File players = getFolder("players");
+
+		for (PlayerSpec spec : PlayerSpec.list) {
+
+			if (spec == null) {
+				continue;
+			}
+
+			File f = new File(players, spec.getUUID() + ".yml");
+			YamlConfiguration conf = YamlConfiguration.loadConfiguration(f);
+
+			try {
+				spec.saveToConfig(conf).save(f);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 
 		}
 
 	}
 
 	private static void loadChunks() {
+
+		File chunks = getFolder("chunks");
+
+		List<File> files = Arrays.asList(chunks.listFiles());
+
+		ChunkSpec.list.clear();
+
+		for (File f : files) {
+
+			YamlConfiguration conf = YamlConfiguration.loadConfiguration(f);
+
+			ChunkSpec.list.add(ChunkSpec.loadFromConfig(conf));
+
+		}
+
+	}
+
+	private static void saveChunks() {
+
+		File chunks = getFolder("chunks");
+
+		for (ChunkSpec spec : ChunkSpec.list) {
+
+			if (spec == null) {
+				continue;
+			}
+
+			File f = new File(chunks, spec.getX() + "_" + spec.getY() + "_" + spec.getZ() + ".yml");
+			YamlConfiguration conf = YamlConfiguration.loadConfiguration(f);
+
+			try {
+				spec.saveToConfig(conf).save(f);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+		}
 
 	}
 
@@ -75,15 +143,35 @@ public class ConfigManager {
 
 	}
 
-	private static YamlConfiguration getConfig(String path, String pathToDefault) {
+	public static YamlConfiguration getConfig(String path, String pathToDefault) {
 
 		File f = getFile(path);
 
 		if (!f.exists()) {
-			plugin.saveResource(pathToDefault, true);
+			try {
+				plugin.saveResource(pathToDefault, true);
+			} catch (Exception e) {
+				try {
+					f.createNewFile();
+				} catch (Exception e1) {
+					System.err.println("Failed to create file: " + path);
+					e1.printStackTrace();
+				}
+			}
 		}
 
 		return YamlConfiguration.loadConfiguration(f);
+
+	}
+
+	public static void saveConfig(YamlConfiguration conf) {
+
+		try {
+			conf.save(new File(conf.getCurrentPath()));
+		} catch (IOException e) {
+			System.err.println("Failed to save config file: " + conf.getName());
+			e.printStackTrace();
+		}
 
 	}
 
