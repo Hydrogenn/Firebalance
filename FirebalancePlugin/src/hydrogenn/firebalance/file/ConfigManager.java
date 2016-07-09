@@ -1,4 +1,4 @@
-package hydrogenn.firebalance;
+package hydrogenn.firebalance.file;
 
 import java.io.File;
 import java.util.Arrays;
@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+
+import hydrogenn.firebalance.Firebalance;
 
 /* 
  * ConfigManager.java
