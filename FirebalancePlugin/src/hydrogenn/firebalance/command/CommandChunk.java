@@ -12,6 +12,7 @@ import org.bukkit.entity.Player;
 import hydrogenn.firebalance.ChunkSpec;
 import hydrogenn.firebalance.Firebalance;
 import hydrogenn.firebalance.PlayerSpec;
+import hydrogenn.firebalance.SchedulerCache;
 import hydrogenn.firebalance.utils.ArgList;
 import hydrogenn.firebalance.utils.Messenger;
 import hydrogenn.firebalance.utils.MultiMessage;
@@ -77,7 +78,7 @@ public class CommandChunk implements CommandExecutor {
 
 			String nationStringp = "";
 			String chunkNationString = "yourself";
-			for (PlayerSpec s : Firebalance.playerSpecList) {
+			for (PlayerSpec s : PlayerSpec.list) {
 				if (s.getName().equals(player.getName())) {
 					nationp = s.getNation();
 					king = (s.getKing() == 1);
@@ -92,14 +93,14 @@ public class CommandChunk implements CommandExecutor {
 			final String nationString = nationStringp;
 			// Return information on current chunk
 			if (arg.equals("info")) {
-				for (ChunkSpec s : Firebalance.chunkSpecList) {
-					if (s.x == x && s.y == y && s.z == z) {
-						Messenger.send(player, "&7You are in claimed " + Firebalance.getHeightString(s.y) + " at " + s.x
-								+ ", " + s.z + ".");
-						Messenger.send(player, "&7It is owned by " + s.owner + ", representing "
-								+ Firebalance.getNationName(s.nation, false) + ".");
-						Messenger.send(player, "&7Public: " + s.national + ", Outpost: " + s.outpost + ".");
-						Messenger.send(player, "&7Shared Players: " + s.shared.toString());
+				for (ChunkSpec s : ChunkSpec.list) {
+					if (s.getX() == x && s.getY() == y && s.getZ() == z) {
+						Messenger.send(player, "&7You are in claimed " + ChunkSpec.getHeightString(s.getY()) + " at " + s.getX()
+								+ ", " + s.getZ() + ".");
+						Messenger.send(player, "&7It is owned by " + s.getOwner() + ", representing "
+								+ Firebalance.getNationName(s.getNation(), false) + ".");
+						Messenger.send(player, "&7Public: " + s.isNational() + ", Outpost: " + s.isOutpost() + ".");
+						Messenger.send(player, "&7Shared Players: " + s.getShared().toString());
 					}
 				}
 				return true;
@@ -110,14 +111,14 @@ public class CommandChunk implements CommandExecutor {
 				if (nation != 0) {
 					boolean test = false;
 					boolean verify = false;
-					for (ChunkSpec s : Firebalance.chunkSpecList) {
-						if (s.nation == nation) {
+					for (ChunkSpec s : ChunkSpec.list) {
+						if (s.getNation() == nation) {
 							test = true;
 						}
-						if (!s.outpost
-								&& ((z + 1 == s.z && x == s.x) || (z - 1 == s.z && x == s.x)
-										|| (x + 1 == s.x && z == s.z) || (x - 1 == s.x && z == s.z))
-								&& s.nation == nation) {
+						if (!s.isOutpost()
+								&& ((z + 1 == s.getZ() && x == s.getX()) || (z - 1 == s.getZ() && x == s.getX())
+										|| (x + 1 == s.getX() && z == s.getZ()) || (x - 1 == s.getX() && z == s.getZ()))
+								&& s.getNation() == nation) {
 							verify = true;
 						}
 					}
@@ -128,39 +129,39 @@ public class CommandChunk implements CommandExecutor {
 				}
 			}
 			// Loop through all chunks for one at this exact spot
-			for (final Iterator<ChunkSpec> i = Firebalance.chunkSpecList.iterator(); i.hasNext();) {
+			for (final Iterator<ChunkSpec> i = ChunkSpec.list.iterator(); i.hasNext();) {
 				final ChunkSpec s = (ChunkSpec) i.next();
-				if (s.outpost == true && arg.equals("outpost")) {
+				if (s.isOutpost() == true && arg.equals("outpost")) {
 					outpostCount++;
 				}
-				if (s.x == x && s.y == y && s.z == z) {
-					final byte chunkNation = s.nation;
+				if (s.getX() == x && s.getY() == y && s.getZ() == z) {
+					final byte chunkNation = s.getNation();
 					chunkNationString = Firebalance.getNationName(chunkNation, false);
 					// End if the function isn't designed for friendly chunks
 					if ((arg.equals("claim") || arg.equals("outpost") || arg.equals("conquer") || arg.equals("raze"))
-							&& s.nation == nation) {
+							&& s.getNation() == nation) {
 						Messenger.send(player, "&7Your nation already owns this.");
 						return true;
 					}
 					// End if the function isn't designed for enemy chunks
-					if ((arg.equals("claim") || arg.equals("outpost") || arg.equals("embassy")) && s.nation != nation) {
+					if ((arg.equals("claim") || arg.equals("outpost") || arg.equals("embassy")) && s.getNation() != nation) {
 						Messenger.send(player, "&cThat chunk is already claimed by " + chunkNationString + ".");
 						return true;
 					}
 					// End if the function isn't designed for other player's
 					// chunks (excluding kings)
 					if ((arg.equals("disclaim") || arg.equals("lock") || arg.equals("unlock") || arg.equals("share")
-							|| arg.equals("unshare")) && !s.owner.equals(player.getName())
-							&& !(king && s.nation == nation)) {
+							|| arg.equals("unshare")) && !s.getOwner().equals(player.getName())
+							&& !(king && s.getNation() == nation)) {
 						Messenger.send(player, "&cYou can't do that if you don't own the chunk.");
 						return true;
 					}
 					// Perform the conquer function
 					if (arg.equals("conquer")) {
-						Firebalance.addScheduler("chunkConquer", player.getName(), 300L, new Runnable() {
+						SchedulerCache.addScheduler("chunkConquer", player.getName(), 300L, new Runnable() {
 
 							public void run() {
-								s.nation = nation;
+								s.setNation(nation);
 								Messenger.send(player,
 										"&cConquered a chunk for " + nationString + " at " + x + "," + z);
 							}
@@ -205,11 +206,11 @@ public class CommandChunk implements CommandExecutor {
 					// }
 					// Perform the disclaim function
 					if (arg.equals("disclaim")) {
-						Firebalance.addScheduler("chunkDisclaim", player.getName(), 60L, new Runnable() {
+						SchedulerCache.addScheduler("chunkDisclaim", player.getName(), 60L, new Runnable() {
 
 							public void run() {
 								i.remove();
-								if (s.owner.equals(player.getName()))
+								if (s.getOwner().equals(player.getName()))
 									Messenger.send(player, "&7Removed claim on your chunk at " + x + "," + z);
 								else
 									Messenger.send(player, "&cRemoved claim another player's chunk at " + x + "," + z);
@@ -219,11 +220,11 @@ public class CommandChunk implements CommandExecutor {
 						return true;
 					}
 					if (arg.equals("lock")) {
-						Firebalance.addScheduler("chunkLock", player.getName(), 200L, new Runnable() {
+						SchedulerCache.addScheduler("chunkLock", player.getName(), 200L, new Runnable() {
 
 							public void run() {
-								s.national = false;
-								if (s.owner.equals(player.getName()))
+								s.setNational(false);
+								if (s.getOwner().equals(player.getName()))
 									Messenger.send(player, "&7Locked your chunk at " + x + "," + z);
 								else
 									Messenger.send(player, "&cLocked another player's chunk at " + x + "," + z);
@@ -233,11 +234,11 @@ public class CommandChunk implements CommandExecutor {
 						return true;
 					}
 					if (arg.equals("unlock")) {
-						Firebalance.addScheduler("chunkUnlock", player.getName(), 60L, new Runnable() {
+						SchedulerCache.addScheduler("chunkUnlock", player.getName(), 60L, new Runnable() {
 
 							public void run() {
-								s.national = true;
-								if (s.owner.equals(player.getName()))
+								s.setNational(true);
+								if (s.getOwner().equals(player.getName()))
 									Messenger.send(player, "&7Unlocked your chunk at " + x + "," + z);
 								else
 									Messenger.send(player, "&cUnlocked another player's chunk at " + x + "," + z);
@@ -247,13 +248,13 @@ public class CommandChunk implements CommandExecutor {
 						return true;
 					}
 					if (arg.equals("share")) {
-						if (s.shared.contains(args[1]))
+						if (s.getShared().contains(args[1]))
 							Messenger.send(player, "This claim is already shared with that player.");
 						else
 							try {
-								for (PlayerSpec s2 : Firebalance.playerSpecList) {
+								for (PlayerSpec s2 : PlayerSpec.list) {
 									if (s2.getName().equals(args[1])) {
-										s.shared.add(args[1]);
+										s.getShared().add(args[1]);
 										Messenger.send(player, "Shared your chunk with " + args[1]);
 										if (Bukkit.getPlayer(args[1]) != null)
 											Bukkit.getPlayer(args[1])
@@ -267,7 +268,7 @@ public class CommandChunk implements CommandExecutor {
 					}
 					if (arg.equals("unshare")) {
 						try {
-							for (Iterator<String> i2 = s.shared.iterator(); i2.hasNext();) {
+							for (Iterator<String> i2 = s.getShared().iterator(); i2.hasNext();) {
 								String s2 = i2.next();
 								if (s2.equals(args[1])) {
 									i2.remove();
@@ -294,16 +295,16 @@ public class CommandChunk implements CommandExecutor {
 									Messenger.send(player, "You can't have a freelance embassy!");
 									return true;
 								}
-								Firebalance.addScheduler("chunkEmbassy", player.getName(), 200L, new Runnable() {
+								SchedulerCache.addScheduler("chunkEmbassy", player.getName(), 200L, new Runnable() {
 
 									public void run() {
-										s.nation = (byte) (otherNation | nation);
-										for (PlayerSpec s2 : Firebalance.playerSpecList) {
+										s.setNation((byte) (otherNation | nation));
+										for (PlayerSpec s2 : PlayerSpec.list) {
 											if ((s2.getNation() & otherNation) > 0 && s2.getKing() == 1) {
 												Bukkit.getPlayer(s2.getName())
 														.sendMessage(nationString
-																+ " has established an embassy with you at " + s.x
-																+ ", " + s.z);
+																+ " has established an embassy with you at " + s.getX()
+																+ ", " + s.getZ());
 											}
 										}
 										Messenger.send(player, "Embassy established with " + args[1]);
@@ -323,10 +324,10 @@ public class CommandChunk implements CommandExecutor {
 				}
 			}
 			if (arg.equals("claim")) {
-				Firebalance.addScheduler("chunkClaim", player.getName(), 60L, new Runnable() {
+				SchedulerCache.addScheduler("chunkClaim", player.getName(), 60L, new Runnable() {
 
 					public void run() {
-						Firebalance.chunkSpecList.add(new ChunkSpec(x, y, z, nation, player.getName(), true, false));
+						ChunkSpec.list.add(new ChunkSpec(x, y, z, nation, player.getName(), true, false));
 						Messenger.send(player,
 								"&7Peacefully claimed a chunk for " + nationString + " at " + x + "," + z);
 					}
@@ -335,10 +336,10 @@ public class CommandChunk implements CommandExecutor {
 			}
 			if (arg.equals("outpost") && outpostCount < 2) {
 				if (outpostCount < 2) {
-					Firebalance.addScheduler("chunkOutpost", player.getName(), 200L, new Runnable() {
+					SchedulerCache.addScheduler("chunkOutpost", player.getName(), 200L, new Runnable() {
 
 						public void run() {
-							Firebalance.chunkSpecList.add(new ChunkSpec(x, y, z, nation, player.getName(), true, true));
+							ChunkSpec.list.add(new ChunkSpec(x, y, z, nation, player.getName(), true, true));
 							Messenger.send(player,
 									"&7Peacefully claimed an outpost for " + nationString + " at " + x + "," + z);
 						}
@@ -351,12 +352,12 @@ public class CommandChunk implements CommandExecutor {
 				Messenger.send(player, "&7You can't do that in the wilderness.");
 			}
 		} else {
-			for (ChunkSpec s : Firebalance.chunkSpecList) {
-				String output = Integer.toString(s.x);
-				output = output + " " + s.y;
-				output = output + " " + s.z;
-				output = output + " " + s.owner;
-				output = output + " " + s.nation;
+			for (ChunkSpec s : ChunkSpec.list) {
+				String output = Integer.toString(s.getX());
+				output = output + " " + s.getY();
+				output = output + " " + s.getZ();
+				output = output + " " + s.getOwner();
+				output = output + " " + s.getNation();
 				Bukkit.getConsoleSender().sendMessage(output);
 			}
 		}

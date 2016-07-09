@@ -28,49 +28,49 @@ public class CommandEnthrone implements CommandExecutor {
 			boolean selfPromote = false;
 			String nationString = "?";
 			String nationColor = "&f";
-			for (int i = 0; i < Firebalance.playerSpecList.size(); i++) {
-				if (Firebalance.playerSpecList.get(i).getName().equals(player.getName())) {
-					byte nationValue = Firebalance.playerSpecList.get(i).getNation();
+			for (int i = 0; i < PlayerSpec.list.size(); i++) {
+				if (PlayerSpec.list.get(i).getName().equals(player.getName())) {
+					byte nationValue = PlayerSpec.list.get(i).getNation();
 					try {
 						newKing = args[0];
 					} catch (ArrayIndexOutOfBoundsException e) {
-						if (Firebalance.playerSpecList.get(i).getNation() <= 0) {
+						if (PlayerSpec.list.get(i).getNation() <= 0) {
 							Messenger.send(player, "You have to be part of a nation to take a throne.");
 							return false;
 						} else {
-							for (SchedulerCache s : Firebalance.scheduleList) {
-								if (s.callerName == nationString && Firebalance.playerSpecList.get(i).getKing() < 1
-										&& Bukkit.getServer().getScheduler().isQueued(s.id))
+							for (SchedulerCache s : SchedulerCache.list) {
+								if (s.getCallerName() == nationString && PlayerSpec.list.get(i).getKing() < 1
+										&& Bukkit.getServer().getScheduler().isQueued(s.getId()))
 									Messenger.send(player,
 											"Can't do that. The leader's officials are in queue right now.");
 								return true;
 							}
-							for (PlayerSpec s : Firebalance.playerSpecList) {
+							for (PlayerSpec s : PlayerSpec.list) {
 								if (s.getKing() == 1 && s.getNation() == nationValue) {
 									Messenger.send(player, "Can't do that. There's already a king.");
 									return true;
 								}
 							}
 						}
-						if (Firebalance.playerSpecList.get(i).getKing() == 2) {
-							for (Iterator<SchedulerCache> i2 = Firebalance.scheduleList.iterator(); i2.hasNext();) {
+						if (PlayerSpec.list.get(i).getKing() == 2) {
+							for (Iterator<SchedulerCache> i2 = SchedulerCache.list.iterator(); i2.hasNext();) {
 								SchedulerCache s = i2.next();
-								if (s.callerName.equals(nationString))
-									if (Bukkit.getScheduler().isQueued(s.id)) {
-										Bukkit.getScheduler().cancelTask(s.id);
+								if (s.getCallerName().equals(nationString))
+									if (Bukkit.getScheduler().isQueued(s.getId())) {
+										Bukkit.getScheduler().cancelTask(s.getId());
 										i2.remove();
 									}
 							}
 						}
-						Firebalance.playerSpecList.get(i).setKing(1);
+						PlayerSpec.list.get(i).setKing(1);
 						selfPromote = true;
 					}
-					if (Firebalance.playerSpecList.get(i).getKing() == 1) {
+					if (PlayerSpec.list.get(i).getKing() == 1) {
 						if (nationValue > 0) {
 							nationString = Firebalance.getNationName(nationValue, false);
 							nationColor = Firebalance.getNationColor(nationValue, false);
 							if (!selfPromote && args.length < 2)
-								Firebalance.playerSpecList.get(i).setKing(0);
+								PlayerSpec.list.get(i).setKing(0);
 							result = i;
 						}
 					} else if (nationValue > 0) {
@@ -83,9 +83,9 @@ public class CommandEnthrone implements CommandExecutor {
 			}
 			if (result != -1) {
 				if (!selfPromote) {
-					for (PlayerSpec s : Firebalance.playerSpecList) {
+					for (PlayerSpec s : PlayerSpec.list) {
 						if (s.getName().equals(newKing)
-								&& s.getNation() == Firebalance.playerSpecList.get(result).getNation()) {
+								&& s.getNation() == PlayerSpec.list.get(result).getNation()) {
 							try {
 								if (args[1].equals("official")) {
 									s.setKing(2);
@@ -110,7 +110,7 @@ public class CommandEnthrone implements CommandExecutor {
 					Bukkit.broadcastMessage(
 							nationColor + player.getName() + " has claimed the throne of " + nationString + "!");
 				else if (!success && result != -1) {
-					Firebalance.playerSpecList.get(result).setKing(1);
+					PlayerSpec.list.get(result).setKing(1);
 					Messenger.send(player,
 							"You offered the throne to " + newKing + ", but they thought it was uncomfortable.");
 				}

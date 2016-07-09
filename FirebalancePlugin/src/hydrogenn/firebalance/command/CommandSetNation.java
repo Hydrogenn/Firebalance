@@ -20,7 +20,7 @@ public class CommandSetNation implements CommandExecutor {
 		int[] count = { 0, 0, 0, 0, 0 };
 		boolean[] options = { true, true, true, false, true };
 		String optionString = "";
-		for (PlayerSpec s : Firebalance.playerSpecList) {
+		for (PlayerSpec s : PlayerSpec.list) {
 			if (s.getNation() != -1)
 				count[s.getNation()]++;
 		}
@@ -64,7 +64,7 @@ public class CommandSetNation implements CommandExecutor {
 			}
 			String nationString = "the freelancers";
 			String nationColor = ChatColor.WHITE + "";
-			for (PlayerSpec s : Firebalance.playerSpecList) {
+			for (PlayerSpec s : PlayerSpec.list) {
 				if (s.getName().equals(player.getName())) {
 					// TODO readd a more limited BOP check
 					/*
@@ -101,7 +101,7 @@ public class CommandSetNation implements CommandExecutor {
 				}
 			}
 			if (setKingQuery == true) {
-				for (PlayerSpec s : Firebalance.playerSpecList) {
+				for (PlayerSpec s : PlayerSpec.list) {
 					if (s.getNation() == nationValue && !s.getName().equals(player.getName())) {
 						setKing = false;
 					}

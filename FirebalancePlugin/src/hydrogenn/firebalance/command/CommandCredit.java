@@ -6,7 +6,6 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import hydrogenn.firebalance.Firebalance;
 import hydrogenn.firebalance.PlayerSpec;
 import hydrogenn.firebalance.utils.Messenger;
 
@@ -15,9 +14,9 @@ public class CommandCredit implements CommandExecutor {
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if (sender.equals(Bukkit.getServer().getConsoleSender())) {
 			try {
-				for (PlayerSpec s : Firebalance.playerSpecList) {
+				for (PlayerSpec s : PlayerSpec.list) {
 					if (s.getName().equals(args[0])) {
-						s.credits++;
+						s.setCredits(s.getCredits() + 1);
 						Messenger.send(sender, "That player has recieved a credit!");
 						for (Player p : Bukkit.getOnlinePlayers()) {
 							if (p.getName().equals(args[0]))
@@ -30,9 +29,9 @@ public class CommandCredit implements CommandExecutor {
 				return false;
 			}
 		} else if (args.length < 1) {
-			for (PlayerSpec s : Firebalance.playerSpecList) {
+			for (PlayerSpec s : PlayerSpec.list) {
 				if (s.getName().equals(sender.getName())) {
-					Messenger.send(sender, "You have " + s.credits + " credits");
+					Messenger.send(sender, "You have " + s.getCredits() + " credits");
 					return true;
 				}
 			}

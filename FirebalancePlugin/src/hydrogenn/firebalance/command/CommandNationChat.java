@@ -26,7 +26,7 @@ public class CommandNationChat implements CommandExecutor {
 
 		Player p = (Player) sender;
 
-		PlayerSpec spec = Firebalance.getPlayerFromName(p.getName());
+		PlayerSpec spec = PlayerSpec.getPlayerFromName(p.getName());
 
 		if (spec == null) {
 			p.sendMessage("Something went horribly wrong. It's a free credit if you ask for one.");
@@ -47,7 +47,7 @@ public class CommandNationChat implements CommandExecutor {
 
 		String msg = getMessage(p, ArrayUtils.concatArray(args, " "), prefix, nation);
 
-		for (PlayerSpec player : Firebalance.playerSpecList) {
+		for (PlayerSpec player : PlayerSpec.list) {
 
 			if (player.getNation() != nation || !player.getOnline()) continue;
 

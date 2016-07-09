@@ -18,7 +18,7 @@ public class CommandRenameNation implements CommandExecutor {
 			return false;
 		if (sender instanceof Player) {
 			Player player = (Player) sender;
-			for (PlayerSpec s : Firebalance.playerSpecList) {
+			for (PlayerSpec s : PlayerSpec.list) {
 				if (s.getKing() == 1 && s.getName().equals(player.getName())) {
 					StringBuilder builder = new StringBuilder();
 					for (String string : args) {

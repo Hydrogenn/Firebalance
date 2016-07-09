@@ -11,7 +11,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import hydrogenn.firebalance.Firebalance;
 import hydrogenn.firebalance.PlayerSpec;
 
 public class CommandNoteFB implements CommandExecutor {
@@ -28,7 +27,7 @@ public class CommandNoteFB implements CommandExecutor {
 			ItemMeta paperMeta = paper.getItemMeta();
 			boolean king = false;
 			String prefix = "§f";
-			for (PlayerSpec s : Firebalance.playerSpecList) {
+			for (PlayerSpec s : PlayerSpec.list) {
 				if (s.getName().equals(player.getName())) {
 					int playerNation = s.getNation();
 					king = s.getKing() == 1;

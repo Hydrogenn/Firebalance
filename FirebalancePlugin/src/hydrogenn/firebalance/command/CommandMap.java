@@ -53,15 +53,15 @@ public class CommandMap implements CommandExecutor {
 						output.get(z).append("&0-");
 					}
 			}
-			for (ChunkSpec s : Firebalance.chunkSpecList) {
-				if (s.x <= cx + dx && s.x >= cx - dx && s.z <= cz + dz && s.z >= cz - dz) {
-					int x = s.x - cx + dx;
-					int z = s.z - cz + dz;
+			for (ChunkSpec s : ChunkSpec.list) {
+				if (s.getX() <= cx + dx && s.getX() >= cx - dx && s.getZ() <= cz + dz && s.getZ() >= cz - dz) {
+					int x = s.getX() - cx + dx;
+					int z = s.getZ() - cz + dz;
 					char ch = 'o';
-					if (s.x == cx && s.z == cz) {
+					if (s.getX() == cx && s.getZ() == cz) {
 						ch = 'O';
 					}
-					output.get(z + 1).replace(x * 3, x * 3 + 3, Firebalance.getNationColor(s.nation, false) + ch);
+					output.get(z + 1).replace(x * 3, x * 3 + 3, Firebalance.getNationColor(s.getNation(), false) + ch);
 				}
 			}
 			for (StringBuilder o : output) {

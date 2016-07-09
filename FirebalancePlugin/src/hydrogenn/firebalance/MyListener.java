@@ -48,7 +48,7 @@ public class MyListener implements Listener {
 			event.setJoinMessage(ChatColor.GOLD + player.getName() + " has joined Firebalance for the first time!");
 		} else {
 			event.setJoinMessage(ChatColor.YELLOW + player.getName() + " has joined.");
-			for (PlayerSpec s : Firebalance.playerSpecList) {
+			for (PlayerSpec s : PlayerSpec.list) {
 				if (s.getName().equals(player.getName())) {
 					s.setOnline(true);
 					int rank = s.getKing();
@@ -70,8 +70,8 @@ public class MyListener implements Listener {
 				}
 			}
 		}
-		if (Firebalance.getPlayerFromName(player.getName()) == null)
-			Firebalance.playerSpecList.add(new PlayerSpec(event.getPlayer().getName(), (byte) -1, 0, 0, true));
+		if (PlayerSpec.getPlayerFromName(player.getName()) == null)
+			PlayerSpec.list.add(new PlayerSpec(event.getPlayer().getName(), (byte) -1, 0, 0, true));
 		player.sendMessage("This server uses a plugin in-development. Issues may arise. Report them for credits.");
 	}
 
@@ -81,7 +81,7 @@ public class MyListener implements Listener {
 			event.setQuitMessage(ChatColor.GOLD + event.getPlayer().getName() + " has left. We hope to see you again!");
 		else
 			event.setQuitMessage(ChatColor.YELLOW + event.getPlayer().getName() + " has left.");
-		for (PlayerSpec s : Firebalance.playerSpecList)
+		for (PlayerSpec s : PlayerSpec.list)
 			if (s.getName().equals(event.getPlayer().getName())) {
 				s.setOnline(false);
 			}
@@ -108,12 +108,12 @@ public class MyListener implements Listener {
 				 * if (xpDef == 0) xpDef = 1; if (xpAtt > xpDef)
 				 * event.setDamage(event.getDamage() * xpAtt / xpDef);
 				 */
-				for (Iterator<SchedulerCache> i = Firebalance.scheduleList.iterator(); i.hasNext();) {
+				for (Iterator<SchedulerCache> i = SchedulerCache.list.iterator(); i.hasNext();) {
 					SchedulerCache s = i.next();
-					if (s.type.contains("chunk") && s.callerName.equals(def.getName()))
-						if (Bukkit.getScheduler().isQueued(s.id)) {
+					if (s.getType().contains("chunk") && s.getCallerName().equals(def.getName()))
+						if (Bukkit.getScheduler().isQueued(s.getId())) {
 							Messenger.send(def, "&cTask cancelled.");
-							Bukkit.getScheduler().cancelTask(s.id);
+							Bukkit.getScheduler().cancelTask(s.getId());
 							i.remove();
 						}
 				}
@@ -139,9 +139,9 @@ public class MyListener implements Listener {
 		Date banDate = new Date();
 		String coords = victim.getLocation().getBlockX() + ", " + victim.getLocation().getBlockY() + ", "
 				+ victim.getLocation().getBlockZ();
-		PlayerSpec result = Firebalance.getPlayerFromName(perpName);
+		PlayerSpec result = PlayerSpec.getPlayerFromName(perpName);
 		int nationPerp = -1;
-		for (PlayerSpec s : Firebalance.playerSpecList) {
+		for (PlayerSpec s : PlayerSpec.list) {
 			if (s.getName().equals(perpName)) {
 				nationPerp = s.getNation();
 			}
@@ -171,7 +171,7 @@ public class MyListener implements Listener {
 				else {
 					Messenger.broadcast(ns
 							+ " is without a leader! Only officials can claim the throne with /enthrone for the next minute.");
-					Firebalance.addScheduler("leaderWait", ns, 1200L, new Runnable() {
+					SchedulerCache.addScheduler("leaderWait", ns, 1200L, new Runnable() {
 
 						public void run() {
 							Messenger.broadcast(ns
@@ -187,14 +187,14 @@ public class MyListener implements Listener {
 		}
 		if (xp % 64 > 0)
 			drops.add(new ItemStack(Material.EXP_BOTTLE, xp % 64));
-		if (!perpName.equals("nature") && Firebalance.aggressives.contains(victim.getKiller().getUniqueId())) {
+		if (!perpName.equals("nature") && PlayerSpec.aggressives.contains(victim.getKiller().getUniqueId())) {
 			Firebalance.killList.put(perpName, victim.getName());
 			victim.getKiller().sendMessage(ChatColor.GRAY
 					+ "Use '/sentence new' or '/oops' if you want something other than the 5 minute wait.");
 			banDate.setTime(System.currentTimeMillis() + 300000);
 			Bukkit.getBanList(Type.NAME)
 					.addBan(victim.getName(), "You've died recently and must wait 5 minutes.", banDate, "").save();
-			Firebalance.addSyncScheduler("kickDeadPlayer", victim.getName(), 20L, new Runnable() {
+			SchedulerCache.addSyncScheduler("kickDeadPlayer", victim.getName(), 20L, new Runnable() {
 
 				public void run() {
 					victim.kickPlayer("You've died! Wait 5 minutes to return.");
@@ -213,12 +213,12 @@ public class MyListener implements Listener {
 		if (!event.getTo().getChunk().equals(event.getFrom().getChunk())
 				|| (event.getTo().getBlockY() < 56) != (event.getFrom().getBlockY() < 56)
 				|| (event.getTo().getBlockY() > 112) != (event.getFrom().getBlockY() > 112)) {
-			for (Iterator<SchedulerCache> i = Firebalance.scheduleList.iterator(); i.hasNext();) {
+			for (Iterator<SchedulerCache> i = SchedulerCache.list.iterator(); i.hasNext();) {
 				SchedulerCache s = i.next();
-				if (s.type.contains("chunk") && s.callerName.equals(event.getPlayer().getName()))
-					if (Bukkit.getScheduler().isQueued(s.id)) {
+				if (s.getType().contains("chunk") && s.getCallerName().equals(event.getPlayer().getName()))
+					if (Bukkit.getScheduler().isQueued(s.getId())) {
 						Messenger.send(event.getPlayer(), "&cTask cancelled.");
-						Bukkit.getScheduler().cancelTask(s.id);
+						Bukkit.getScheduler().cancelTask(s.getId());
 						i.remove();
 					}
 			}
@@ -237,16 +237,16 @@ public class MyListener implements Listener {
 			String nationString = ChatColor.WHITE + "<?>";
 			String heightPrefix = "";
 			String heightSuffix = "";
-			for (ChunkSpec s : Firebalance.chunkSpecList) {
-				if (s.x == event.getTo().getChunk().getX() && s.y == yt && s.z == event.getTo().getChunk().getZ()) {
-					nationTo = s.nation;
-					if (s.nation == 0)
-						nationString = ChatColor.WHITE + "" + s.owner + "'s";
+			for (ChunkSpec s : ChunkSpec.list) {
+				if (s.getX() == event.getTo().getChunk().getX() && s.getY() == yt && s.getZ() == event.getTo().getChunk().getZ()) {
+					nationTo = s.getNation();
+					if (s.getNation() == 0)
+						nationString = ChatColor.WHITE + "" + s.getOwner() + "'s";
 				}
-				if (s.x == event.getFrom().getChunk().getX() && s.y == yf && s.z == event.getFrom().getChunk().getZ()) {
-					nationFrom = s.nation;
-					if (s.nation == 0)
-						nationString = ChatColor.WHITE + "" + s.owner + "'s";
+				if (s.getX() == event.getFrom().getChunk().getX() && s.getY() == yf && s.getZ() == event.getFrom().getChunk().getZ()) {
+					nationFrom = s.getNation();
+					if (s.getNation() == 0)
+						nationString = ChatColor.WHITE + "" + s.getOwner() + "'s";
 				}
 			}
 			if (nationTo != -1) {
@@ -289,12 +289,11 @@ public class MyListener implements Listener {
 
 	@EventHandler
 	public void onChatMessage(AsyncPlayerChatEvent event) {
-		// TODO re-add channels
 		boolean king = false;
 		String prefix = ChatColor.RED + "";
 		byte nationValue = -1;
 		// Set<Player> recipients = event.getRecipients();
-		for (PlayerSpec s : Firebalance.playerSpecList) {
+		for (PlayerSpec s : PlayerSpec.list) {
 			if (s.getName().equals(event.getPlayer().getName())) {
 				nationValue = s.getNation();
 				if (s.getKing() == 1)
@@ -310,14 +309,6 @@ public class MyListener implements Listener {
 			event.setFormat(TextUtils.colorize(prefix + "%1$s: &f%2$s"));
 		else
 			event.setFormat(TextUtils.colorize(prefix + "%1$s: &7%2$s"));
-		/*
-		 * for (Iterator<Player> i = recipients.iterator(); i.hasNext();) {
-		 * Player p = i.next(); String pn = p.getName(); if
-		 * (Firebalance.getPlayerFromName(pn)!=null &&
-		 * (Firebalance.channelListening.get(pn)&channel)==0) i.remove(); else
-		 * if (Firebalance.getPlayerFromName(pn)!=null && channel == 2 &&
-		 * Firebalance.getPlayerFromName(pn).nation!=nationValue) i.remove(); }
-		 */
 	}
 
 	@EventHandler(priority = EventPriority.HIGH)
@@ -412,9 +403,9 @@ public class MyListener implements Listener {
 				}
 			} catch (NullPointerException e) {
 			}
-			for (ChestSpec s : Firebalance.chestSpecList) {
-				if (s.coords.equals(chest.getLocation())) {
-					chestId = s.id;
+			for (ChestSpec s : ChestSpec.list) {
+				if (s.getCoords().equals(chest.getLocation())) {
+					chestId = s.getId();
 					if (chestId.length() < 1) {
 						chestId = null;
 						return;
@@ -442,7 +433,7 @@ public class MyListener implements Listener {
 					event.setCancelled(true);
 				}
 			} else if (isKey && !player.isSneaking()) {
-				Firebalance.chestSpecList.add(
+				ChestSpec.list.add(
 						new ChestSpec(chest.getLocation(), keyMeta.getLore().get(0).replace(ChatColor.GRAY + "", "")));
 				event.setCancelled(true);
 			}
@@ -460,7 +451,7 @@ public class MyListener implements Listener {
 	@EventHandler
 	public void onBreakBlock(BlockBreakEvent event) {
 		Player player = event.getPlayer();
-		if (Firebalance.getPlayerFromName(player.getName()).getNation() == -1) {
+		if (PlayerSpec.getPlayerFromName(player.getName()).getNation() == -1) {
 			// TODO adjust this for the new nation system
 			event.getPlayer().sendMessage(ChatColor.RED + "You're not in a nation yet. Do '/nation' for some help.");
 			event.setCancelled(true);
@@ -481,15 +472,15 @@ public class MyListener implements Listener {
 			String chunkOwner = "";
 			ArrayList<String> chunkShared = new ArrayList<>();
 			boolean hasAccess = false;
-			for (ChunkSpec s : Firebalance.chunkSpecList) {
-				if (s.x == x && s.y == y && s.z == z) {
-					chunkNation = s.nation;
-					chunkOwner = s.owner;
-					chunkUnlocked = s.national;
-					chunkShared = s.shared;
+			for (ChunkSpec s : ChunkSpec.list) {
+				if (s.getX() == x && s.getY() == y && s.getZ() == z) {
+					chunkNation = s.getNation();
+					chunkOwner = s.getOwner();
+					chunkUnlocked = s.isNational();
+					chunkShared = s.getShared();
 				}
 			}
-			for (PlayerSpec s : Firebalance.playerSpecList) {
+			for (PlayerSpec s : PlayerSpec.list) {
 				if (s.getName().equals(player.getName())) {
 					playerNation = s.getNation();
 					if (chunkOwner.equals(s.getName()) || chunkShared.contains(s.getName())) {
@@ -521,9 +512,9 @@ public class MyListener implements Listener {
 			}
 		}
 		if (!event.isCancelled()) {
-			for (Iterator<ChestSpec> i = Firebalance.chestSpecList.iterator(); i.hasNext();) {
+			for (Iterator<ChestSpec> i = ChestSpec.list.iterator(); i.hasNext();) {
 				ChestSpec s = (ChestSpec) i.next();
-				if (s.coords.equals(event.getBlock().getLocation())) {
+				if (s.getCoords().equals(event.getBlock().getLocation())) {
 					i.remove();
 					Messenger.send(event.getPlayer(), "Chest lock removed");
 				}
@@ -554,7 +545,7 @@ public class MyListener implements Listener {
 				event.setCancelled(true);
 				return;
 			}
-		if (Firebalance.getPlayerFromName(player.getName()).getNation() == -1) {
+		if (PlayerSpec.getPlayerFromName(player.getName()).getNation() == -1) {
 			// TODO adjust this for the new nation system
 			event.getPlayer().sendMessage(ChatColor.RED + "You're not in a nation yet. Do '/nation' for some help.");
 			event.setCancelled(true);
@@ -564,15 +555,15 @@ public class MyListener implements Listener {
 				|| event.getBlock().getWorld().getName().contains("_the_end")) {
 			return;
 		}
-		for (ChunkSpec s : Firebalance.chunkSpecList) {
-			if (s.x == x && s.y == y && s.z == z) {
-				chunkNation = s.nation;
-				chunkOwner = s.owner;
-				chunkUnlocked = s.national;
-				chunkShared = s.shared;
+		for (ChunkSpec s : ChunkSpec.list) {
+			if (s.getX() == x && s.getY() == y && s.getZ() == z) {
+				chunkNation = s.getNation();
+				chunkOwner = s.getOwner();
+				chunkUnlocked = s.isNational();
+				chunkShared = s.getShared();
 			}
 		}
-		for (PlayerSpec s : Firebalance.playerSpecList) {
+		for (PlayerSpec s : PlayerSpec.list) {
 			if (s.getName().equals(player.getName())) {
 				playerNation = s.getNation();
 				if (chunkOwner.equals(s.getName()) || chunkShared.contains(s.getName())) {

@@ -16,6 +16,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import hydrogenn.firebalance.Firebalance;
+import hydrogenn.firebalance.SchedulerCache;
 
 public class CommandSentence implements CommandExecutor {
 	@Override
@@ -28,7 +29,7 @@ public class CommandSentence implements CommandExecutor {
 			if (args[0].equals("new")) {
 				if (Firebalance.killList.get(player.getName()) == null) {
 					player.sendMessage("you haven't even killed anyone recently lol");
-				} else if (Firebalance.getRemainingTaskTicks("sentenveVoteEnd", null) != null) {
+				} else if (SchedulerCache.getRemainingTaskTicks("sentenveVoteEnd", null) != null) {
 					player.sendMessage("there's already a vote going on!");
 				} else {
 					final String victimName = Firebalance.killList.get(player.getName());
@@ -39,7 +40,7 @@ public class CommandSentence implements CommandExecutor {
 					newBan.save();
 					Bukkit.broadcastMessage(ChatColor.GOLD + "A sentence is being set for " + victimName
 							+ ". Set your vote with /sentence 'value'");
-					Firebalance.addCountedScheduler("sentenceVoteEnd", "server", 4800L,
+					SchedulerCache.addCountedScheduler("sentenceVoteEnd", "server", 4800L,
 							ChatColor.GOLD + "Time until sentence voting ends: ", new Runnable() {
 								public void run() {
 									Date banDate = new Date();
@@ -101,7 +102,7 @@ public class CommandSentence implements CommandExecutor {
 				player.sendMessage(ChatColor.GOLD + Firebalance.activeSentence + " currently has a sentence of "
 						+ showAsTime(getVoteResult()));
 				player.sendMessage(ChatColor.GOLD + "Vote finalized in "
-						+ showAsTime(Firebalance.getRemainingTaskTicks("sentenceVoteEnd", null) * 50));
+						+ showAsTime(SchedulerCache.getRemainingTaskTicks("sentenceVoteEnd", null) * 50));
 			} else {
 				long max = Firebalance.sentenceMaxes.getOrDefault(Firebalance.activeSentence, 86400000L);
 				List<long[]> output = new ArrayList<long[]>();
