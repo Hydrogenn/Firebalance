@@ -53,6 +53,9 @@ public class ConfigManager {
 
 	public static void save() {
 
+		savePlayers();
+		saveChunks();
+
 	}
 
 	private static void loadPlayers() {

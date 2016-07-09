@@ -3,6 +3,7 @@ package hydrogenn.firebalance;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -52,7 +53,7 @@ public class Firebalance extends JavaPlugin {
 	public static String activeSentence = null;
 
 	public void storeObject(String input, String file) {
-		String dir = "plugins/Firebalance/firebalance." + file;
+		String dir = getDataFolder() + File.separator + "firebalance." + file;
 		try (BufferedWriter writer = new BufferedWriter(
 				new OutputStreamWriter(new FileOutputStream(dir, true), "utf-8"))) {
 			writer.write(input);
@@ -67,7 +68,7 @@ public class Firebalance extends JavaPlugin {
 	}
 
 	public void clearObject(String file) {
-		String dir = "plugins/Firebalance/firebalance." + file;
+		String dir = getDataFolder() + File.separator + "firebalance." + file;
 		try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(dir), "utf-8"))) {
 			writer.write("");
 		} catch (UnsupportedEncodingException e) {
@@ -182,36 +183,19 @@ public class Firebalance extends JavaPlugin {
 		// Register the event listener
 		getServer().getPluginManager().registerEvents(new MyListener(), this);
 
-		// Register key crafting recipe
-		ItemStack key = new ItemStack(Material.TRIPWIRE_HOOK);
-		ItemMeta keyMeta = key.getItemMeta();
-		List<String> keyLore = new ArrayList<>();
-		keyLore.add("§7");
-		keyMeta.setLore(keyLore);
-		keyMeta.setDisplayName("§fKeyC");
-		key.setItemMeta(keyMeta);
-		ShapedRecipe keyCraft = new ShapedRecipe(key);
-		keyCraft.shape("A", "A");
-		keyCraft.setIngredient('A', Material.GOLD_INGOT);
-		getServer().addRecipe(keyCraft);
+		OLD_configLoad();
 
-		// Register key dupe recipe
-		ItemStack keyD = new ItemStack(Material.TRIPWIRE_HOOK);
-		keyMeta.setDisplayName("§fKeyD");
-		keyD.setItemMeta(keyMeta);
-		ShapelessRecipe keyDupe = new ShapelessRecipe(keyD);
-		keyDupe.addIngredient(Material.GOLD_INGOT);
-		keyDupe.addIngredient(Material.TRIPWIRE_HOOK);
-		getServer().addRecipe(keyDupe);
+		// Find online players (for compatibility with /rl)
+		for (PlayerSpec s : PlayerSpec.list) {
+			if (Bukkit.getPlayer(s.getName()) != null)
+				s.setOnline(true);
+		}
 
-		// Register key add recipe
-		ItemStack keyA = new ItemStack(Material.TRIPWIRE_HOOK);
-		keyMeta.setDisplayName("§fKeyA");
-		keyA.setItemMeta(keyMeta);
-		ShapedRecipe keyAdd = new ShapedRecipe(keyA);
-		keyAdd.shape("AA");
-		keyAdd.setIngredient('A', Material.TRIPWIRE_HOOK);
-		getServer().addRecipe(keyAdd);
+		getLogger().info("Firebalance v" + getDescription().getVersion() + " has been unloaded");
+
+	}
+
+	public void OLD_configLoad() {
 
 		// Set up configs
 		config.addDefault("test", true);
@@ -223,8 +207,8 @@ public class Firebalance extends JavaPlugin {
 		lineList = displayObjects("users");
 		for (int i = 0; i < lineList.size(); i++) {
 			String[] subList = lineList.get(i).split(":");
-			PlayerSpec.list.add(new PlayerSpec(subList[0], null, Byte.parseByte(subList[1]),
-					Integer.parseInt(subList[2]), Integer.parseInt(subList[3]), false));
+			PlayerSpec.list.add(new PlayerSpec(subList[0], subList.length > 4 ? UUID.fromString(subList[4]) : null,
+					Byte.parseByte(subList[1]), Integer.parseInt(subList[2]), Integer.parseInt(subList[3]), false));
 		}
 
 		lineList = displayObjects("chunk");
@@ -266,16 +250,11 @@ public class Firebalance extends JavaPlugin {
 				}
 			}
 		}
-		// Find online players (for compatibility with /rl)
-		for (PlayerSpec s : PlayerSpec.list) {
-			if (Bukkit.getPlayer(s.getName()) != null)
-				s.setOnline(true);
-		}
+
 	}
 
-	// Fired when plugin is disabled
-	@Override
-	public void onDisable() {
+	public void OLD_configSave() {
+
 		clearObject("users");
 		for (int i = 0; i < PlayerSpec.list.size(); i++) {
 			String line = "";
@@ -283,6 +262,7 @@ public class Firebalance extends JavaPlugin {
 			line += ":" + PlayerSpec.list.get(i).getNation();
 			line += ":" + PlayerSpec.list.get(i).getKing();
 			line += ":" + PlayerSpec.list.get(i).getCredits();
+			line += ":" + PlayerSpec.list.get(i).getUUID();
 			storeObject(line, "users");
 		}
 		clearObject("chunk");
@@ -327,6 +307,17 @@ public class Firebalance extends JavaPlugin {
 				storeObject(line, "misc");
 			}
 		}
+
+	}
+
+	// Fired when plugin is disabled
+	@Override
+	public void onDisable() {
+
+		OLD_configSave();
+
+		getLogger().info("Firebalance v" + getDescription().getVersion() + " has been unloaded");
+
 	}
 
 }

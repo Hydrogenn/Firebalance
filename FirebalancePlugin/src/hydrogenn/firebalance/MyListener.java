@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.UUID;
 
 import org.bukkit.BanList.Type;
 import org.bukkit.Bukkit;
@@ -62,9 +61,15 @@ public class MyListener implements Listener {
 				}
 			}
 		}
-		if (PlayerSpec.getPlayerFromName(player.getName()) == null)
-			PlayerSpec.list.add(new PlayerSpec(event.getPlayer().getName(), null, (byte) -1, 0, 0, true));
-		player.sendMessage("This server uses a plugin in-development. Issues may arise. Report them for credits.");
+		PlayerSpec spec = PlayerSpec.getPlayerFromName(player.getName());
+		if (spec == null) {
+			PlayerSpec.list.add(new PlayerSpec(player.getName(), player.getUniqueId(), (byte) -1, 0, 0, true));
+		} else if (spec.getUUID() == null) {
+			spec.setUUID(spec.getUUID());
+		}
+
+		player.sendMessage(ChatColor.YELLOW
+				+ "This server uses a plugin that is in-development. Issues may arise. Report them for credits.");
 	}
 
 	@EventHandler
