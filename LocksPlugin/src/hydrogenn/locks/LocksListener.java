@@ -116,8 +116,10 @@ public class LocksListener implements Listener {
 			if (key != null)
 				keyMeta = key.getItemMeta();
 
+			if (player.isSneaking() && key!=null) return;
+			
 			boolean isKey = key != null && key.getType() == Material.TRIPWIRE_HOOK && keyMeta.hasDisplayName()
-					&& keyMeta.getDisplayName().equals(ChatColor.WHITE + "Key");
+					&& keyMeta.hasLore();
 
 			for (ChestSpec s : ChestSpec.list) {
 				if (s.getCoords().equals(chest.getLocation())) {
@@ -138,10 +140,6 @@ public class LocksListener implements Listener {
 								"&cThis chest is locked with id " + chestId.substring(0, chestId.length() * 3 / 4)
 										+ "****".substring(0, chestId.length() / 4));
 						event.setCancelled(true);
-						if (chest.getType() == Material.TRAPPED_CHEST) {
-							// TODO allow the device to emit a single redstone
-							// pulse
-						}
 					}
 				} catch (NullPointerException e) {
 					Messenger.send(player,
