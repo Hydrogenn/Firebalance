@@ -1,4 +1,4 @@
-package hydrogenn.firebalance;
+package hydrogenn.firebalance.command;
 
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -29,7 +29,7 @@ public class CommandAnonymBook implements CommandExecutor {
 			}
 			if (book.getType() == Material.BOOK_AND_QUILL) {
 				BookMeta bookMeta = (BookMeta) book.getItemMeta();
-				bookMeta.setAuthor("§kMr. Man");
+				bookMeta.setAuthor("??kMr. Man");
 				bookMeta.setTitle(builder.toString());
 				book.setType(Material.WRITTEN_BOOK);
 				book.setItemMeta(bookMeta);

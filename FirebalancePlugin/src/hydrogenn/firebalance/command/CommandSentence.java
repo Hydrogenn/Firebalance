@@ -1,6 +1,4 @@
-package hydrogenn.firebalance;
-
-import org.bukkit.Bukkit;
+package hydrogenn.firebalance.command;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,10 +8,14 @@ import java.util.ListIterator;
 
 import org.bukkit.BanEntry;
 import org.bukkit.BanList.Type;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import hydrogenn.firebalance.Firebalance;
 
 public class CommandSentence implements CommandExecutor {
 	@Override
@@ -32,50 +34,57 @@ public class CommandSentence implements CommandExecutor {
 					final String victimName = Firebalance.killList.get(player.getName());
 					Firebalance.killList.remove(player.getName());
 					BanEntry newBan = Bukkit.getBanList(Type.NAME).getBanEntry(victimName);
-					newBan.setReason("You've died recently. §6Your sentence is being set.§r");
+					newBan.setReason("You've died recently. " + ChatColor.GOLD + "Your sentence is being set."
+							+ ChatColor.RESET);
 					newBan.save();
-					Bukkit.broadcastMessage(
-							"§6A sentence is being set for " + victimName + ". Set your vote with /sentence 'value'");
+					Bukkit.broadcastMessage(ChatColor.GOLD + "A sentence is being set for " + victimName
+							+ ". Set your vote with /sentence 'value'");
 					Firebalance.addCountedScheduler("sentenceVoteEnd", "server", 4800L,
-							"§6Time until sentence voting ends: ", new Runnable() {
+							ChatColor.GOLD + "Time until sentence voting ends: ", new Runnable() {
 								public void run() {
 									Date banDate = new Date();
 									long finalTally = getVoteResult();
 									banDate.setTime(System.currentTimeMillis() + finalTally - 240000L);
 									Bukkit.getBanList(Type.NAME)
 											.addBan(Firebalance.activeSentence,
-													"§6Your sentence has been set. Check the expiration date.§r",
+													ChatColor.GOLD
+															+ "Your sentence has been set. Check the expiration date."
+															+ ChatColor.RESET,
 													banDate, "")
 											.save();
-									Bukkit.broadcastMessage(
-											"§6Sentence finalized. Final result: " + showAsTime(finalTally) + ".");
+									Bukkit.broadcastMessage(ChatColor.GOLD + "Sentence finalized. Final result: "
+											+ showAsTime(finalTally) + ".");
 									// 5 minutes or less, the default time
 									if (finalTally <= 300000L)
-										Bukkit.broadcastMessage("§6Come on back, " + victimName + "! You're free!");
+										Bukkit.broadcastMessage(
+												ChatColor.GOLD + "Come on back, " + victimName + "! You're free!");
 									// 8 hours or less, or half a waking day;
 									// could return later
 									else if (finalTally <= 28800000L)
-										Bukkit.broadcastMessage("§6We will see you then, " + victimName + ".");
+										Bukkit.broadcastMessage(
+												ChatColor.GOLD + "We will see you then, " + victimName + ".");
 									// 2 days or less, much can happen but you
 									// still hold power
 									else if (finalTally <= 172800000L)
-										Bukkit.broadcastMessage("§6Hang in there, " + victimName + ".");
+										Bukkit.broadcastMessage(ChatColor.GOLD + "Hang in there, " + victimName + ".");
 									// 1.5 weeks or less, where you are
 									// remembered but your power is removed
 									else if (finalTally <= 907200000L)
-										Bukkit.broadcastMessage("§6No hard feelings, " + victimName + ".");
+										Bukkit.broadcastMessage(
+												ChatColor.GOLD + "No hard feelings, " + victimName + ".");
 									// 38.25 days or less, slightly over a
 									// month; quite a length of time
 									else if (finalTally <= 3304800000L)
-										Bukkit.broadcastMessage("§6In a while, " + victimName + ".");
+										Bukkit.broadcastMessage(ChatColor.GOLD + "In a while, " + victimName + ".");
 									// Half a year or less, where most people
 									// would forget about the server
 									else if (finalTally <= 15768000000L)
-										Bukkit.broadcastMessage("§6We hope you return someday, " + victimName + ".");
+										Bukkit.broadcastMessage(
+												ChatColor.GOLD + "We hope you return someday, " + victimName + ".");
 									// For all intents and purposes, this is a
 									// permanent ban.
 									else
-										Bukkit.broadcastMessage("§6So long, " + victimName + ".");
+										Bukkit.broadcastMessage(ChatColor.GOLD + "So long, " + victimName + ".");
 									if (Firebalance.sentenceMaxes.putIfAbsent(victimName,
 											86400000L + finalTally) != null)
 										Firebalance.sentenceMaxes.put(victimName,
@@ -89,9 +98,9 @@ public class CommandSentence implements CommandExecutor {
 			} else if (Firebalance.activeSentence == null) {
 				player.sendMessage("nobody is even being sentenced lol");
 			} else if (args[0].equals("info")) {
-				player.sendMessage("§6" + Firebalance.activeSentence + " currently has a sentence of "
+				player.sendMessage(ChatColor.GOLD + Firebalance.activeSentence + " currently has a sentence of "
 						+ showAsTime(getVoteResult()));
-				player.sendMessage("§6Vote finalized in "
+				player.sendMessage(ChatColor.GOLD + "Vote finalized in "
 						+ showAsTime(Firebalance.getRemainingTaskTicks("sentenceVoteEnd", null) * 50));
 			} else {
 				long max = Firebalance.sentenceMaxes.getOrDefault(Firebalance.activeSentence, 86400000L);
@@ -140,11 +149,12 @@ public class CommandSentence implements CommandExecutor {
 									return true;
 								}
 								if (s2.contains(".")) {
-									player.sendMessage("§cThis command does not support decimal values.");
+									player.sendMessage(ChatColor.RED + "This command does not support decimal values.");
 									return true;
 								}
 								if (s2.contains("/") || s2.contains("\\")) {
-									player.sendMessage("§cThis command does not support dates or fractional values.");
+									player.sendMessage(ChatColor.RED
+											+ "This command does not support dates or fractional values.");
 									return true;
 								} else
 									return false;
@@ -162,8 +172,8 @@ public class CommandSentence implements CommandExecutor {
 					return true;
 				}
 				Firebalance.sentenceValues.put(player.getName(), output);
-				Bukkit.broadcastMessage(
-						"§6" + Firebalance.activeSentence + " now has a sentence of " + showAsTime(getVoteResult()));
+				Bukkit.broadcastMessage(ChatColor.GOLD + Firebalance.activeSentence + " now has a sentence of "
+						+ showAsTime(getVoteResult()));
 			}
 		}
 		return true;

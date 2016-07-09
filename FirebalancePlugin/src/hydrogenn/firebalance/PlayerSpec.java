@@ -3,11 +3,11 @@ package hydrogenn.firebalance;
 
 public class PlayerSpec {
 
-	private String	name;
-	private byte	nation;
-	private int		king;
-	int				credits;
-	boolean			online;
+	private String name;
+	private byte nation;
+	private int king;
+	public int credits;
+	boolean online;
 
 	public PlayerSpec(String name, byte nation, int king, int credits, boolean online) {
 		this.setName(name);
@@ -44,6 +44,7 @@ public class PlayerSpec {
 	public boolean getOnline() {
 		return online;
 	}
+
 	public void setOnline(boolean online) {
 		this.online = online;
 	}

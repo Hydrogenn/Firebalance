@@ -45,34 +45,42 @@ public class MyListener implements Listener {
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		Player player = event.getPlayer();
 		if (!player.hasPlayedBefore()) {
-			event.setJoinMessage("§6" + player.getName() + " has joined Firebalance for the first time!");
+			event.setJoinMessage(ChatColor.GOLD + player.getName() + " has joined Firebalance for the first time!");
 		} else {
-			event.setJoinMessage("§e" + player.getName() + " has joined.");
+			event.setJoinMessage(ChatColor.YELLOW + player.getName() + " has joined.");
 			for (PlayerSpec s : Firebalance.playerSpecList) {
 				if (s.getName().equals(player.getName())) {
 					s.setOnline(true);
 					int rank = s.getKing();
 					String rankString = "citizen.";
-					String nationString = Firebalance.getNationColor(s.getNation(), false) + Firebalance.getNationName(s.getNation(), false);
-					if (rank == 1) rankString = "leader.";
-					else if (rank != 0) rankString = "official.";
-					player.sendMessage("§7You are a " + nationString + "§7 " + rankString);
+					String nationString = Firebalance.getNationColor(s.getNation(), false)
+							+ Firebalance.getNationName(s.getNation(), false);
+					if (rank == 1)
+						rankString = "leader.";
+					else if (rank != 0)
+						rankString = "official.";
+					player.sendMessage(
+							ChatColor.GRAY + "You are a " + nationString + ChatColor.GRAY + " " + rankString);
 				}
 			}
 			if (Firebalance.killList.containsValue(player.getName())) {
 				for (String s : Firebalance.killList.keySet()) {
-					if (Firebalance.killList.get(s).equals(player.getName())) Firebalance.killList.remove(s);
+					if (Firebalance.killList.get(s).equals(player.getName()))
+						Firebalance.killList.remove(s);
 				}
 			}
 		}
-		if (Firebalance.getPlayerFromName(player.getName()) == null) Firebalance.playerSpecList.add(new PlayerSpec(event.getPlayer().getName(), (byte) -1, 0, 0, true));
+		if (Firebalance.getPlayerFromName(player.getName()) == null)
+			Firebalance.playerSpecList.add(new PlayerSpec(event.getPlayer().getName(), (byte) -1, 0, 0, true));
 		player.sendMessage("This server uses a plugin in-development. Issues may arise. Report them for credits.");
 	}
 
 	@EventHandler
 	public void onPlayerLeave(PlayerQuitEvent event) {
-		if (!event.getPlayer().hasPlayedBefore()) event.setQuitMessage("§6" + event.getPlayer().getName() + " has left. We hope to see you again!");
-		else event.setQuitMessage("§e" + event.getPlayer().getName() + " has left.");
+		if (!event.getPlayer().hasPlayedBefore())
+			event.setQuitMessage(ChatColor.GOLD + event.getPlayer().getName() + " has left. We hope to see you again!");
+		else
+			event.setQuitMessage(ChatColor.YELLOW + event.getPlayer().getName() + " has left.");
 		for (PlayerSpec s : Firebalance.playerSpecList)
 			if (s.getName().equals(event.getPlayer().getName())) {
 				s.setOnline(false);
@@ -95,12 +103,11 @@ public class MyListener implements Listener {
 				}
 			}
 			if (att != null) {
-				/*double xpAtt = att.getLevel();
-				double xpDef = def.getLevel();
-				if (xpDef == 0)
-					xpDef = 1;
-				if (xpAtt > xpDef)
-					event.setDamage(event.getDamage() * xpAtt / xpDef);*/
+				/*
+				 * double xpAtt = att.getLevel(); double xpDef = def.getLevel();
+				 * if (xpDef == 0) xpDef = 1; if (xpAtt > xpDef)
+				 * event.setDamage(event.getDamage() * xpAtt / xpDef);
+				 */
 				for (Iterator<SchedulerCache> i = Firebalance.scheduleList.iterator(); i.hasNext();) {
 					SchedulerCache s = i.next();
 					if (s.type.contains("chunk") && s.callerName.equals(def.getName()))
@@ -518,7 +525,7 @@ public class MyListener implements Listener {
 				ChestSpec s = (ChestSpec) i.next();
 				if (s.coords.equals(event.getBlock().getLocation())) {
 					i.remove();
-					Messenger.send(event.getPlayer(),"Chest lock removed");
+					Messenger.send(event.getPlayer(), "Chest lock removed");
 				}
 			}
 		}

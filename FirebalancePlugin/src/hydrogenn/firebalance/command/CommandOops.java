@@ -1,4 +1,4 @@
-package hydrogenn.firebalance;
+package hydrogenn.firebalance.command;
 
 import org.bukkit.BanList.Type;
 import org.bukkit.Bukkit;
@@ -7,6 +7,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import hydrogenn.firebalance.Firebalance;
 import hydrogenn.firebalance.utils.Messenger;
 
 public class CommandOops implements CommandExecutor {

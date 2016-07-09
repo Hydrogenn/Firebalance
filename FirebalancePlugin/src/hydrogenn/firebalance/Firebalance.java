@@ -27,6 +27,18 @@ import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import hydrogenn.firebalance.command.CommandAggressive;
+import hydrogenn.firebalance.command.CommandAnonymBook;
+import hydrogenn.firebalance.command.CommandChunk;
+import hydrogenn.firebalance.command.CommandCredit;
+import hydrogenn.firebalance.command.CommandEnthrone;
+import hydrogenn.firebalance.command.CommandMap;
+import hydrogenn.firebalance.command.CommandNationChat;
+import hydrogenn.firebalance.command.CommandOops;
+import hydrogenn.firebalance.command.CommandRenameNation;
+import hydrogenn.firebalance.command.CommandSentence;
+import hydrogenn.firebalance.command.CommandSetNation;
+
 //TODO let's make a plugin where you can enchant pumpkins like a helmet. You cannot place it.
 //TODO test adding multiple nations
 public class Firebalance extends JavaPlugin {
