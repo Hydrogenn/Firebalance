@@ -106,21 +106,19 @@ public class LocksListener implements Listener {
 			return;
 		if (event.getClickedBlock().getType() == Material.CHEST
 				|| event.getClickedBlock().getType() == Material.TRAPPED_CHEST) {
+
 			Player player = event.getPlayer();
 			Block chest = event.getClickedBlock();
+
 			String chestId = null;
 			ItemStack key = event.getItem();
 			ItemMeta keyMeta = null;
 			if (key != null)
 				keyMeta = key.getItemMeta();
-			boolean isKey = false;
-			try {
-				if (keyMeta.getDisplayName().equals(ChatColor.WHITE + "Key")
-						&& key.getType().equals(Material.TRIPWIRE_HOOK)) {
-					isKey = true;
-				}
-			} catch (NullPointerException e) {
-			}
+
+			boolean isKey = key.getType() == Material.TRIPWIRE_HOOK && keyMeta.hasDisplayName()
+					&& keyMeta.getDisplayName().equals(ChatColor.WHITE + "Key");
+
 			for (ChestSpec s : ChestSpec.list) {
 				if (s.getCoords().equals(chest.getLocation())) {
 					chestId = s.getId();
@@ -130,6 +128,7 @@ public class LocksListener implements Listener {
 					}
 				}
 			}
+
 			if (chestId != null) {
 				try {
 
