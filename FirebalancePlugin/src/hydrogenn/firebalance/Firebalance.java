@@ -38,6 +38,7 @@ import hydrogenn.firebalance.command.CommandOops;
 import hydrogenn.firebalance.command.CommandRenameNation;
 import hydrogenn.firebalance.command.CommandSentence;
 import hydrogenn.firebalance.command.CommandSetNation;
+import hydrogenn.firebalance.file.ConfigManager;
 
 //TODO let's make a plugin where you can enchant pumpkins like a helmet. You cannot place it.
 //TODO test adding multiple nations
@@ -183,6 +184,9 @@ public class Firebalance extends JavaPlugin {
 		// Register the event listener
 		getServer().getPluginManager().registerEvents(new MyListener(), this);
 
+		// Set up the new ConfigManager class
+		ConfigManager.init(this);
+
 		OLD_configLoad();
 
 		// Find online players (for compatibility with /rl)
@@ -190,6 +194,18 @@ public class Firebalance extends JavaPlugin {
 			if (Bukkit.getPlayer(s.getName()) != null)
 				s.setOnline(true);
 		}
+
+		getLogger().info("Firebalance v" + getDescription().getVersion() + " has been unloaded");
+
+	}
+
+	// Fired when plugin is disabled
+	@Override
+	public void onDisable() {
+
+		ConfigManager.save();
+
+		OLD_configSave();
 
 		getLogger().info("Firebalance v" + getDescription().getVersion() + " has been unloaded");
 
@@ -307,16 +323,6 @@ public class Firebalance extends JavaPlugin {
 				storeObject(line, "misc");
 			}
 		}
-
-	}
-
-	// Fired when plugin is disabled
-	@Override
-	public void onDisable() {
-
-		OLD_configSave();
-
-		getLogger().info("Firebalance v" + getDescription().getVersion() + " has been unloaded");
 
 	}
 
