@@ -8,6 +8,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import hydrogenn.firebalance.Firebalance;
+import hydrogenn.firebalance.PlayerSpec;
 
 /* 
  * ConfigManager.java
@@ -51,11 +52,15 @@ public class ConfigManager {
 		File players = getFolder("players");
 
 		List<File> files = Arrays.asList(players.listFiles());
-		
+
+		PlayerSpec.list.clear();
+
 		for (File f : files) {
-			
-			
-			
+
+			YamlConfiguration pconf = YamlConfiguration.loadConfiguration(f);
+
+			PlayerSpec.list.add(PlayerSpec.loadFromConfig(pconf));
+
 		}
 
 	}

@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -43,16 +44,17 @@ public class Firebalance extends JavaPlugin {
 
 	// TODO change to hashmap storage
 	// TODO add special permissions list
-	FileConfiguration								config			= getConfig();
-	public static List<String>						nationNameList	= new ArrayList<>();
-	public static Hashtable<String, String>			killList		= new Hashtable<String, String>();
-	public static Hashtable<String, List<long[]>>	sentenceValues	= new Hashtable<String, List<long[]>>();
-	public static Hashtable<String, Long>			sentenceMaxes	= new Hashtable<String, Long>();
-	public static String							activeSentence	= null;
-	
+	FileConfiguration config = getConfig();
+	public static List<String> nationNameList = new ArrayList<>();
+	public static Hashtable<String, String> killList = new Hashtable<String, String>();
+	public static Hashtable<String, List<long[]>> sentenceValues = new Hashtable<String, List<long[]>>();
+	public static Hashtable<String, Long> sentenceMaxes = new Hashtable<String, Long>();
+	public static String activeSentence = null;
+
 	public void storeObject(String input, String file) {
 		String dir = "plugins/Firebalance/firebalance." + file;
-		try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(dir, true), "utf-8"))) {
+		try (BufferedWriter writer = new BufferedWriter(
+				new OutputStreamWriter(new FileOutputStream(dir, true), "utf-8"))) {
 			writer.write(input);
 			writer.newLine();
 		} catch (UnsupportedEncodingException e) {
@@ -97,41 +99,67 @@ public class Firebalance extends JavaPlugin {
 
 	public static String getNationName(byte nation, boolean filter) {
 		String result = null;
-		if (nation == -1 && !filter) result = "undecided";
-		if (nation == 0 && !filter) result = "freelancers";
-		if (nation == 1) result = nationNameList.get(0);
-		if (nation == 2) result = nationNameList.get(1);
-		if (nation == 3) result = nationNameList.get(0) + "-" + nationNameList.get(1);
-		if (nation == 4) result = nationNameList.get(2);
-		if (nation == 5) result = nationNameList.get(2) + "-" + nationNameList.get(0);
-		if (nation == 6) result = nationNameList.get(1) + "-" + nationNameList.get(2);
-		if (nation == 7) result = "Neutral";
+		if (nation == -1 && !filter)
+			result = "undecided";
+		if (nation == 0 && !filter)
+			result = "freelancers";
+		if (nation == 1)
+			result = nationNameList.get(0);
+		if (nation == 2)
+			result = nationNameList.get(1);
+		if (nation == 3)
+			result = nationNameList.get(0) + "-" + nationNameList.get(1);
+		if (nation == 4)
+			result = nationNameList.get(2);
+		if (nation == 5)
+			result = nationNameList.get(2) + "-" + nationNameList.get(0);
+		if (nation == 6)
+			result = nationNameList.get(1) + "-" + nationNameList.get(2);
+		if (nation == 7)
+			result = "Neutral";
 		return result;
 	}
 
 	public static byte getNationByte(String nation) {
 		byte result = -1;
-		if (nation.equalsIgnoreCase("freelance")) result = 0;
-		if (nation.equalsIgnoreCase(nationNameList.get(0))) result = 1;
-		if (nation.equalsIgnoreCase(nationNameList.get(1))) result = 2;
-		if (nation.equalsIgnoreCase(nationNameList.get(0) + "-" + nationNameList.get(1))) result = 3;
-		if (nation.equalsIgnoreCase(nationNameList.get(2))) result = 4;
-		if (nation.equalsIgnoreCase(nationNameList.get(2) + "-" + nationNameList.get(0))) result = 5;
-		if (nation.equalsIgnoreCase(nationNameList.get(1) + "-" + nationNameList.get(2))) result = 6;
-		if (nation.equalsIgnoreCase("neutral")) result = 7;
+		if (nation.equalsIgnoreCase("freelance"))
+			result = 0;
+		if (nation.equalsIgnoreCase(nationNameList.get(0)))
+			result = 1;
+		if (nation.equalsIgnoreCase(nationNameList.get(1)))
+			result = 2;
+		if (nation.equalsIgnoreCase(nationNameList.get(0) + "-" + nationNameList.get(1)))
+			result = 3;
+		if (nation.equalsIgnoreCase(nationNameList.get(2)))
+			result = 4;
+		if (nation.equalsIgnoreCase(nationNameList.get(2) + "-" + nationNameList.get(0)))
+			result = 5;
+		if (nation.equalsIgnoreCase(nationNameList.get(1) + "-" + nationNameList.get(2)))
+			result = 6;
+		if (nation.equalsIgnoreCase("neutral"))
+			result = 7;
 		return result;
 	}
 
 	public static String getNationColor(byte nation, boolean filter) {
-		if (nation == -1 && !filter) return "";
-		if (nation == 0 && !filter) return "§f";
-		if (nation == 1) return "§4";
-		if (nation == 2) return "§2";
-		if (nation == 3) return "§e";
-		if (nation == 4) return "§9";
-		if (nation == 5) return "§d";
-		if (nation == 6) return "§b";
-		if (nation == 7) return "§7";
+		if (nation == -1 && !filter)
+			return "";
+		if (nation == 0 && !filter)
+			return "§f";
+		if (nation == 1)
+			return "§4";
+		if (nation == 2)
+			return "§2";
+		if (nation == 3)
+			return "§e";
+		if (nation == 4)
+			return "§9";
+		if (nation == 5)
+			return "§d";
+		if (nation == 6)
+			return "§b";
+		if (nation == 7)
+			return "§7";
 		return null;
 	}
 
@@ -166,7 +194,7 @@ public class Firebalance extends JavaPlugin {
 		keyCraft.shape("A", "A");
 		keyCraft.setIngredient('A', Material.GOLD_INGOT);
 		getServer().addRecipe(keyCraft);
-		
+
 		// Register key dupe recipe
 		ItemStack keyD = new ItemStack(Material.TRIPWIRE_HOOK);
 		keyMeta.setDisplayName("§fKeyD");
@@ -175,7 +203,7 @@ public class Firebalance extends JavaPlugin {
 		keyDupe.addIngredient(Material.GOLD_INGOT);
 		keyDupe.addIngredient(Material.TRIPWIRE_HOOK);
 		getServer().addRecipe(keyDupe);
-		
+
 		// Register key add recipe
 		ItemStack keyA = new ItemStack(Material.TRIPWIRE_HOOK);
 		keyMeta.setDisplayName("§fKeyA");
@@ -184,7 +212,7 @@ public class Firebalance extends JavaPlugin {
 		keyAdd.shape("AA");
 		keyAdd.setIngredient('A', Material.TRIPWIRE_HOOK);
 		getServer().addRecipe(keyAdd);
-		
+
 		// Set up configs
 		config.addDefault("test", true);
 		config.options().copyDefaults(true);
@@ -195,22 +223,29 @@ public class Firebalance extends JavaPlugin {
 		lineList = displayObjects("users");
 		for (int i = 0; i < lineList.size(); i++) {
 			String[] subList = lineList.get(i).split(":");
-			PlayerSpec.list.add(new PlayerSpec(subList[0], Byte.parseByte(subList[1]), Integer.parseInt(subList[2]), Integer.parseInt(subList[3]), false));
+			PlayerSpec.list.add(new PlayerSpec(subList[0], null, Byte.parseByte(subList[1]),
+					Integer.parseInt(subList[2]), Integer.parseInt(subList[3]), false));
 		}
 
 		lineList = displayObjects("chunk");
 		for (int i = 0; i < lineList.size(); i++) {
 			String[] subList = lineList.get(i).split(":");
-			ChunkSpec.list.add(new ChunkSpec(Integer.parseInt(subList[0]), Integer.parseInt(subList[1]), Integer.parseInt(subList[2]), Byte.parseByte(subList[3]), subList[4], Boolean.parseBoolean(subList[5]), Boolean.parseBoolean(subList[6]),
-				new ArrayList<String>(Arrays.asList(subList[7].split(",")))));
+			ChunkSpec.list.add(new ChunkSpec(Integer.parseInt(subList[0]), Integer.parseInt(subList[1]),
+					Integer.parseInt(subList[2]), Byte.parseByte(subList[3]), subList[4],
+					Boolean.parseBoolean(subList[5]), Boolean.parseBoolean(subList[6]),
+					new ArrayList<String>(Arrays.asList(subList[7].split(",")))));
 		}
 
 		lineList = displayObjects("chest");
 		for (int i = 0; i < lineList.size(); i++) {
 			String[] subList = lineList.get(i).split(":");
 			if (subList.length < 4) {
-				ChestSpec.list.add(new ChestSpec(new Location(Bukkit.getWorld(Bukkit.getWorlds().get(0).getName()), Integer.parseInt(subList[0]), Integer.parseInt(subList[1]), Integer.parseInt(subList[2])), ""));
-			} else ChestSpec.list.add(new ChestSpec(new Location(Bukkit.getWorld(Bukkit.getWorlds().get(0).getName()), Integer.parseInt(subList[0]), Integer.parseInt(subList[1]), Integer.parseInt(subList[2])), subList[3]));
+				ChestSpec.list.add(new ChestSpec(new Location(Bukkit.getWorld(Bukkit.getWorlds().get(0).getName()),
+						Integer.parseInt(subList[0]), Integer.parseInt(subList[1]), Integer.parseInt(subList[2])), ""));
+			} else
+				ChestSpec.list.add(new ChestSpec(new Location(Bukkit.getWorld(Bukkit.getWorlds().get(0).getName()),
+						Integer.parseInt(subList[0]), Integer.parseInt(subList[1]), Integer.parseInt(subList[2])),
+						subList[3]));
 		}
 
 		lineList = displayObjects("misc");
@@ -232,8 +267,9 @@ public class Firebalance extends JavaPlugin {
 			}
 		}
 		// Find online players (for compatibility with /rl)
-		for (PlayerSpec s: PlayerSpec.list) {
-			if (Bukkit.getPlayer(s.getName())!=null) s.setOnline(true);
+		for (PlayerSpec s : PlayerSpec.list) {
+			if (Bukkit.getPlayer(s.getName()) != null)
+				s.setOnline(true);
 		}
 	}
 
@@ -263,7 +299,8 @@ public class Firebalance extends JavaPlugin {
 			for (String s2 : ChunkSpec.list.get(i).getShared()) {
 				line += s2 + ",";
 			}
-			if (ChunkSpec.list.get(i).getShared().size() == 0) line += ",";
+			if (ChunkSpec.list.get(i).getShared().size() == 0)
+				line += ",";
 			storeObject(line, "chunk");
 		}
 		clearObject("chest");
@@ -282,7 +319,8 @@ public class Firebalance extends JavaPlugin {
 			line += ":" + nationNameList.get(1);
 			line += ":" + nationNameList.get(2);
 			storeObject(line, "misc");
-			if (sentenceMaxes.size() > 0) storeObject("--SENTENCE MAXIMUMS--", "misc");
+			if (sentenceMaxes.size() > 0)
+				storeObject("--SENTENCE MAXIMUMS--", "misc");
 			for (String s : sentenceMaxes.keySet()) {
 				line = "";
 				line += s + ":" + sentenceMaxes.get(s);

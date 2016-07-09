@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 import org.bukkit.BanList.Type;
 import org.bukkit.Bukkit;
@@ -62,7 +63,7 @@ public class MyListener implements Listener {
 			}
 		}
 		if (PlayerSpec.getPlayerFromName(player.getName()) == null)
-			PlayerSpec.list.add(new PlayerSpec(event.getPlayer().getName(), (byte) -1, 0, 0, true));
+			PlayerSpec.list.add(new PlayerSpec(event.getPlayer().getName(), null, (byte) -1, 0, 0, true));
 		player.sendMessage("This server uses a plugin in-development. Issues may arise. Report them for credits.");
 	}
 
@@ -229,12 +230,14 @@ public class MyListener implements Listener {
 			String heightPrefix = "";
 			String heightSuffix = "";
 			for (ChunkSpec s : ChunkSpec.list) {
-				if (s.getX() == event.getTo().getChunk().getX() && s.getY() == yt && s.getZ() == event.getTo().getChunk().getZ()) {
+				if (s.getX() == event.getTo().getChunk().getX() && s.getY() == yt
+						&& s.getZ() == event.getTo().getChunk().getZ()) {
 					nationTo = s.getNation();
 					if (s.getNation() == 0)
 						nationString = ChatColor.WHITE + "" + s.getOwner() + "'s";
 				}
-				if (s.getX() == event.getFrom().getChunk().getX() && s.getY() == yf && s.getZ() == event.getFrom().getChunk().getZ()) {
+				if (s.getX() == event.getFrom().getChunk().getX() && s.getY() == yf
+						&& s.getZ() == event.getFrom().getChunk().getZ()) {
 					nationFrom = s.getNation();
 					if (s.getNation() == 0)
 						nationString = ChatColor.WHITE + "" + s.getOwner() + "'s";
