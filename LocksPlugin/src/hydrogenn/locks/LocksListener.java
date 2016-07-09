@@ -116,7 +116,7 @@ public class LocksListener implements Listener {
 			if (key != null)
 				keyMeta = key.getItemMeta();
 
-			boolean isKey = key.getType() == Material.TRIPWIRE_HOOK && keyMeta.hasDisplayName()
+			boolean isKey = key != null && key.getType() == Material.TRIPWIRE_HOOK && keyMeta.hasDisplayName()
 					&& keyMeta.getDisplayName().equals(ChatColor.WHITE + "Key");
 
 			for (ChestSpec s : ChestSpec.list) {
