@@ -1,6 +1,7 @@
 name: Firebalance
 main: hydrogenn.firebalance.Firebalance
 version: 1.4.2
+loadbefore: [Locks, Notes, QuotableRules]
 commands:
   nation:
     description: Sets your nation.

@@ -1,6 +1,9 @@
 
 package hydrogenn.firebalance.utils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.bukkit.ChatColor;
 
 public class TextUtils {
@@ -11,6 +14,16 @@ public class TextUtils {
 			return text;
 		}
 		return ChatColor.translateAlternateColorCodes('&', text);
+
+	}
+
+	public static List<String> colorizeMultiple(String... texts) {
+
+		List<String> output = new ArrayList<String>();
+		for (String str : texts) {
+			output.add(colorize(str));
+		}
+		return output;
 
 	}
 
