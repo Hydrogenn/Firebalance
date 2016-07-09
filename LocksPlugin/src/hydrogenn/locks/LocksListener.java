@@ -16,6 +16,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -85,6 +86,7 @@ public class LocksListener implements Listener {
 	@EventHandler
 	public void onInventoryClick(InventoryClickEvent event) {
 		ItemStack i = event.getCurrentItem();
+		if (event.getClick()==ClickType.SHIFT_LEFT||event.getClick()==ClickType.SHIFT_RIGHT) event.setResult(Result.DENY);
 		if (event.getResult() == Result.ALLOW && i != null && i.getType() == Material.TRIPWIRE_HOOK && i.hasItemMeta()
 				&& i.getItemMeta().hasDisplayName()
 				&& i.getItemMeta().getDisplayName().equals(ChatColor.GOLD + "New Key")) {
