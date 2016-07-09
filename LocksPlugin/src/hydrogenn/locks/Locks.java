@@ -49,6 +49,8 @@ public class Locks extends JavaPlugin {
 		keyAdd.setIngredient('A', Material.TRIPWIRE_HOOK);
 		getServer().addRecipe(keyAdd);
 
+		getServer().getPluginManager().registerEvents(new LocksListener(), this);
+
 		getLogger().info("Locks v" + getDescription().getVersion() + " enabled");
 
 	}
