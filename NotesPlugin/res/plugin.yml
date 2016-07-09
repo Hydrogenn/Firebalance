@@ -1,6 +1,7 @@
 name: Notes
 main: hydrogenn.notes.Notes
 version: 1.4
+softdepend: [Firebalance]
 commands:
   note:
     description: Modifies a note.

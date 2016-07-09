@@ -5,8 +5,8 @@ import org.bukkit.Location;
 
 public class ChestSpec {
 
-	Location coords;
-	String id;
+	public Location coords;
+	public String id;
 
 	public ChestSpec(Location coords, String id) {
 		this.coords = coords;

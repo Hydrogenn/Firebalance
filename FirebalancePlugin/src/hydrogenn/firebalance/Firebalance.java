@@ -19,12 +19,7 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.ShapedRecipe;
-import org.bukkit.inventory.ShapelessRecipe;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import hydrogenn.firebalance.command.CommandAggressive;
@@ -43,24 +38,25 @@ import hydrogenn.firebalance.command.CommandSetNation;
 //TODO test adding multiple nations
 public class Firebalance extends JavaPlugin {
 
-	FileConfiguration								config			= getConfig();
+	FileConfiguration config = getConfig();
 	// TODO change to hashmap storage
 	// TODO add special permissions list
-	public static List<PlayerSpec>					playerSpecList	= new ArrayList<>();
-	public static List<ChunkSpec>					chunkSpecList	= new ArrayList<>();
-	public static List<ChestSpec>					chestSpecList	= new ArrayList<>();
-	public static List<String>						nationNameList	= new ArrayList<>();
-	public static Hashtable<String, String>			killList		= new Hashtable<String, String>();
-	public static Hashtable<String, List<long[]>>	sentenceValues	= new Hashtable<String, List<long[]>>();
-	public static Hashtable<String, Long>			sentenceMaxes	= new Hashtable<String, Long>();
-	public static List<UUID>						aggressives		= new ArrayList<UUID>();
-	public static String							activeSentence	= null;
+	public static List<PlayerSpec> playerSpecList = new ArrayList<>();
+	public static List<ChunkSpec> chunkSpecList = new ArrayList<>();
+	public static List<ChestSpec> chestSpecList = new ArrayList<>();
+	public static List<String> nationNameList = new ArrayList<>();
+	public static Hashtable<String, String> killList = new Hashtable<String, String>();
+	public static Hashtable<String, List<long[]>> sentenceValues = new Hashtable<String, List<long[]>>();
+	public static Hashtable<String, Long> sentenceMaxes = new Hashtable<String, Long>();
+	public static List<UUID> aggressives = new ArrayList<UUID>();
+	public static String activeSentence = null;
 
-	public static List<SchedulerCache>				scheduleList	= new ArrayList<>();
+	public static List<SchedulerCache> scheduleList = new ArrayList<>();
 
 	public void storeObject(String input, String file) {
 		String dir = "plugins/Firebalance/firebalance." + file;
-		try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(dir, true), "utf-8"))) {
+		try (BufferedWriter writer = new BufferedWriter(
+				new OutputStreamWriter(new FileOutputStream(dir, true), "utf-8"))) {
 			writer.write(input);
 			writer.newLine();
 		} catch (UnsupportedEncodingException e) {
@@ -105,56 +101,86 @@ public class Firebalance extends JavaPlugin {
 
 	public static String getNationName(byte nation, boolean filter) {
 		String result = null;
-		if (nation == -1 && !filter) result = "undecided";
-		if (nation == 0 && !filter) result = "freelancers";
-		if (nation == 1) result = nationNameList.get(0);
-		if (nation == 2) result = nationNameList.get(1);
-		if (nation == 3) result = nationNameList.get(0) + "-" + nationNameList.get(1);
-		if (nation == 4) result = nationNameList.get(2);
-		if (nation == 5) result = nationNameList.get(2) + "-" + nationNameList.get(0);
-		if (nation == 6) result = nationNameList.get(1) + "-" + nationNameList.get(2);
-		if (nation == 7) result = "Neutral";
+		if (nation == -1 && !filter)
+			result = "undecided";
+		if (nation == 0 && !filter)
+			result = "freelancers";
+		if (nation == 1)
+			result = nationNameList.get(0);
+		if (nation == 2)
+			result = nationNameList.get(1);
+		if (nation == 3)
+			result = nationNameList.get(0) + "-" + nationNameList.get(1);
+		if (nation == 4)
+			result = nationNameList.get(2);
+		if (nation == 5)
+			result = nationNameList.get(2) + "-" + nationNameList.get(0);
+		if (nation == 6)
+			result = nationNameList.get(1) + "-" + nationNameList.get(2);
+		if (nation == 7)
+			result = "Neutral";
 		return result;
 	}
 
 	public static byte getNationByte(String nation) {
 		byte result = -1;
-		if (nation.equalsIgnoreCase("freelance")) result = 0;
-		if (nation.equalsIgnoreCase(nationNameList.get(0))) result = 1;
-		if (nation.equalsIgnoreCase(nationNameList.get(1))) result = 2;
-		if (nation.equalsIgnoreCase(nationNameList.get(0) + "-" + nationNameList.get(1))) result = 3;
-		if (nation.equalsIgnoreCase(nationNameList.get(2))) result = 4;
-		if (nation.equalsIgnoreCase(nationNameList.get(2) + "-" + nationNameList.get(0))) result = 5;
-		if (nation.equalsIgnoreCase(nationNameList.get(1) + "-" + nationNameList.get(2))) result = 6;
-		if (nation.equalsIgnoreCase("neutral")) result = 7;
+		if (nation.equalsIgnoreCase("freelance"))
+			result = 0;
+		if (nation.equalsIgnoreCase(nationNameList.get(0)))
+			result = 1;
+		if (nation.equalsIgnoreCase(nationNameList.get(1)))
+			result = 2;
+		if (nation.equalsIgnoreCase(nationNameList.get(0) + "-" + nationNameList.get(1)))
+			result = 3;
+		if (nation.equalsIgnoreCase(nationNameList.get(2)))
+			result = 4;
+		if (nation.equalsIgnoreCase(nationNameList.get(2) + "-" + nationNameList.get(0)))
+			result = 5;
+		if (nation.equalsIgnoreCase(nationNameList.get(1) + "-" + nationNameList.get(2)))
+			result = 6;
+		if (nation.equalsIgnoreCase("neutral"))
+			result = 7;
 		return result;
 	}
 
 	public static String getNationColor(byte nation, boolean filter) {
-		if (nation == -1 && !filter) return "";
-		if (nation == 0 && !filter) return "§f";
-		if (nation == 1) return "§4";
-		if (nation == 2) return "§2";
-		if (nation == 3) return "§e";
-		if (nation == 4) return "§9";
-		if (nation == 5) return "§d";
-		if (nation == 6) return "§b";
-		if (nation == 7) return "§7";
+		if (nation == -1 && !filter)
+			return "";
+		if (nation == 0 && !filter)
+			return "§f";
+		if (nation == 1)
+			return "§4";
+		if (nation == 2)
+			return "§2";
+		if (nation == 3)
+			return "§e";
+		if (nation == 4)
+			return "§9";
+		if (nation == 5)
+			return "§d";
+		if (nation == 6)
+			return "§b";
+		if (nation == 7)
+			return "§7";
 		return null;
 	}
 
 	public static String getHeightString(int height) {
 		String result = null;
-		if (height == -1) result = "Undergrounds";
-		if (height == 0) result = "Surface";
-		if (height == 1) result = "Skyloft";
+		if (height == -1)
+			result = "Undergrounds";
+		if (height == 0)
+			result = "Surface";
+		if (height == 1)
+			result = "Skyloft";
 		return result;
 	}
 
 	public static PlayerSpec getPlayerFromName(String name) {
 		PlayerSpec r = null;
 		for (PlayerSpec s : playerSpecList) {
-			if (s.getName().equals(name)) r = s;
+			if (s.getName().equals(name))
+				r = s;
 		}
 		return r;
 	}
@@ -180,55 +206,70 @@ public class Firebalance extends JavaPlugin {
 
 	public static byte getChannelType(String channel) {
 		byte r = 0;
-		if (channel.contains("global")) r = 1;
-		if (channel.contains("nation")) r = 2;
-		if (channel.contains("econ")) r = 4;
+		if (channel.contains("global"))
+			r = 1;
+		if (channel.contains("nation"))
+			r = 2;
+		if (channel.contains("econ"))
+			r = 4;
 		return r;
 	}
 
 	public static void addScheduler(String functionName, String callerName, long delay, Runnable function) {
-		final int id = Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(Bukkit.getPluginManager().getPlugin("Firebalance"), function, delay).getTaskId();
+		final int id = Bukkit.getServer().getScheduler()
+				.runTaskLaterAsynchronously(Bukkit.getPluginManager().getPlugin("Firebalance"), function, delay)
+				.getTaskId();
 		scheduleList.add(new SchedulerCache(id, callerName, functionName, delay + System.currentTimeMillis()));
-		Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(Bukkit.getPluginManager().getPlugin("Firebalance"), new Runnable() {
+		Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(Bukkit.getPluginManager().getPlugin("Firebalance"),
+				new Runnable() {
 
-			public void run() {
-				for (Iterator<SchedulerCache> i = scheduleList.iterator(); i.hasNext();) {
-					SchedulerCache s = i.next();
-					if (s.id == id) {
-						i.remove();
+					public void run() {
+						for (Iterator<SchedulerCache> i = scheduleList.iterator(); i.hasNext();) {
+							SchedulerCache s = i.next();
+							if (s.id == id) {
+								i.remove();
+							}
+						}
 					}
-				}
-			}
-		}, delay + 10);
+				}, delay + 10);
 	}
 
-	public static void addCountedScheduler(String functionName, String callerName, long delay, final String message, Runnable function) {
-		final int id = Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(Bukkit.getPluginManager().getPlugin("Firebalance"), function, delay).getTaskId();
+	public static void addCountedScheduler(String functionName, String callerName, long delay, final String message,
+			Runnable function) {
+		final int id = Bukkit.getServer().getScheduler()
+				.runTaskLaterAsynchronously(Bukkit.getPluginManager().getPlugin("Firebalance"), function, delay)
+				.getTaskId();
 		scheduleList.add(new SchedulerCache(id, callerName, functionName, delay + System.currentTimeMillis() / 50));
-		Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(Bukkit.getPluginManager().getPlugin("Firebalance"), new Runnable() {
+		Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(Bukkit.getPluginManager().getPlugin("Firebalance"),
+				new Runnable() {
 
-			public void run() {
-				for (Iterator<SchedulerCache> i = scheduleList.iterator(); i.hasNext();) {
-					SchedulerCache s = i.next();
-					if (s.id == id) {
-						i.remove();
+					public void run() {
+						for (Iterator<SchedulerCache> i = scheduleList.iterator(); i.hasNext();) {
+							SchedulerCache s = i.next();
+							if (s.id == id) {
+								i.remove();
+							}
+						}
 					}
-				}
-			}
-		}, delay + 10);
+				}, delay + 10);
 		int displayTime = 1;
 		while (displayTime * 20 < delay) {
 			final String display;
-			if (displayTime % 3600 == 0) display = displayTime / 3600 + " hours";
-			else if (displayTime % 60 == 0) display = displayTime / 60 + " minutes";
-			else display = displayTime + " seconds";
-			Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(Bukkit.getPluginManager().getPlugin("Firebalance"), new Runnable() {
+			if (displayTime % 3600 == 0)
+				display = displayTime / 3600 + " hours";
+			else if (displayTime % 60 == 0)
+				display = displayTime / 60 + " minutes";
+			else
+				display = displayTime + " seconds";
+			Bukkit.getServer().getScheduler()
+					.runTaskLaterAsynchronously(Bukkit.getPluginManager().getPlugin("Firebalance"), new Runnable() {
 
-				public void run() {
-					Bukkit.broadcastMessage(message + display);
-				}
-			}, delay - displayTime * 20);
-			if (displayTime >= 3600) displayTime *= 2;
+						public void run() {
+							Bukkit.broadcastMessage(message + display);
+						}
+					}, delay - displayTime * 20);
+			if (displayTime >= 3600)
+				displayTime *= 2;
 			switch (displayTime) {
 			case 1:
 				displayTime = 2;
@@ -283,25 +324,29 @@ public class Firebalance extends JavaPlugin {
 	}
 
 	public static void addSyncScheduler(String functionName, String callerName, long delay, Runnable function) {
-		final int id = Bukkit.getServer().getScheduler().runTaskLater(Bukkit.getPluginManager().getPlugin("Firebalance"), function, delay).getTaskId();
+		final int id = Bukkit.getServer().getScheduler()
+				.runTaskLater(Bukkit.getPluginManager().getPlugin("Firebalance"), function, delay).getTaskId();
 		scheduleList.add(new SchedulerCache(id, callerName, functionName, delay + System.currentTimeMillis()));
-		Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(Bukkit.getPluginManager().getPlugin("Firebalance"), new Runnable() {
+		Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(Bukkit.getPluginManager().getPlugin("Firebalance"),
+				new Runnable() {
 
-			public void run() {
-				for (Iterator<SchedulerCache> i = scheduleList.iterator(); i.hasNext();) {
-					SchedulerCache s = i.next();
-					if (s.id == id) {
-						i.remove();
+					public void run() {
+						for (Iterator<SchedulerCache> i = scheduleList.iterator(); i.hasNext();) {
+							SchedulerCache s = i.next();
+							if (s.id == id) {
+								i.remove();
+							}
+						}
 					}
-				}
-			}
-		}, delay + 10);
+				}, delay + 10);
 	}
 
 	public static Long getRemainingTaskTicks(String functionName, String callerName) {
 		for (SchedulerCache s : scheduleList) {
 			if (functionName == null || s.type.equals(functionName)) {
-				if (callerName == null || s.callerName.equals(callerName)) { return s.taskEnd - System.currentTimeMillis() / 50; }
+				if (callerName == null || s.callerName.equals(callerName)) {
+					return s.taskEnd - System.currentTimeMillis() / 50;
+				}
 			}
 		}
 		return null;
@@ -326,37 +371,6 @@ public class Firebalance extends JavaPlugin {
 		// Register the event listener
 		getServer().getPluginManager().registerEvents(new MyListener(), this);
 
-		// Register key crafting recipe
-		ItemStack key = new ItemStack(Material.TRIPWIRE_HOOK);
-		ItemMeta keyMeta = key.getItemMeta();
-		List<String> keyLore = new ArrayList<>();
-		keyLore.add("§7");
-		keyMeta.setLore(keyLore);
-		keyMeta.setDisplayName("§fKeyC");
-		key.setItemMeta(keyMeta);
-		ShapedRecipe keyCraft = new ShapedRecipe(key);
-		keyCraft.shape("A", "A");
-		keyCraft.setIngredient('A', Material.GOLD_INGOT);
-		getServer().addRecipe(keyCraft);
-		
-		// Register key dupe recipe
-		ItemStack keyD = new ItemStack(Material.TRIPWIRE_HOOK);
-		keyMeta.setDisplayName("§fKeyD");
-		keyD.setItemMeta(keyMeta);
-		ShapelessRecipe keyDupe = new ShapelessRecipe(keyD);
-		keyDupe.addIngredient(Material.GOLD_INGOT);
-		keyDupe.addIngredient(Material.TRIPWIRE_HOOK);
-		getServer().addRecipe(keyDupe);
-		
-		// Register key add recipe
-		ItemStack keyA = new ItemStack(Material.TRIPWIRE_HOOK);
-		keyMeta.setDisplayName("§fKeyA");
-		keyA.setItemMeta(keyMeta);
-		ShapedRecipe keyAdd = new ShapedRecipe(keyA);
-		keyAdd.shape("AA");
-		keyAdd.setIngredient('A', Material.TRIPWIRE_HOOK);
-		getServer().addRecipe(keyAdd);
-		
 		// Set up configs
 		config.addDefault("test", true);
 		config.options().copyDefaults(true);
@@ -367,22 +381,29 @@ public class Firebalance extends JavaPlugin {
 		lineList = displayObjects("users");
 		for (int i = 0; i < lineList.size(); i++) {
 			String[] subList = lineList.get(i).split(":");
-			playerSpecList.add(new PlayerSpec(subList[0], Byte.parseByte(subList[1]), Integer.parseInt(subList[2]), Integer.parseInt(subList[3]), false));
+			playerSpecList.add(new PlayerSpec(subList[0], Byte.parseByte(subList[1]), Integer.parseInt(subList[2]),
+					Integer.parseInt(subList[3]), false));
 		}
 
 		lineList = displayObjects("chunk");
 		for (int i = 0; i < lineList.size(); i++) {
 			String[] subList = lineList.get(i).split(":");
-			chunkSpecList.add(new ChunkSpec(Integer.parseInt(subList[0]), Integer.parseInt(subList[1]), Integer.parseInt(subList[2]), Byte.parseByte(subList[3]), subList[4], Boolean.parseBoolean(subList[5]), Boolean.parseBoolean(subList[6]),
-				new ArrayList<String>(Arrays.asList(subList[7].split(",")))));
+			chunkSpecList.add(new ChunkSpec(Integer.parseInt(subList[0]), Integer.parseInt(subList[1]),
+					Integer.parseInt(subList[2]), Byte.parseByte(subList[3]), subList[4],
+					Boolean.parseBoolean(subList[5]), Boolean.parseBoolean(subList[6]),
+					new ArrayList<String>(Arrays.asList(subList[7].split(",")))));
 		}
 
 		lineList = displayObjects("chest");
 		for (int i = 0; i < lineList.size(); i++) {
 			String[] subList = lineList.get(i).split(":");
 			if (subList.length < 4) {
-				chestSpecList.add(new ChestSpec(new Location(Bukkit.getWorld(Bukkit.getWorlds().get(0).getName()), Integer.parseInt(subList[0]), Integer.parseInt(subList[1]), Integer.parseInt(subList[2])), ""));
-			} else chestSpecList.add(new ChestSpec(new Location(Bukkit.getWorld(Bukkit.getWorlds().get(0).getName()), Integer.parseInt(subList[0]), Integer.parseInt(subList[1]), Integer.parseInt(subList[2])), subList[3]));
+				chestSpecList.add(new ChestSpec(new Location(Bukkit.getWorld(Bukkit.getWorlds().get(0).getName()),
+						Integer.parseInt(subList[0]), Integer.parseInt(subList[1]), Integer.parseInt(subList[2])), ""));
+			} else
+				chestSpecList.add(new ChestSpec(new Location(Bukkit.getWorld(Bukkit.getWorlds().get(0).getName()),
+						Integer.parseInt(subList[0]), Integer.parseInt(subList[1]), Integer.parseInt(subList[2])),
+						subList[3]));
 		}
 
 		lineList = displayObjects("misc");
@@ -404,8 +425,9 @@ public class Firebalance extends JavaPlugin {
 			}
 		}
 		// Find online players (for compatibility with /rl)
-		for (PlayerSpec s: playerSpecList) {
-			if (Bukkit.getPlayer(s.getName())!=null) s.setOnline(true);
+		for (PlayerSpec s : playerSpecList) {
+			if (Bukkit.getPlayer(s.getName()) != null)
+				s.setOnline(true);
 		}
 	}
 
@@ -435,7 +457,8 @@ public class Firebalance extends JavaPlugin {
 			for (String s2 : chunkSpecList.get(i).shared) {
 				line += s2 + ",";
 			}
-			if (chunkSpecList.get(i).shared.size() == 0) line += ",";
+			if (chunkSpecList.get(i).shared.size() == 0)
+				line += ",";
 			storeObject(line, "chunk");
 		}
 		clearObject("chest");
@@ -454,7 +477,8 @@ public class Firebalance extends JavaPlugin {
 			line += ":" + nationNameList.get(1);
 			line += ":" + nationNameList.get(2);
 			storeObject(line, "misc");
-			if (sentenceMaxes.size() > 0) storeObject("--SENTENCE MAXIMUMS--", "misc");
+			if (sentenceMaxes.size() > 0)
+				storeObject("--SENTENCE MAXIMUMS--", "misc");
 			for (String s : sentenceMaxes.keySet()) {
 				line = "";
 				line += s + ":" + sentenceMaxes.get(s);

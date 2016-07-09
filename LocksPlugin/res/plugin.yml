@@ -1,0 +1,4 @@
+name: Locks
+main: hydrogenn.locks.Locks
+version: 1.0
+depend: [Firebalance]
