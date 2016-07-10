@@ -1,4 +1,5 @@
 name: Firebalance
+description: Custom-coded nations plugin.
 main: hydrogenn.firebalance.Firebalance
 version: 1.4.2
 loadbefore: [Locks, Notes, QuotableRules]

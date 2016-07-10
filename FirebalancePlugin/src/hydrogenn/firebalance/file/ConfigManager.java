@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -38,7 +39,7 @@ public class ConfigManager {
 	}
 
 	public static void load() {
-
+		
 		config = getConfig("config.yml");
 		nationGlobal = getConfig("nations/global.yml");
 		nation1 = getConfig("nations/nation1.yml");
@@ -79,9 +80,9 @@ public class ConfigManager {
 	private static void savePlayers() {
 
 		File players = getFolder("players");
-
+		
 		for (PlayerSpec spec : PlayerSpec.list) {
-
+			
 			if (spec == null) {
 				continue;
 			}
@@ -121,9 +122,12 @@ public class ConfigManager {
 
 		File chunks = getFolder("chunks");
 
+		int p = 0;
+		long sysTime = System.currentTimeMillis();
 		for (ChunkSpec spec : ChunkSpec.list) {
-
+			
 			if (spec == null) {
+				p++;
 				continue;
 			}
 
@@ -135,6 +139,10 @@ public class ConfigManager {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+			
+			p++;
+			if (System.currentTimeMillis()-sysTime>100) Bukkit.getLogger().info("Processed "+p+" chunks (/"+ChunkSpec.list.size()+")"+" ["+(System.currentTimeMillis()-sysTime)+"]");
+			sysTime = System.currentTimeMillis();
 
 		}
 

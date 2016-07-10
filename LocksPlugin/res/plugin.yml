@@ -1,4 +1,5 @@
 name: Locks
+description: Allows locking chests via item.
 main: hydrogenn.locks.Locks
 version: 1.0
 depend: [Firebalance]

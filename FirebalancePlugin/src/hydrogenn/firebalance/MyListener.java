@@ -62,11 +62,8 @@ public class MyListener implements Listener {
 			}
 		}
 		PlayerSpec spec = PlayerSpec.getPlayerFromName(player.getName());
-		if (spec == null) {
+		if (spec == null)
 			PlayerSpec.list.add(new PlayerSpec(player.getName(), player.getUniqueId(), (byte) -1, 0, 0, true));
-		} else if (spec.getUUID() == null) {
-			spec.setUUID(spec.getUUID());
-		}
 
 		player.sendMessage(ChatColor.YELLOW
 				+ "This server uses a plugin that is in-development. Issues may arise. Report them for credits.");

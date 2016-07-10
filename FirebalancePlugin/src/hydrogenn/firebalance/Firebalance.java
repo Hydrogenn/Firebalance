@@ -12,19 +12,12 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.ShapedRecipe;
-import org.bukkit.inventory.ShapelessRecipe;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import hydrogenn.firebalance.command.CommandAggressive;
@@ -45,7 +38,7 @@ import hydrogenn.firebalance.file.ConfigManager;
 public class Firebalance extends JavaPlugin {
 
 	// TODO change to hashmap storage
-	// TODO add special permissions list
+	// TODO add special permissions list (?)
 	FileConfiguration config = getConfig();
 	public static List<String> nationNameList = new ArrayList<>();
 	public static Hashtable<String, String> killList = new Hashtable<String, String>();
@@ -186,8 +179,9 @@ public class Firebalance extends JavaPlugin {
 
 		// Set up the new ConfigManager class
 		ConfigManager.init(this);
-
-		OLD_configLoad();
+		
+		//TODO move loading chests into the locks plugin
+		loadMiscellaneous();
 
 		// Find online players (for compatibility with /rl)
 		for (PlayerSpec s : PlayerSpec.list) {
@@ -195,7 +189,7 @@ public class Firebalance extends JavaPlugin {
 				s.setOnline(true);
 		}
 
-		getLogger().info("Firebalance v" + getDescription().getVersion() + " has been unloaded");
+		getLogger().info("Firebalance v" + getDescription().getVersion() + " has been loaded");
 
 	}
 
@@ -211,7 +205,8 @@ public class Firebalance extends JavaPlugin {
 
 	}
 
-	public void OLD_configLoad() {
+	@Deprecated
+	public void loadMiscellaneous() {
 
 		// Set up configs
 		config.addDefault("test", true);
@@ -220,7 +215,7 @@ public class Firebalance extends JavaPlugin {
 		// Read and transfer chunk and player data from flatfile
 		List<String> lineList = new ArrayList<>();
 
-		lineList = displayObjects("users");
+		/*lineList = displayObjects("users");
 		for (int i = 0; i < lineList.size(); i++) {
 			String[] subList = lineList.get(i).split(":");
 			PlayerSpec.list.add(new PlayerSpec(subList[0], subList.length > 4 ? UUID.fromString(subList[4]) : null,
@@ -234,7 +229,7 @@ public class Firebalance extends JavaPlugin {
 					Integer.parseInt(subList[2]), Byte.parseByte(subList[3]), subList[4],
 					Boolean.parseBoolean(subList[5]), Boolean.parseBoolean(subList[6]),
 					new ArrayList<String>(Arrays.asList(subList[7].split(",")))));
-		}
+		}*/
 
 		lineList = displayObjects("chest");
 		for (int i = 0; i < lineList.size(); i++) {
@@ -269,6 +264,7 @@ public class Firebalance extends JavaPlugin {
 
 	}
 
+	@Deprecated
 	public void OLD_configSave() {
 
 		clearObject("users");
