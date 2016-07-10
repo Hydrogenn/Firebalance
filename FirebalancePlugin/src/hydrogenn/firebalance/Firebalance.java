@@ -208,6 +208,7 @@ public class Firebalance extends JavaPlugin {
 	@Deprecated
 	public void loadMiscellaneous() {
 
+		
 		// Set up configs
 		config.addDefault("test", true);
 		config.options().copyDefaults(true);
