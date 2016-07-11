@@ -2,11 +2,11 @@ package com.rayzr522.battlebricks;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Map.Entry;
 import java.util.UUID;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 
 /* 
  * ConfigManager.java
@@ -58,18 +58,35 @@ public class ConfigManager {
 
 	public static void save() {
 
-		for (Entry<UUID, PlayerData> entry : PlayerData.map.entrySet()) {
+		for (PlayerData data : PlayerData.map.values()) {
 
-			UUID uuid = entry.getKey();
-			PlayerData data = entry.getValue();
-
-			File file = getFile("players/" + uuid + ".yml");
-
-			YamlConfiguration conf = getConfig(file);
-
-			saveConfig(data.saveToConfig(conf), file);
+			save(data);
 
 		}
+
+	}
+
+	public static void save(Player p) {
+
+		if (!PlayerData.map.containsKey(p.getUniqueId())) {
+			return;
+		}
+
+		PlayerData data = PlayerData.map.get(p.getUniqueId());
+
+		save(data);
+
+	}
+
+	public static void save(PlayerData data) {
+
+		UUID uuid = data.getUUID();
+
+		File file = getFile("players/" + uuid + ".yml");
+
+		YamlConfiguration conf = getConfig(file);
+
+		saveConfig(data.saveToConfig(conf), file);
 
 	}
 

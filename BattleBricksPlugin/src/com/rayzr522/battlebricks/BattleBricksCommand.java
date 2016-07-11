@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -19,8 +20,10 @@ import org.bukkit.scheduler.BukkitRunnable;
  */
 public class BattleBricksCommand implements CommandExecutor {
 
-	public static HashMap<Player, Player> fightingPlayers = new HashMap<Player, Player>();
-	public static HashMap<Player, Integer> timeouts = new HashMap<Player, Integer>();
+	public static HashMap<Competitor, Competitor> requests = new HashMap<Competitor, Competitor>();
+	public static HashMap<Competitor, Integer> timeouts = new HashMap<Competitor, Integer>();
+
+	public static HashMap<Player, Integer> twerkers = new HashMap<Player, Integer>();
 
 	private static final String HORIZONTAL_BAR = ChatColor.DARK_GRAY + "" + ChatColor.STRIKETHROUGH
 			+ "----------------------------------------------------";
@@ -65,15 +68,21 @@ public class BattleBricksCommand implements CommandExecutor {
 
 		if (args[0].equalsIgnoreCase("fight")) {
 
-			if (args.length < 2) {
+			Competitor p1 = new Competitor(p);
+
+			if (!p1.isValid()) {
+
+				msg(p, "&bYou have to be holding a &9Battle Brick&b.");
+
+			} else if (args.length < 2) {
 
 				help(p, "Usage: /bb fight <player>");
 
 			} else {
 
-				if (fightingPlayers.containsKey(p)) {
+				if (requests.containsKey(p)) {
 
-					msg(p, "&bYou've already sent a fight request to &9" + fightingPlayers.get(p));
+					msg(p, "&bYou've already sent a fight request to &9" + requests.get(p));
 
 				} else {
 
@@ -88,37 +97,87 @@ public class BattleBricksCommand implements CommandExecutor {
 						}
 
 						Player other = (Player) entity;
+						Competitor p2 = new Competitor(other);
 
-						if (fightingPlayers.containsKey(other)) {
+						if (requests.containsKey(p2)) {
 
-							Player otherTarget = fightingPlayers.get(other);
-							if (!otherTarget.equals(p)) {
-								msg(p, "&bThat person has already initiated a fight with &9"
-										+ otherTarget.getDisplayName() + "&b.");
+							Competitor otherTarget = requests.get(p2);
+
+							if (!otherTarget.equals(p1)) {
+								msg(p, "&bThat person has already initiated a fight with &9" + otherTarget.getName()
+										+ "&b.");
 							} else {
 
-								// TODO: Start fight
+								removeFromLists(p1);
+								removeFromLists(p2);
+
+								if (!(p1.isValid() && p2.isValid())) {
+
+									msg(p, "&cSomething went wrong...");
+									msg(other, "&cSomething went wrong...");
+
+								}
+
+								Timed.message(0, "&eStarting battle in 5 seconds...", p, other);
+								Timed.message(3, "&c&l3...", p, other);
+								Timed.message(4, "&c&l2...", p, other);
+								Timed.message(5, "&c&l1...", p, other);
+								Timed.message(6, "&e&lBEGIN TWERKING", p, other);
+
+								Timed.runnable(6, new BukkitRunnable() {
+
+									@Override
+									public void run() {
+
+										twerkers.put(p, 0);
+										twerkers.put(other, 0);
+
+									}
+
+								});
+
+								Timed.message(7, "&c&l5...", p, other);
+								Timed.message(8, "&c&l4...", p, other);
+								Timed.message(9, "&c&l3...", p, other);
+								Timed.message(10, "&c&l2...", p, other);
+								Timed.message(11, "&c&l1...", p, other);
+
+								Timed.runnable(12, new BukkitRunnable() {
+
+									@Override
+									public void run() {
+
+										fightComplete(p1, p2);
+
+									}
+
+								});
 
 							}
 
 						} else {
 
-							msg(p, "&bSent fight request to &9" + other.getDisplayName() + "&b.");
-							msg(other, "&9" + p.getDisplayName() + "&b would like to battle you.");
-							msg(other, "&bTo accept, do /bb fight &9" + p.getDisplayName());
+							p1.msg("&bSent fight request to &9" + p2.getName() + "&b.");
+							p2.msg("&9" + p1.getName() + "&b would like to battle you.");
+							p2.msg("&bTo accept, do /bb fight &9" + p1.getName());
+							p2.msg("&bThis request will timeout in 2 minutes");
 
-							fightingPlayers.put(p, other);
-							startTimeout(p);
+							requests.put(p1, p2);
+							startTimeout(p1);
 
 						}
 
-						fightingPlayers.put(p, other);
+						requests.put(p1, p2);
 
 					}
 
 				}
 
 			}
+
+		} else if (args[0].equalsIgnoreCase("item")) {
+
+			p.getInventory().addItem(BrickItem.createItem());
 
 		} else if (args[0].equalsIgnoreCase("config")) {
 
@@ -167,44 +226,115 @@ public class BattleBricksCommand implements CommandExecutor {
 
 	}
 
-	public void removeFromLists(Player p) {
+	// Remove a competitor from the requests list
+	public void removeFromLists(Competitor p) {
 
-		fightingPlayers.remove(p);
+		requests.remove(p);
 
-		int schedule = timeouts.remove(p);
+		// If the timeout still exists
+		if (timeouts.containsKey(p)) {
+			int schedule = timeouts.remove(p);
 
-		if (Bukkit.getScheduler().isQueued(schedule)) {
+			// There still might be a schedule ID in the timeouts list, but it
+			// might have already been completed
+			if (Bukkit.getScheduler().isQueued(schedule)) {
 
-			Bukkit.getScheduler().cancelTask(schedule);
+				Bukkit.getScheduler().cancelTask(schedule);
+
+			}
 
 		}
 
 	}
 
-	public void startTimeout(Player p) {
+	// Start the timeout that cancels the fight request
+	public void startTimeout(Competitor p1) {
 
 		BukkitRunnable runnable = new BukkitRunnable() {
 
 			@Override
 			public void run() {
 
-				if (fightingPlayers.containsKey(p)) {
+				if (requests.containsKey(p1)) {
 
-					Player other = fightingPlayers.get(p);
+					Competitor p2 = requests.get(p1);
 
-					msg(p, "&bYour fight with &9" + other.getDisplayName() + "&b was cancelled.");
-					msg(other, "&bYour fight with &9" + p.getDisplayName() + "&b was cancelled.");
+					p1.msg("&bYour fight with &9" + p2.getName() + "&b was cancelled.");
+					p2.msg("&bYour fight with &9" + p1.getName() + "&b was cancelled.");
 
 				}
 
-				removeFromLists(p);
+				removeFromLists(p1);
 
 			}
 
 		};
 
-		runnable.runTaskLaterAsynchronously(plugin, 5 * 20);
-		timeouts.put(p, runnable.getTaskId());
+		runnable.runTaskLaterAsynchronously(plugin, 120 * 20); // Cancel the
+																// fight request
+																// 120 seconds
+																// (60 + 60)
+																// later
+		timeouts.put(p1, runnable.getTaskId());
+
+	}
+
+	public void fightComplete(Competitor p1, Competitor p2) {
+
+		long twerk1 = twerkers.get(p1.getPlayer());
+		long twerk2 = twerkers.get(p2.getPlayer());
+
+		long level1 = p1.getBrick().getLevel();
+		long level2 = p2.getBrick().getLevel();
+
+		long score1 = twerk1 + level1 * 10;
+		long score2 = twerk2 + level2 * 10;
+
+		if (score1 == score2) {
+
+			p1.msg("&bIt was a tie!");
+			p2.msg("&bIt was a tie!");
+			
+			playSound(p1.getPlayer(), Sound.ENTITY_CREEPER_DEATH, 1.0f, 1.0f);
+			playSound(p2.getPlayer(), Sound.ENTITY_CREEPER_DEATH, 1.0f, 1.0f);
+
+		} else if (score1 > score2) {
+
+			p1.msg("&9" + p1.getName() + "&b won!");
+			p2.msg("&9" + p1.getName() + "&b won!");
+
+			long gainedXP = level2 * 15;
+			p1.msg("&bYou gained &9" + gainedXP + " XP&b from defeating &9" + p2.getName());
+
+			long oldLevel = p1.getBrick().getLevel();
+			p1.getBrick().addXp(gainedXP);
+			p1.updateBrick();
+
+			playSound(p1.getPlayer(), Sound.ENTITY_PLAYER_LEVELUP, p1.getBrick().getLevel() == oldLevel ? 1.2f : 0.5f,
+					1.0f);
+
+		} else {
+
+			p1.msg("&9" + p2.getName() + "&b won!");
+			p2.msg("&9" + p2.getName() + "&b won!");
+
+			long gainedXP = level1 * 15;
+			p2.msg("&bYou gained &9" + gainedXP + " XP&b from defeating &9" + p1.getName());
+
+			long oldLevel = p2.getBrick().getLevel();
+			p2.getBrick().addXp(gainedXP);
+			p2.updateBrick();
+
+			playSound(p2.getPlayer(), Sound.ENTITY_PLAYER_LEVELUP, p2.getBrick().getLevel() == oldLevel ? 1.2f : 0.5f,
+					1.0f);
+
+		}
+
+	}
+
+	private void playSound(Player p, Sound s, float pitch, float volume) {
+
+		p.playSound(p.getLocation(), s, pitch, volume);
 
 	}
 
