@@ -14,22 +14,22 @@ public class PlayerSpec {
 	private String name;
 	private UUID uuid;
 	private byte nation;
-	private int king;
+	private int role;
 	private int credits;
 	private boolean online;
 	public static List<UUID> aggressives = new ArrayList<UUID>();
+	@Deprecated
 	public static List<PlayerSpec> list = new ArrayList<>();
 	public static Hashtable<UUID, PlayerSpec> table = new Hashtable<UUID, PlayerSpec>();
 
-	public PlayerSpec(String name, UUID id, byte nation, int king, int credits, boolean online) {
+	public PlayerSpec(String name, UUID id, byte nation, int role, int credits, boolean online) {
 		this.setName(name);
 		this.setUUID(id);
 		this.setNation(nation);
-		this.setKing(king);
+		this.setRole(role);
 		this.setCredits(credits);
 		this.online = online;
-		// TODO send new items to table
-		// table.put(uuid, this);
+		table.put(uuid, this);
 	}
 
 	public static PlayerSpec getPlayerFromName(String name) {
@@ -39,6 +39,10 @@ public class PlayerSpec {
 				r = s;
 		}
 		return r;
+	}
+	
+	public static PlayerSpec getPlayer(UUID uuid) {
+		return table.get(uuid);
 	}
 
 	public String getName() {
@@ -65,12 +69,12 @@ public class PlayerSpec {
 		this.nation = nation;
 	}
 
-	public int getKing() {
-		return king;
+	public int getRole() {
+		return role;
 	}
 
-	public void setKing(int king) {
-		this.king = king;
+	public void setRole(int role) {
+		this.role = role;
 	}
 
 	public boolean getOnline() {
@@ -94,11 +98,11 @@ public class PlayerSpec {
 		String name = config.getString("name");
 		UUID uuid = UUID.fromString(config.getString("uuid"));
 		byte nation = (byte) config.getInt("nation");
-		int king = config.getInt("role");
+		int role = config.getInt("role");
 		int credits = config.getInt("credits");
 		boolean online = Bukkit.getPlayer(uuid) != null;
 
-		return new PlayerSpec(name, uuid, nation, king, credits, online);
+		return new PlayerSpec(name, uuid, nation, role, credits, online);
 
 	}
 
@@ -107,7 +111,7 @@ public class PlayerSpec {
 		config.set("name", name);
 		config.set("uuid", uuid.toString());
 		config.set("nation", nation);
-		config.set("role", king);
+		config.set("role", role);
 		config.set("credits", credits);
 		
 		return config;

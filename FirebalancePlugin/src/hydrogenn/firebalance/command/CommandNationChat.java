@@ -34,7 +34,7 @@ public class CommandNationChat implements CommandExecutor {
 		}
 		
 		String prefix = "&r";
-		if (spec.getKing()==1) prefix = "&6";
+		if (spec.getRole()==1) prefix = "&6";
 
 		if (spec.getNation() <= 0) {
 
@@ -47,11 +47,11 @@ public class CommandNationChat implements CommandExecutor {
 
 		String msg = getMessage(p, ArrayUtils.concatArray(args, " "), prefix, nation);
 
-		for (PlayerSpec player : PlayerSpec.list) {
+		for (PlayerSpec player : PlayerSpec.table.values()) {
 
 			if (player.getNation() != nation || !player.getOnline()) continue;
 
-			Bukkit.getPlayer(player.getName()).sendMessage(msg);
+			Bukkit.getPlayer(player.getUUID()).sendMessage(msg);
 		}
 
 		return true;

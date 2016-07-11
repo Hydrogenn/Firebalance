@@ -86,10 +86,13 @@ public class LocksListener implements Listener {
 	@EventHandler
 	public void onInventoryClick(InventoryClickEvent event) {
 		ItemStack i = event.getCurrentItem();
-		if (event.getClick()==ClickType.SHIFT_LEFT||event.getClick()==ClickType.SHIFT_RIGHT) event.setResult(Result.DENY);
 		if (event.getResult() == Result.ALLOW && i != null && i.getType() == Material.TRIPWIRE_HOOK && i.hasItemMeta()
 				&& i.getItemMeta().hasDisplayName()
 				&& i.getItemMeta().getDisplayName().equals(ChatColor.GOLD + "New Key")) {
+			if (event.getClick()==ClickType.SHIFT_LEFT||event.getClick()==ClickType.SHIFT_RIGHT) {
+				event.setResult(Result.DENY);
+				return;
+			}
 			ItemMeta im = i.getItemMeta();
 			im.setDisplayName(ChatColor.WHITE + "Key");
 			Random rand = new Random();
@@ -171,7 +174,6 @@ public class LocksListener implements Listener {
 				}
 			}
 		}
-
 	}
 
 	@EventHandler

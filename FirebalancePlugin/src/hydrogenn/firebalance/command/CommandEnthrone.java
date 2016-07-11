@@ -2,6 +2,7 @@
 package hydrogenn.firebalance.command;
 
 import java.util.Iterator;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -23,97 +24,94 @@ public class CommandEnthrone implements CommandExecutor {
 		if (sender instanceof Player) {
 			Player player = (Player) sender;
 			String newKing = "";
-			int result = -1;
+			UUID result = null;
 			boolean success = false;
 			boolean selfPromote = false;
 			String nationString = "?";
 			String nationColor = "&f";
-			for (int i = 0; i < PlayerSpec.list.size(); i++) {
-				if (PlayerSpec.list.get(i).getName().equals(player.getName())) {
-					byte nationValue = PlayerSpec.list.get(i).getNation();
-					try {
-						newKing = args[0];
-					} catch (ArrayIndexOutOfBoundsException e) {
-						if (PlayerSpec.list.get(i).getNation() <= 0) {
-							Messenger.send(player, "You have to be part of a nation to take a throne.");
-							return false;
-						} else {
-							for (SchedulerCache s : SchedulerCache.list) {
-								if (s.getCallerName() == nationString && PlayerSpec.list.get(i).getKing() < 1
-										&& Bukkit.getServer().getScheduler().isQueued(s.getId()))
-									Messenger.send(player,
-											"Can't do that. The leader's officials are in queue right now.");
-								return true;
-							}
-							for (PlayerSpec s : PlayerSpec.list) {
-								if (s.getKing() == 1 && s.getNation() == nationValue) {
-									Messenger.send(player, "Can't do that. There's already a king.");
-									return true;
-								}
-							}
-						}
-						if (PlayerSpec.list.get(i).getKing() == 2) {
-							for (Iterator<SchedulerCache> i2 = SchedulerCache.list.iterator(); i2.hasNext();) {
-								SchedulerCache s = i2.next();
-								if (s.getCallerName().equals(nationString))
-									if (Bukkit.getScheduler().isQueued(s.getId())) {
-										Bukkit.getScheduler().cancelTask(s.getId());
-										i2.remove();
-									}
-							}
-						}
-						PlayerSpec.list.get(i).setKing(1);
-						selfPromote = true;
+			PlayerSpec p = PlayerSpec.getPlayer(player.getUniqueId());
+			byte nationValue = p.getNation();
+			try {
+				newKing = args[0];
+			} catch (ArrayIndexOutOfBoundsException e) {
+				if (nationValue <= 0) {
+					Messenger.send(player, "You have to be part of a nation to take a throne.");
+					return false;
+				} else {
+					for (SchedulerCache s : SchedulerCache.list) {
+						if (s.getCallerName() == nationString && p.getRole() < 1
+								&& Bukkit.getServer().getScheduler().isQueued(s.getId()))
+							Messenger.send(player,
+									"Can't do that. The leader's officials are in queue right now.");
+						return true;
 					}
-					if (PlayerSpec.list.get(i).getKing() == 1) {
-						if (nationValue > 0) {
-							nationString = Firebalance.getNationName(nationValue, false);
-							nationColor = Firebalance.getNationColor(nationValue, false);
-							if (!selfPromote && args.length < 2)
-								PlayerSpec.list.get(i).setKing(0);
-							result = i;
+					for (PlayerSpec s : PlayerSpec.table.values()) {
+						if (s.getRole() == 1 && s.getNation() == nationValue) {
+							Messenger.send(player, "Can't do that. There's already a king.");
+							return true;
 						}
-					} else if (nationValue > 0) {
-						Messenger.send(player,
-								"I'm not sure the leader would appreciate you running the nation behind their back.");
-						result = -1;
-					} else
-						Messenger.send(player, "Freelancers can't do that.");
+					}
+				}
+				if (p.getRole() == 2) {
+					for (Iterator<SchedulerCache> i2 = SchedulerCache.list.iterator(); i2.hasNext();) {
+						SchedulerCache s = i2.next();
+						if (s.getCallerName().equals(nationString))
+							if (Bukkit.getScheduler().isQueued(s.getId())) {
+								Bukkit.getScheduler().cancelTask(s.getId());
+								i2.remove();
+							}
+					}
+				}
+				p.setRole(1);
+				selfPromote = true;
+			}
+			if (p.getRole() == 1) {
+				if (nationValue > 0) {
+					nationString = Firebalance.getNationName(nationValue, false);
+					nationColor = Firebalance.getNationColor(nationValue, false);
+					if (!selfPromote && args.length < 2)
+						p.setRole(0);
+					result = player.getUniqueId();
+				}
+			} else if (nationValue > 0) {
+				Messenger.send(player,
+						"I'm not sure the leader would appreciate you running the nation behind their back.");
+				result = null;
+			} else
+				Messenger.send(player, "Freelancers can't do that.");
+			if (result != null) {
+				if (!selfPromote) {
+					PlayerSpec nk = PlayerSpec.getPlayerFromName(newKing);
+					if (nk.getNation()!=p.getNation()) {
+						Messenger.send(player, "Yeah, that "+Firebalance.getNationName(nk.getNation(), false)+" member would find your throne real helpful.");
+						return true;
+					}
+					try {
+						if (args[1].equals("official")) {
+							nk.setRole(2);
+							Bukkit.broadcastMessage(nationColor + player.getName() + " has promoted " + newKing
+									+ " to official!");
+						}
+						if (args[1].equals("citizen")) {
+							PlayerSpec.getPlayer(result).setRole(1);
+							Bukkit.broadcastMessage(nationColor + player.getName() + " has demoted " + newKing
+									+ " to citizen!");
+						}
+					} catch (ArrayIndexOutOfBoundsException e) {
+						PlayerSpec.getPlayer(result).setRole(1);
+						Bukkit.broadcastMessage(nationColor + player.getName() + " has given " + nationString
+								+ "'s throne to " + newKing + "!");
+					}
+					success = true;
 				}
 			}
-			if (result != -1) {
-				if (!selfPromote) {
-					for (PlayerSpec s : PlayerSpec.list) {
-						if (s.getName().equals(newKing)
-								&& s.getNation() == PlayerSpec.list.get(result).getNation()) {
-							try {
-								if (args[1].equals("official")) {
-									s.setKing(2);
-									Bukkit.broadcastMessage(nationColor + player.getName() + " has promoted " + newKing
-											+ " to official!");
-								}
-								if (args[1].equals("citizen")) {
-									s.setKing(0);
-									Bukkit.broadcastMessage(nationColor + player.getName() + " has demoted " + newKing
-											+ " to citizen!");
-								}
-							} catch (ArrayIndexOutOfBoundsException e) {
-								s.setKing(1);
-								Bukkit.broadcastMessage(nationColor + player.getName() + " has given " + nationString
-										+ "'s throne to " + newKing + "!");
-							}
-							success = true;
-						}
-					}
-				}
-				if (selfPromote)
-					Bukkit.broadcastMessage(
-							nationColor + player.getName() + " has claimed the throne of " + nationString + "!");
-				else if (!success && result != -1) {
-					PlayerSpec.list.get(result).setKing(1);
-					Messenger.send(player,
-							"You offered the throne to " + newKing + ", but they thought it was uncomfortable.");
-				}
+			if (selfPromote)
+				Bukkit.broadcastMessage(
+						nationColor + player.getName() + " has claimed the throne of " + nationString + "!");
+			else if (!success && result != null) {
+				PlayerSpec.getPlayer(result).setRole(1);
+				Messenger.send(player,
+						"You offered the throne to " + newKing + ". They weren't all that interested.");
 			}
 		}
 		return true;

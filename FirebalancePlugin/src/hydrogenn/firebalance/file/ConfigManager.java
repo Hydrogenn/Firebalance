@@ -18,6 +18,7 @@ import hydrogenn.firebalance.PlayerSpec;
  * Made by Rayzr522
  * Date: Jul 9, 2016
  */
+@SuppressWarnings("deprecation")
 public class ConfigManager {
 
 	private static Firebalance plugin;

@@ -184,7 +184,7 @@ public class Firebalance extends JavaPlugin {
 		loadMiscellaneous();
 
 		// Find online players (for compatibility with /rl)
-		for (PlayerSpec s : PlayerSpec.list) {
+		for (PlayerSpec s : PlayerSpec.table.values()) {
 			if (Bukkit.getPlayer(s.getName()) != null)
 				s.setOnline(true);
 		}
@@ -273,7 +273,7 @@ public class Firebalance extends JavaPlugin {
 			String line = "";
 			line += PlayerSpec.list.get(i).getName();
 			line += ":" + PlayerSpec.list.get(i).getNation();
-			line += ":" + PlayerSpec.list.get(i).getKing();
+			line += ":" + PlayerSpec.list.get(i).getRole();
 			line += ":" + PlayerSpec.list.get(i).getCredits();
 			line += ":" + PlayerSpec.list.get(i).getUUID();
 			storeObject(line, "users");

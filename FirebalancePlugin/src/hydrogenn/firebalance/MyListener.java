@@ -42,7 +42,7 @@ public class MyListener implements Listener {
 			for (PlayerSpec s : PlayerSpec.list) {
 				if (s.getName().equals(player.getName())) {
 					s.setOnline(true);
-					int rank = s.getKing();
+					int rank = s.getRole();
 					String rankString = "citizen.";
 					String nationString = Firebalance.getNationColor(s.getNation(), false)
 							+ Firebalance.getNationName(s.getNation(), false);
@@ -143,17 +143,17 @@ public class MyListener implements Listener {
 				nationVict = s.getNation();
 				if (Firebalance.getNationName(nationVict, true) != null)
 					nationString = Firebalance.getNationName(nationVict, true);
-				if (s.getKing() == 1)
+				if (s.getRole() == 1)
 					victKing = true;
-				s.setKing(0);
+				s.setRole(0);
 			}
-			if (s.getNation() == nationVict && s.getKing() > 1)
+			if (s.getNation() == nationVict && s.getRole() > 1)
 				validElites = true;
 		}
 		event.setDeathMessage(ChatColor.RED + event.getDeathMessage() + ". (" + coords + ") They were level "
 				+ Integer.toString(lvl) + ".");
 		if (nationPerp == nationVict && victKing) {
-			result.setKing(1);
+			result.setRole(1);
 			event.setDeathMessage(TextUtils
 					.colorize("&c" + victim.getName() + " was &lmurdered&c by " + perpName + ", the new leader of "
 							+ nationString + ". (" + coords + ") They were level " + Integer.toString(lvl) + "."));
@@ -289,16 +289,13 @@ public class MyListener implements Listener {
 		String prefix = ChatColor.RED + "";
 		byte nationValue = -1;
 		// Set<Player> recipients = event.getRecipients();
-		for (PlayerSpec s : PlayerSpec.list) {
-			if (s.getName().equals(event.getPlayer().getName())) {
-				nationValue = s.getNation();
-				if (s.getKing() == 1)
-					king = true;
-				prefix = Firebalance.getNationColor(nationValue, false);
-				if (prefix == "")
-					prefix = ChatColor.DARK_GRAY + "";
-			}
-		}
+		PlayerSpec s = PlayerSpec.getPlayer(event.getPlayer().getUniqueId());
+		nationValue = s.getNation();
+		if (s.getRole() == 1)
+			king = true;
+		prefix = Firebalance.getNationColor(nationValue, false);
+		if (prefix == "")
+			prefix = ChatColor.DARK_GRAY + "";
 		if (king)
 			event.setFormat(TextUtils.colorize(prefix + "%1$s: &6%2$s"));
 		else if (nationValue != -1)
@@ -345,14 +342,10 @@ public class MyListener implements Listener {
 					chunkShared = s.getShared();
 				}
 			}
-			for (PlayerSpec s : PlayerSpec.list) {
-				if (s.getName().equals(player.getName())) {
-					playerNation = s.getNation();
-					if (chunkOwner.equals(s.getName()) || chunkShared.contains(s.getName())) {
-						hasAccess = true;
-					}
-				}
-			}
+			PlayerSpec s = PlayerSpec.getPlayer(player.getUniqueId());
+			playerNation = s.getNation();
+			if (chunkOwner.equals(s.getName()) || chunkShared.contains(s.getName()))
+				hasAccess = true;
 			if (!hasAccess) {
 				// Check if the player is in foreign territory
 				if (chunkNation != -1 && chunkNation != 0 && (chunkNation & playerNation) <= 0) {
@@ -419,14 +412,10 @@ public class MyListener implements Listener {
 				chunkShared = s.getShared();
 			}
 		}
-		for (PlayerSpec s : PlayerSpec.list) {
-			if (s.getName().equals(player.getName())) {
-				playerNation = s.getNation();
-				if (chunkOwner.equals(s.getName()) || chunkShared.contains(s.getName())) {
-					hasAccess = true;
-				}
-			}
-		}
+		PlayerSpec s = PlayerSpec.getPlayer(player.getUniqueId());
+		playerNation = s.getNation();
+		if (chunkOwner.equals(s.getName()) || chunkShared.contains(s.getName()))
+			hasAccess = true;
 		if (!hasAccess) {
 			// Check if the player is in foreign territory
 			if (chunkNation != -1 && chunkNation != 0 && (chunkNation & playerNation) <= 0) {

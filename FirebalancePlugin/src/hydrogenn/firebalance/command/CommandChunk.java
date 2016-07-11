@@ -81,7 +81,7 @@ public class CommandChunk implements CommandExecutor {
 			for (PlayerSpec s : PlayerSpec.list) {
 				if (s.getName().equals(player.getName())) {
 					nationp = s.getNation();
-					king = (s.getKing() == 1);
+					king = (s.getRole() == 1);
 					if (nationp == -1 && !arg.equals("info")) {
 						Messenger.send(player, "You need to be a member of a nation before you can do land claims.");
 						return true;
@@ -300,7 +300,7 @@ public class CommandChunk implements CommandExecutor {
 									public void run() {
 										s.setNation((byte) (otherNation | nation));
 										for (PlayerSpec s2 : PlayerSpec.list) {
-											if ((s2.getNation() & otherNation) > 0 && s2.getKing() == 1) {
+											if ((s2.getNation() & otherNation) > 0 && s2.getRole() == 1) {
 												Bukkit.getPlayer(s2.getName())
 														.sendMessage(nationString
 																+ " has established an embassy with you at " + s.getX()

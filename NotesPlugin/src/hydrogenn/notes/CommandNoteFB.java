@@ -27,21 +27,18 @@ public class CommandNoteFB implements CommandExecutor {
 			ItemMeta paperMeta = paper.getItemMeta();
 			boolean king = false;
 			String prefix = "§f";
-			for (PlayerSpec s : PlayerSpec.list) {
-				if (s.getName().equals(player.getName())) {
-					int playerNation = s.getNation();
-					king = s.getKing() == 1;
-					if (playerNation == 0)
-						prefix = "§f";
-					if (king) {
-						if (playerNation == 1)
-							prefix = "§4";
-						if (playerNation == 2)
-							prefix = "§2";
-						if (playerNation == 4)
-							prefix = "§9";
-					}
-				}
+			PlayerSpec s = PlayerSpec.getPlayer(player.getUniqueId());
+			int playerNation = s.getNation();
+			king = s.getRole() == 1;
+			if (playerNation == 0)
+				prefix = "§f";
+			if (king) {
+				if (playerNation == 1)
+					prefix = "§4";
+				if (playerNation == 2)
+					prefix = "§2";
+				if (playerNation == 4)
+					prefix = "§9";
 			}
 			if (paperMeta.getLore() != null)
 				for (int i = 0; i < paperMeta.getLore().size(); i++) {

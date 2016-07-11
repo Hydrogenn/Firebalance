@@ -84,7 +84,7 @@ public class CommandSetNation implements CommandExecutor {
 					 * (s.getNation()!=-1) count[s.getNation()]++; } else {
 					 */
 					if (s.getNation() != nationValue) {
-						s.setKing(0);
+						s.setRole(0);
 						s.setNation(nationValue);
 					} else {
 						player.sendMessage("Changing from your current nation to your current nation.");
@@ -101,14 +101,14 @@ public class CommandSetNation implements CommandExecutor {
 				}
 			}
 			if (setKingQuery == true) {
-				for (PlayerSpec s : PlayerSpec.list) {
+				for (PlayerSpec s : PlayerSpec.table.values()) {
 					if (s.getNation() == nationValue && !s.getName().equals(player.getName())) {
 						setKing = false;
 					}
 				}
 			}
 			if (setKing) {
-				result.setKing(1);
+				result.setRole(1);
 				Bukkit.broadcastMessage(
 						nationColor + player.getName() + " has claimed the throne of " + nationString + "!");
 			} else if (!noChange)
