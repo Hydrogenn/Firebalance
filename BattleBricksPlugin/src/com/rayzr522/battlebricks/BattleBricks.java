@@ -21,10 +21,13 @@ public class BattleBricks extends JavaPlugin {
 		logger = getLogger();
 		pdf = getDescription();
 
+		saveResource("config.yml", false);
+
 		ConfigManager.init(this);
 		ConfigManager.load();
 
 		getCommand("battlebricks").setExecutor(new BattleBricksCommand(this));
+
 		getServer().getPluginManager().registerEvents(new BBListener(this), this);
 
 		logger.info(pdf.getName() + " v" + pdf.getVersion() + " enabled");

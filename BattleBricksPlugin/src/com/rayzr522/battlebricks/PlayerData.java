@@ -85,7 +85,7 @@ public class PlayerData {
 
 	public YamlConfiguration saveToConfig(YamlConfiguration conf) {
 
-		conf.set("uuid", uuid);
+		conf.set("uuid", uuid.toString());
 		conf.set("name", name);
 		conf.set("wins", wins);
 		conf.set("losses", losses);
@@ -102,8 +102,9 @@ public class PlayerData {
 
 	public static void createData(Player player) {
 
-		PlayerData data = map.put(player.getUniqueId(), new PlayerData(player.getUniqueId()));
+		PlayerData data = new PlayerData(player.getUniqueId());
 		data.setName(player.getName());
+		map.put(player.getUniqueId(), data);
 
 	}
 

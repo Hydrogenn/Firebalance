@@ -58,44 +58,63 @@ public class BattleBricksCommand implements CommandExecutor {
 			return true;
 		}
 
+		if (args[0].equalsIgnoreCase("help") || args[0].equalsIgnoreCase("?")) {
+			help(p);
+			return true;
+		}
+
 		if (args[0].equalsIgnoreCase("fight")) {
 
 			if (args.length < 2) {
+
 				help(p, "Usage: /bb fight <player>");
+
 			} else {
 
-				List<Entity> entities = ListFilter.apply(p.getNearbyEntities(16, 16, 16), playersFilter);
+				if (fightingPlayers.containsKey(p)) {
 
-				for (Entity entity : entities) {
+					msg(p, "&bYou've already sent a fight request to &9" + fightingPlayers.get(p));
 
-					if (!entity.getName().equalsIgnoreCase(args[1])) {
+				} else {
 
-						continue;
+					List<Entity> entities = ListFilter.apply(p.getNearbyEntities(16, 16, 16), playersFilter);
 
-					}
+					for (Entity entity : entities) {
 
-					Player other = (Player) entity;
+						if (!entity.getName().equalsIgnoreCase(args[1])) {
 
-					if (fightingPlayers.containsKey(other)) {
-
-						Player otherTarget = fightingPlayers.get(other);
-						if (!otherTarget.equals(p)) {
-							msg(p, "&bThat person has already initiated a fight with &9" + otherTarget.getDisplayName()
-									+ "&b.");
-						} else {
-
-							// TODO: Start fight
+							continue;
 
 						}
 
-					} else {
+						Player other = (Player) entity;
 
-						msg(p, "&bSent fight request to &9" + other.getDisplayName() + "&b.");
+						if (fightingPlayers.containsKey(other)) {
+
+							Player otherTarget = fightingPlayers.get(other);
+							if (!otherTarget.equals(p)) {
+								msg(p, "&bThat person has already initiated a fight with &9"
+										+ otherTarget.getDisplayName() + "&b.");
+							} else {
+
+								// TODO: Start fight
+
+							}
+
+						} else {
+
+							msg(p, "&bSent fight request to &9" + other.getDisplayName() + "&b.");
+							msg(other, "&9" + p.getDisplayName() + "&b would like to battle you.");
+							msg(other, "&bTo accept, do /bb fight &9" + p.getDisplayName());
+
+							fightingPlayers.put(p, other);
+							startTimeout(p);
+
+						}
+
 						fightingPlayers.put(p, other);
 
 					}
-
-					fightingPlayers.put(p, other);
 
 				}
 
@@ -118,11 +137,15 @@ public class BattleBricksCommand implements CommandExecutor {
 
 				if (args[1].equalsIgnoreCase("save")) {
 
+					msg(p, "&bSaving config...");
 					ConfigManager.save();
+					msg(p, "&bConfig saved");
 
 				} else if (args[1].equalsIgnoreCase("load")) {
 
+					msg(p, "&bLoading config...");
 					ConfigManager.load();
+					msg(p, "&bConfig loaded");
 
 				} else {
 
@@ -131,6 +154,12 @@ public class BattleBricksCommand implements CommandExecutor {
 				}
 
 			}
+
+		} else {
+
+			msg(p, "&cUnknown command '" + args[0] + "'");
+			help(p);
+			return true;
 
 		}
 
