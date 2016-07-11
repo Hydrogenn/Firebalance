@@ -17,8 +17,12 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockExpEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityInteractEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
@@ -26,6 +30,8 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.metadata.LazyMetadataValue;
 
 import hydrogenn.firebalance.utils.Messenger;
 import hydrogenn.firebalance.utils.TextUtils;
@@ -443,4 +449,29 @@ public class MyListener implements Listener {
 			}
 		}
 	}
+	
+	@EventHandler
+	public void onEntityKilled(EntityDeathEvent event) {
+		if (event.getEntity().getKiller()!=null && !(event.getEntity() instanceof Player)) {
+			
+			Player player = event.getEntity().getKiller();
+			PlayerSpec playerSpec = PlayerSpec.getPlayer(player.getUniqueId());
+			
+			playerSpec.addPower(event.getDroppedExp());
+			
+		}
+	}
+	
+	@EventHandler
+	public void onEntitySpawn(CreatureSpawnEvent event) {
+		if (event.getSpawnReason() == SpawnReason.SPAWNER) {
+			event.getEntity().setMetadata("fromSpawner", Firebalance.fromSpawner);
+		}
+	}
+	
+	@EventHandler
+	public void onBlockDropXp(BlockExpEvent event) {
+		//TODO give power for mining out experience-dropping blocks
+	}
+	
 }

@@ -18,6 +18,8 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import hydrogenn.firebalance.command.CommandAggressive;
@@ -37,6 +39,7 @@ import hydrogenn.firebalance.file.ConfigManager;
 //TODO test adding multiple nations
 public class Firebalance extends JavaPlugin {
 
+	public static MetadataValue fromSpawner;
 	// TODO change to hashmap storage
 	// TODO add special permissions list (?)
 	FileConfiguration config = getConfig();
@@ -161,6 +164,8 @@ public class Firebalance extends JavaPlugin {
 	@Override
 	public void onEnable() {
 
+		fromSpawner = new FixedMetadataValue(this, true);
+		
 		// Register commands
 		this.getCommand("nation").setExecutor(new CommandSetNation());
 		this.getCommand("chunk").setExecutor(new CommandChunk());

@@ -129,4 +129,8 @@ public class PlayerSpec {
 		this.power = power;
 	}
 
+	public void addPower(int power) {
+		this.power += power;
+	}
+
 }
