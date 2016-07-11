@@ -80,8 +80,8 @@ public class BattleBricksCommand implements CommandExecutor {
 
 						Player otherTarget = fightingPlayers.get(other);
 						if (!otherTarget.equals(p)) {
-							msg(p, "&bThat person has already initiated a fight with" + otherTarget.getDisplayName()
-									+ ".");
+							msg(p, "&bThat person has already initiated a fight with &9" + otherTarget.getDisplayName()
+									+ "&b.");
 						} else {
 
 							// TODO: Start fight
@@ -198,7 +198,7 @@ public class BattleBricksCommand implements CommandExecutor {
 		help(p, "/bb fight <player>");
 
 		if (has(p, "BattleBricks.admin")) {
-			help(p, "/bb config <save|reload>");
+			help(p, "/bb config <save|load>");
 		}
 
 		msg(p, HORIZONTAL_BAR);

@@ -94,4 +94,17 @@ public class PlayerData {
 
 	}
 
+	public static boolean hasData(Player player) {
+
+		return map.containsKey(player.getUniqueId());
+
+	}
+
+	public static void createData(Player player) {
+
+		PlayerData data = map.put(player.getUniqueId(), new PlayerData(player.getUniqueId()));
+		data.setName(player.getName());
+
+	}
+
 }
