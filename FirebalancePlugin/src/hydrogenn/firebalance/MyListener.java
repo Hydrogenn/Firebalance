@@ -32,28 +32,35 @@ import hydrogenn.firebalance.utils.TextUtils;
 
 public class MyListener implements Listener {
 
+	//TODO remove this once all data has been moved to
+	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		Player player = event.getPlayer();
+		PlayerSpec playerSpec = PlayerSpec.getPlayer(player.getUniqueId());
+		
+		if (playerSpec == null)
+			PlayerSpec.list.add(new PlayerSpec(player.getName(), player.getUniqueId(), (byte) -1, 0, 0, 0, true));
+		
 		if (!player.hasPlayedBefore()) {
 			event.setJoinMessage(ChatColor.GOLD + player.getName() + " has joined Firebalance for the first time!");
 		} else {
 			event.setJoinMessage(ChatColor.YELLOW + player.getName() + " has joined.");
-			for (PlayerSpec s : PlayerSpec.list) {
-				if (s.getName().equals(player.getName())) {
-					s.setOnline(true);
-					int rank = s.getRole();
-					String rankString = "citizen.";
-					String nationString = Firebalance.getNationColor(s.getNation(), false)
-							+ Firebalance.getNationName(s.getNation(), false);
-					if (rank == 1)
-						rankString = "leader.";
-					else if (rank != 0)
-						rankString = "official.";
-					player.sendMessage(
-							ChatColor.GRAY + "You are a " + nationString + ChatColor.GRAY + " " + rankString);
-				}
-			}
+			
+			playerSpec.setOnline(true);
+			
+			int rank = playerSpec.getRole();
+			String rankString = "citizen.";
+			String nationString = Firebalance.getNationColor(playerSpec.getNation(), false)
+					+ Firebalance.getNationName(playerSpec.getNation(), false);
+			if (rank == 1)
+				rankString = "leader.";
+			else if (rank != 0)
+				rankString = "official.";
+			
+			player.sendMessage(
+					ChatColor.GRAY + "You are a " + nationString + ChatColor.GRAY + " " + rankString);
+			
 			if (Firebalance.killList.containsValue(player.getName())) {
 				for (String s : Firebalance.killList.keySet()) {
 					if (Firebalance.killList.get(s).equals(player.getName()))
@@ -61,10 +68,7 @@ public class MyListener implements Listener {
 				}
 			}
 		}
-		PlayerSpec spec = PlayerSpec.getPlayerFromName(player.getName());
-		if (spec == null)
-			PlayerSpec.list.add(new PlayerSpec(player.getName(), player.getUniqueId(), (byte) -1, 0, 0, true));
-
+		
 		player.sendMessage(ChatColor.YELLOW
 				+ "This server uses a plugin that is in-development. Issues may arise. Report them for credits.");
 	}
@@ -75,10 +79,8 @@ public class MyListener implements Listener {
 			event.setQuitMessage(ChatColor.GOLD + event.getPlayer().getName() + " has left. We hope to see you again!");
 		else
 			event.setQuitMessage(ChatColor.YELLOW + event.getPlayer().getName() + " has left.");
-		for (PlayerSpec s : PlayerSpec.list)
-			if (s.getName().equals(event.getPlayer().getName())) {
-				s.setOnline(false);
-			}
+		PlayerSpec.table.get(event.getPlayer().getUniqueId())
+			.setOnline(false);
 	}
 
 	@EventHandler
@@ -118,6 +120,7 @@ public class MyListener implements Listener {
 	@EventHandler
 	public void onPlayerDeath(PlayerDeathEvent event) {
 		final Player victim = event.getEntity();
+		PlayerSpec victimSpec = PlayerSpec.getPlayer(event.getEntity().getUniqueId());
 		List<ItemStack> drops = event.getDrops();
 		int lvl = (int) victim.getLevel();
 		int xp = (int) (((lvl * .75) * (lvl * .75) + 6 * (lvl * .75)) / 7);
@@ -126,30 +129,31 @@ public class MyListener implements Listener {
 			perpName = victim.getKiller().getName();
 		else
 			perpName = "nature";
-		boolean victKing = false;
+		boolean victKing;
+		if (victimSpec.getRole() == 1)
+			victKing = true;
+		else victKing = false;
 		boolean validElites = false;
-		byte nationVict = -1;
-		String nationString = "<?>";
+		byte nationVict = victimSpec.getNation();
+		String nationString;
+		if (Firebalance.getNationName(nationVict, true) != null)
+			nationString = Firebalance.getNationName(nationVict, true);
+		else nationString = "<?>";
 		Date banDate = new Date();
 		String coords = victim.getLocation().getBlockX() + ", " + victim.getLocation().getBlockY() + ", "
 				+ victim.getLocation().getBlockZ();
 		PlayerSpec result = PlayerSpec.getPlayerFromName(perpName);
-		int nationPerp = -1;
-		for (PlayerSpec s : PlayerSpec.list) {
-			if (s.getName().equals(perpName)) {
-				nationPerp = s.getNation();
-			}
-			if (s.getName().equals(victim.getName())) {
-				nationVict = s.getNation();
-				if (Firebalance.getNationName(nationVict, true) != null)
-					nationString = Firebalance.getNationName(nationVict, true);
-				if (s.getRole() == 1)
-					victKing = true;
-				s.setRole(0);
-			}
-			if (s.getNation() == nationVict && s.getRole() > 1)
+		int nationPerp = PlayerSpec.getPlayer(event.getEntity().getKiller().getUniqueId()).getNation();
+		if (Firebalance.getNationName(nationVict, true) != null)
+			nationString = Firebalance.getNationName(nationVict, true);
+		victimSpec.setRole(0);
+
+		for(PlayerSpec s: PlayerSpec.table.values()) {
+			if (s.getNation()==nationVict && s.getRole()>1) {
 				validElites = true;
+			}
 		}
+		
 		event.setDeathMessage(ChatColor.RED + event.getDeathMessage() + ". (" + coords + ") They were level "
 				+ Integer.toString(lvl) + ".");
 		if (nationPerp == nationVict && victKing) {

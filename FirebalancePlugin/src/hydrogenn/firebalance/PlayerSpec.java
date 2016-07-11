@@ -15,6 +15,7 @@ public class PlayerSpec {
 	private UUID uuid;
 	private byte nation;
 	private int role;
+	private int power;
 	private int credits;
 	private boolean online;
 	public static List<UUID> aggressives = new ArrayList<UUID>();
@@ -22,13 +23,13 @@ public class PlayerSpec {
 	public static List<PlayerSpec> list = new ArrayList<>();
 	public static Hashtable<UUID, PlayerSpec> table = new Hashtable<UUID, PlayerSpec>();
 
-	public PlayerSpec(String name, UUID id, byte nation, int role, int credits, boolean online) {
+	public PlayerSpec(String name, UUID id, byte nation, int role, int power, int credits, boolean online) {
 		this.setName(name);
 		this.setUUID(id);
 		this.setNation(nation);
 		this.setRole(role);
 		this.setCredits(credits);
-		this.online = online;
+		this.setOnline(online);
 		table.put(uuid, this);
 	}
 
@@ -99,10 +100,11 @@ public class PlayerSpec {
 		UUID uuid = UUID.fromString(config.getString("uuid"));
 		byte nation = (byte) config.getInt("nation");
 		int role = config.getInt("role");
+		int power = config.getInt("power");
 		int credits = config.getInt("credits");
 		boolean online = Bukkit.getPlayer(uuid) != null;
 
-		return new PlayerSpec(name, uuid, nation, role, credits, online);
+		return new PlayerSpec(name, uuid, nation, role, power, credits, online);
 
 	}
 
@@ -113,9 +115,18 @@ public class PlayerSpec {
 		config.set("nation", nation);
 		config.set("role", role);
 		config.set("credits", credits);
+		config.set("power", power);
 		
 		return config;
 
+	}
+
+	public int getPower() {
+		return power;
+	}
+
+	public void setPower(int power) {
+		this.power = power;
 	}
 
 }
