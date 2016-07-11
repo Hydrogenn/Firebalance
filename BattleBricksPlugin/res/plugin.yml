@@ -1,0 +1,8 @@
+name: BattleBricks
+main: com.rayzr522.battlebricks.BattleBricks
+version: 1.0
+commands:
+  battlebricks:
+    aliases: bb
+    description: All BattleBricks commands
+    usage: /bb <cmd>
