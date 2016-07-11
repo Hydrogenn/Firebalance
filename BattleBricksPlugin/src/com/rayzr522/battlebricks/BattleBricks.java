@@ -11,25 +11,30 @@ import org.bukkit.plugin.java.JavaPlugin;
  * Date: Jul 11, 2016
  */
 public class BattleBricks extends JavaPlugin {
-	
+
 	private Logger logger;
 	private PluginDescriptionFile pdf;
-	
+
 	@Override
 	public void onEnable() {
-		
+
 		logger = getLogger();
 		pdf = getDescription();
-		
+
+		ConfigManager.init(this);
+		ConfigManager.load();
+
 		logger.info(pdf.getName() + " v" + pdf.getVersion() + " enabled");
-		
+
 	}
-	
+
 	@Override
 	public void onDisable() {
-		
+
+		ConfigManager.save();
+
 		logger.info(pdf.getName() + " v" + pdf.getVersion() + " disabled");
-		
+
 	}
 
 }
