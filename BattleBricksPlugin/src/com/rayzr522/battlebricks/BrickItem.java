@@ -36,7 +36,7 @@ public class BrickItem extends ItemStack {
 
 	public static final Enchantment BRICK_ENCHANT = Enchantment.SILK_TOUCH;
 	public static final String IDENTIFIER_LORE = ChatColor.translateAlternateColorCodes('&', "&b&r&1&c&k");
-	
+
 	public static final String SEPARATOR = ChatColor.DARK_GRAY + "" + ChatColor.STRIKETHROUGH + Strings.repeat("-", 40);
 
 	private static Random rand = new Random();
@@ -99,11 +99,11 @@ public class BrickItem extends ItemStack {
 		lore.add(IDENTIFIER_LORE + ChatColor.BLACK + id.toString() + ":" + level + ":" + xp);
 
 		lore.add(SEPARATOR);
-				
+
 		lore.add(ChatColor.GRAY + "Level: " + ChatColor.YELLOW + level);
 		lore.add(ChatColor.GRAY + "XP: " + ChatColor.YELLOW + xp);
 		lore.add(ChatColor.GRAY + "Next level: " + ChatColor.YELLOW + nextLevel);
-		
+
 		lore.add(SEPARATOR);
 
 		meta.setLore(lore);
@@ -228,6 +228,57 @@ public class BrickItem extends ItemStack {
 		} else {
 			return super.equals(obj);
 		}
+	}
+
+	public static String largeNumber(double num) {
+
+		String output = num + "";
+
+		String[] split = output.split("\\.");
+
+		String part1 = split[0];
+		String part12 = part1.substring(part1.length() % 3);
+
+		List<String> split2 = matches(part12, "[0-9]{3}");
+
+		part1 = part1.substring(0, part1.length() % 3);
+
+		for (String str : split2) {
+
+			part1 += "," + str;
+
+		}
+
+		String part2 = split.length > 1 ? split[1] : "";
+
+		output = part1 + (part2.length() > 0 ? "." + part2 : "");
+
+		return output;
+
+	}
+
+	public static List<String> matches(String input, String regex) {
+
+		List<String> matches = new ArrayList<String>();
+
+		String partial = "";
+
+		while (input.length() > 0) {
+
+			partial += input.substring(0, 1);
+			input = input.substring(1, input.length());
+
+			if (partial.matches(regex)) {
+
+				matches.add(partial);
+				partial = "";
+
+			}
+
+		}
+
+		return matches;
+
 	}
 
 }
