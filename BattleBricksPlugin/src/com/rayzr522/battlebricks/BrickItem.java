@@ -50,12 +50,12 @@ public class BrickItem extends ItemStack {
 		PLACEHOLDER_3.setItemMeta(meta3);
 	}
 
-	public static final List<String> BOY_NAMES = Arrays.asList("Bob", "Joe", "Alex", "Allen", "Jeff", "Garry", "Joshua",
+	public static final List<String> BOY_NAMES = Arrays.asList("Bob", "Joe", "Alex", "Allen", "Jeff", "Gary", "Joshua",
 			"Peter", "Nathan", "Henry");
 	public static final List<String> GIRL_NAMES = Arrays.asList("Alice", "Kate", "Melissa", "Samantha", "Sarah",
 			"Sally", "Beatrice");
 
-	public static final Enchantment BRICK_ENCHANT = Enchantment.SILK_TOUCH;
+	public static final Enchantment BRICK_ENCHANT = Enchantment.PROTECTION_ENVIRONMENTAL;
 	public static final String IDENTIFIER_LORE = ChatColor.translateAlternateColorCodes('&', "&b&r&1&c&k");
 
 	public static final String SEPARATOR = ChatColor.DARK_GRAY + "" + ChatColor.STRIKETHROUGH + Strings.repeat("-", 40);
