@@ -4,6 +4,7 @@ import java.util.logging.Logger;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ShapedRecipe;
+import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -21,6 +22,13 @@ public class BattleBricks extends JavaPlugin {
 			.setIngredient('I', Material.IRON_INGOT).setIngredient('B', Material.CLAY_BRICK)
 			.setIngredient('G', Material.GOLD_INGOT);
 
+	@SuppressWarnings("deprecation")
+	private ShapelessRecipe addLapis = new ShapelessRecipe(BrickItem.PLACEHOLDER_2).addIngredient(Material.CLAY_BRICK)
+			.addIngredient(Material.INK_SACK, 4);
+
+	private ShapelessRecipe addLapisBlock = new ShapelessRecipe(BrickItem.PLACEHOLDER_3)
+			.addIngredient(Material.CLAY_BRICK).addIngredient(Material.LAPIS_BLOCK);
+
 	@Override
 	public void onEnable() {
 
@@ -37,6 +45,8 @@ public class BattleBricks extends JavaPlugin {
 		getCommand("battlebricks").setExecutor(new BattleBricksCommand(this));
 
 		getServer().addRecipe(brickRecipe);
+		getServer().addRecipe(addLapis);
+		getServer().addRecipe(addLapisBlock);
 
 		getServer().getPluginManager().registerEvents(new BBListener(), this);
 
@@ -51,10 +61,6 @@ public class BattleBricks extends JavaPlugin {
 
 		logger.info(pdf.getName() + " v" + pdf.getVersion() + " disabled");
 
-	}
-
-	public ShapedRecipe getRecipe() {
-		return brickRecipe;
 	}
 
 }

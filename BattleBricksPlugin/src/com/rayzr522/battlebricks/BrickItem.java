@@ -19,14 +19,35 @@ import com.google.common.base.Strings;
  * Made by Rayzr522
  * Date: Jul 11, 2016
  */
+/**
+ * A BrickItem is an extension of {@link ItemStack} that also stores data such
+ * as level and XP. To create a new BrickItem, call
+ * {@link BrickItem#createItem()}
+ * 
+ * @author Rayzr522
+ *
+ */
 public class BrickItem extends ItemStack {
 
 	public static ItemStack PLACEHOLDER;
+	public static ItemStack PLACEHOLDER_2;
+	public static ItemStack PLACEHOLDER_3;
+
 	static {
 		PLACEHOLDER = new ItemStack(Material.CLAY_BRICK, 0);
 		ItemMeta meta = PLACEHOLDER.getItemMeta();
 		meta.setDisplayName(ChatColor.RED + "PLACEHOLDER");
 		PLACEHOLDER.setItemMeta(meta);
+
+		PLACEHOLDER_2 = new ItemStack(Material.CLAY_BRICK, 0);
+		ItemMeta meta2 = PLACEHOLDER_2.getItemMeta();
+		meta2.setDisplayName(ChatColor.RED + "PLACEHOLDER_2");
+		PLACEHOLDER_2.setItemMeta(meta2);
+
+		PLACEHOLDER_3 = new ItemStack(Material.CLAY_BRICK, 0);
+		ItemMeta meta3 = PLACEHOLDER_3.getItemMeta();
+		meta3.setDisplayName(ChatColor.RED + "PLACEHOLDER_3");
+		PLACEHOLDER_3.setItemMeta(meta3);
 	}
 
 	public static final List<String> BOY_NAMES = Arrays.asList("Bob", "Joe", "Alex", "Allen", "Jeff", "Garry", "Joshua",
@@ -47,7 +68,7 @@ public class BrickItem extends ItemStack {
 
 	private UUID id;
 
-	public BrickItem() {
+	private BrickItem() {
 
 		super(Material.CLAY_BRICK);
 
@@ -55,13 +76,18 @@ public class BrickItem extends ItemStack {
 
 	}
 
-	public BrickItem(ItemStack item) {
+	private BrickItem(ItemStack item) {
 
 		super(item);
 
 	}
 
-	public static ItemStack createItem() {
+	/**
+	 * Create a new randomly named {@link BrickItem} and return it.
+	 * 
+	 * @return The new {@link BrickItem}.
+	 */
+	public static BrickItem createItem() {
 
 		BrickItem brick = new BrickItem();
 
@@ -90,6 +116,13 @@ public class BrickItem extends ItemStack {
 
 	}
 
+	/**
+	 * Update the lore of this item to correctly represent the level, XP and
+	 * requirements for the next level in the lore, as well as storing the data
+	 * persistently on a nearly invisible ({@link ChatColor#BLACK}) line of
+	 * lore.
+	 * 
+	 */
 	public void updateLore() {
 
 		ItemMeta meta = getItemMeta();
@@ -112,6 +145,15 @@ public class BrickItem extends ItemStack {
 
 	}
 
+	/**
+	 * [Attempt to] translate an {@link ItemStack} into a {@link BrickItem} by
+	 * reading its lore.
+	 * 
+	 * @param item
+	 * @return The {@link BrickItem} as read from the {@link ItemStack}, null if
+	 *         <code>item</code> was invalid, or a new {@link BrickItem} if it
+	 *         failed to do {@link BrickItem#loadFromLore()
+	 */
 	public static BrickItem fromItem(ItemStack item) {
 
 		if (!isValid(item)) {
@@ -127,6 +169,14 @@ public class BrickItem extends ItemStack {
 
 	}
 
+	/**
+	 * Whether or not <code>item</code> is a valid {@link BrickItem} (determined
+	 * by item type & lore).
+	 * 
+	 * @param item
+	 *            = the item to check.
+	 * @return Whether or not the specified {@link ItemStack} is valid.
+	 */
 	public static boolean isValid(ItemStack item) {
 
 		if (item == null || item.getType() != Material.CLAY_BRICK) {
@@ -137,6 +187,11 @@ public class BrickItem extends ItemStack {
 
 	}
 
+	/**
+	 * Loads all the data from an almost invisible ({@link ChatColor#BLACK})
+	 * line of lore. If this runs into some problem it will essentially treat
+	 * this as a new {@link BrickItem}.
+	 */
 	public void loadFromLore() {
 
 		if (!isValid(this)) {
@@ -167,14 +222,32 @@ public class BrickItem extends ItemStack {
 		} catch (Exception e) {
 			System.err.println("Failed to load Battle Brick from lore");
 			e.printStackTrace();
+			updateNextLevel();
+			updateLore();
 		}
 
 	}
 
+	/**
+	 * Gets the lore from a specific line. May cause an error if that line
+	 * doesn't exist on the item.
+	 * 
+	 * @param line
+	 *            = the line of lore you want to retrieve.
+	 * @return The line of lore specified by <code>line</code>, or an empty
+	 *         string if the item has no lore.
+	 */
 	public String getLore(int line) {
 		return getItemMeta().hasLore() ? getItemMeta().getLore().get(line) : "";
 	}
 
+	/**
+	 * Updates the <code>nextLevel</code> variable which is what is used to
+	 * calculate the amount of XP require to level up.
+	 * 
+	 * @return the updated <code>nextLevel</code> value. Note: this is not just
+	 *         returned but also stored onto the {@link BrickItem}.
+	 */
 	public long updateNextLevel() {
 
 		return nextLevel = Math.round(Math.pow(100, Math.pow(level, 0.2)) / 10) * 10;
@@ -199,13 +272,24 @@ public class BrickItem extends ItemStack {
 		return xp = newXp;
 	}
 
+	/**
+	 * Add XP to the {@link BrickItem}, also has a check for whether you've
+	 * leveled up once the XP changes.
+	 * 
+	 * @param amountToAdd
+	 *            = the amount of XP to be added to this {@link BrickItem}.
+	 * @return The new XP level.
+	 */
 	public long addXp(long amountToAdd) {
 
 		xp += amountToAdd;
 
-		if (xp >= nextLevel) {
+		while (xp >= nextLevel) {
+
 			xp -= nextLevel;
+			level++;
 			updateNextLevel();
+
 		}
 
 		updateLore();
@@ -230,6 +314,37 @@ public class BrickItem extends ItemStack {
 		}
 	}
 
+	/**
+	 * 
+	 * Formats a large number by inserting commas, as is usually when writing
+	 * numbers by hand.
+	 * 
+	 * @param num
+	 *            = the number to format.
+	 * @return A formated string representation of the number.
+	 */
+	public static String formatNumber(long num) {
+		String in = num + "";
+		if (num < 1000) {
+			return in;
+		}
+		String out = in.substring(0, in.length() % 3);
+		for (int i = in.length() % 3; i < in.length(); i += 3) {
+			out += (i > 0 ? "," : "") + in.substring(i, i + 3 > in.length() ? in.length() : i + 3);
+		}
+		return out;
+	}
+
+	/**
+	 * 
+	 * Formats a large number by inserting commas, as is usually when writing
+	 * numbers by hand.
+	 * 
+	 * @param num
+	 *            = the number to format.
+	 * @return a formated string representation of the number.
+	 * 
+	 */
 	public static String largeNumber(double num) {
 
 		String output = num + "";
@@ -257,6 +372,16 @@ public class BrickItem extends ItemStack {
 
 	}
 
+	/**
+	 * Returns all the matches to a certain regex contained within the input.
+	 * 
+	 * @param input
+	 *            = the string to match.
+	 * @param regex
+	 *            = the regex to match the string with.
+	 * @return A list of strings that matched the regex. The list can be empty
+	 *         if no matches were found.
+	 */
 	public static List<String> matches(String input, String regex) {
 
 		List<String> matches = new ArrayList<String>();

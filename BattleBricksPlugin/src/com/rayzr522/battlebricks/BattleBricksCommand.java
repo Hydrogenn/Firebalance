@@ -37,6 +37,10 @@ public class BattleBricksCommand implements CommandExecutor {
 		this.plugin = plugin;
 	}
 
+	/**
+	 * A simple {@link ListFilter} to remove all entities except players from a
+	 * list.
+	 */
 	private ListFilter<Entity> playersFilter = new ListFilter<Entity>() {
 
 		@Override
@@ -46,6 +50,9 @@ public class BattleBricksCommand implements CommandExecutor {
 
 	};
 
+	/**
+	 * Called when <code>/bb</code> or <code>/battlebricks</code> is performed.
+	 */
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String cmd, String[] args) {
 
@@ -227,6 +234,14 @@ public class BattleBricksCommand implements CommandExecutor {
 	}
 
 	// Remove a competitor from the requests list
+	/**
+	 * Remove a competitor from the requests list. This also removes the
+	 * competitor from the timeouts list if there was a timeout scheduled for
+	 * him/her, and cancels it if the timeout was still running.
+	 * 
+	 * @param p
+	 *            = the competitor
+	 */
 	public void removeFromLists(Competitor p) {
 
 		requests.remove(p);
@@ -248,6 +263,12 @@ public class BattleBricksCommand implements CommandExecutor {
 	}
 
 	// Start the timeout that cancels the fight request
+	/**
+	 * Starts the timeout that cancels the competitor's fight request.
+	 * 
+	 * @param p1
+	 *            = the competitor
+	 */
 	public void startTimeout(Competitor p1) {
 
 		BukkitRunnable runnable = new BukkitRunnable() {
@@ -279,6 +300,12 @@ public class BattleBricksCommand implements CommandExecutor {
 
 	}
 
+	/**
+	 * Called after the 5 seconds of twerking
+	 * 
+	 * @param p1 = the first competitor
+	 * @param p2 = the second competitor
+	 */
 	public void fightComplete(Competitor p1, Competitor p2) {
 
 		long twerk1 = twerkers.get(p1.getPlayer());
@@ -294,7 +321,7 @@ public class BattleBricksCommand implements CommandExecutor {
 
 			p1.msg("&bIt was a tie!");
 			p2.msg("&bIt was a tie!");
-			
+
 			playSound(p1.getPlayer(), Sound.ENTITY_CREEPER_DEATH, 1.0f, 1.0f);
 			playSound(p2.getPlayer(), Sound.ENTITY_CREEPER_DEATH, 1.0f, 1.0f);
 
