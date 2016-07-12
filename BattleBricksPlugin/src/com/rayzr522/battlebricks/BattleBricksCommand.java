@@ -182,10 +182,6 @@ public class BattleBricksCommand implements CommandExecutor {
 
 			}
 
-		} else if (args[0].equalsIgnoreCase("item")) {
-
-			p.getInventory().addItem(BrickItem.createItem());
-
 		} else if (args[0].equalsIgnoreCase("config")) {
 
 			if (!has(p, "BattleBricks.admin")) {
@@ -303,8 +299,10 @@ public class BattleBricksCommand implements CommandExecutor {
 	/**
 	 * Called after the 5 seconds of twerking
 	 * 
-	 * @param p1 = the first competitor
-	 * @param p2 = the second competitor
+	 * @param p1
+	 *            = the first competitor
+	 * @param p2
+	 *            = the second competitor
 	 */
 	public void fightComplete(Competitor p1, Competitor p2) {
 
