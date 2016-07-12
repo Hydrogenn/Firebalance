@@ -50,10 +50,11 @@ public class BrickItem extends ItemStack {
 		PLACEHOLDER_3.setItemMeta(meta3);
 	}
 
-	public static final List<String> BOY_NAMES = Arrays.asList("Bob", "Joe", "Pfaff", "Allen", "Jeff", "Gary", "Joshua",
-			"Peter", "Nathan", "Henry");
+	public static final List<String> BOY_NAMES = Arrays.asList("Bob", "Joe", "Seinfeld", "Pfaff", "Allen", "Jeff", "Gary", "Joshua",
+			"Peter", "Nathan", "Henry", "Xavier", "Andrew", "Tony", "Doggo", "Kyle", "Carl", "Richard", "Metel");
 	public static final List<String> GIRL_NAMES = Arrays.asList("Alice", "Kate", "Melissa", "Samantha", "Sarah",
-			"Sally", "Beatrice", "Noelle", "Jessica", "Alexa");
+			"Sally", "Beatrice", "Noelle", "Jessica", "Alexa", "Cosmo Wanda", "Jessica", "Ashley");
+	public static final List<String> RARE_NAMES = Arrays.asList("Pepe","Sample Text");
 
 	public static final Enchantment BRICK_ENCHANT = Enchantment.PROTECTION_ENVIRONMENTAL;
 	public static final String IDENTIFIER_LORE = ChatColor.translateAlternateColorCodes('&', "&b&r&1&c&k");
@@ -96,6 +97,7 @@ public class BrickItem extends ItemStack {
 		ItemMeta meta = brick.getItemMeta();
 
 		String name = randomName();
+		if (RARE_NAMES.contains(name)) meta.setDisplayName(ChatColor.BLUE + name); else
 		meta.setDisplayName(BOY_NAMES.contains(name) ? ChatColor.BLUE + name : ChatColor.LIGHT_PURPLE + name);
 
 		brick.setItemMeta(meta);
@@ -111,7 +113,9 @@ public class BrickItem extends ItemStack {
 	public static String randomName() {
 
 		boolean boy = rand.nextBoolean();
-
+		boolean isShiny = rand.nextInt(8191)==1;
+		
+		if (isShiny) return RARE_NAMES.get(rand.nextInt(RARE_NAMES.size()));
 		return boy ? BOY_NAMES.get(rand.nextInt(BOY_NAMES.size())) : GIRL_NAMES.get(rand.nextInt(GIRL_NAMES.size()));
 
 	}
