@@ -4,7 +4,7 @@ version: 1.0
 commands:
   newrule:
     description: Adds a rule.
-    usage: /newrule <remove/change/add> ...
+    usage: /rule <remove/change/add/reload> ...
   rules:
     description: Shows the rules.
     usage: /rules
