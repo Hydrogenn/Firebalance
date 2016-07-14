@@ -2,3 +2,8 @@ name: SwearFilterLite
 description: Replaces specified words in chat with asterisks.
 main: hydrogenn.filter.SwearFilterLite
 version: 1.0
+commands:
+  swearfilterlite:
+    aliases: sfl
+    description: All SwearFilterLite commands
+    usage: /sfl <cmd>
