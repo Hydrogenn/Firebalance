@@ -97,7 +97,7 @@ public class BrickItem extends ItemStack {
 		ItemMeta meta = brick.getItemMeta();
 
 		String name = randomName();
-		if (RARE_NAMES.contains(name)) meta.setDisplayName(ChatColor.BLUE + name); else
+		if (RARE_NAMES.contains(name)) meta.setDisplayName(ChatColor.GOLD + name); else
 		meta.setDisplayName(BOY_NAMES.contains(name) ? ChatColor.BLUE + name : ChatColor.LIGHT_PURPLE + name);
 
 		brick.setItemMeta(meta);
@@ -138,8 +138,8 @@ public class BrickItem extends ItemStack {
 		lore.add(SEPARATOR);
 
 		lore.add(ChatColor.GRAY + "Level: " + ChatColor.YELLOW + level);
-		lore.add(ChatColor.GRAY + "XP: " + ChatColor.YELLOW + xp);
-		lore.add(ChatColor.GRAY + "Next level: " + ChatColor.YELLOW + nextLevel);
+		lore.add(ChatColor.GRAY + "XP: " + ChatColor.YELLOW + formatNumber(xp));
+		lore.add(ChatColor.GRAY + "Next level: " + ChatColor.YELLOW + formatNumber(nextLevel));
 
 		lore.add(SEPARATOR);
 
@@ -344,11 +344,14 @@ public class BrickItem extends ItemStack {
 	 * Formats a large number by inserting commas, as is usually when writing
 	 * numbers by hand.
 	 * 
+	 * No longer used, as I (Rayzr522) found a better method to do this: {@link BrickItem#formatNumber(long)}
+	 * 
 	 * @param num
 	 *            = the number to format.
 	 * @return a formated string representation of the number.
 	 * 
 	 */
+	@Deprecated
 	public static String largeNumber(double num) {
 
 		String output = num + "";
