@@ -398,8 +398,26 @@ public class BattleBricksCommand implements CommandExecutor {
 	}
 	
 	public static boolean isFighting(Player p) {
-		if (requests.containsKey(p) && requests.get(p).isFighting()) return true;
+		Competitor c = findCompetitor(p);
+		if (c!=null && c.isFighting()) return true;
 		else return false;
+	}
+	
+	public static Competitor findCompetitor(Player p) {
+		for(Competitor c: requests.keySet()) {
+			if (c.getPlayer()==p) return c;
+		}
+		return null;
+	}
+
+	public static void hit(Competitor c) {
+		// TODO Auto-generated method stub
+		// 
+	}
+
+	public static void miss(Competitor c) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

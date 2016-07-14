@@ -98,4 +98,30 @@ public class Competitor {
 		this.fighting = fighting;
 	}
 
+	public boolean nextIsLeft() {
+		return nextIsLeft;
+	}
+
+	public void setNextThrow(boolean nextIsLeft) {
+		this.nextIsLeft = nextIsLeft;
+	}
+
+	public void addDamage() {
+		damageTaken+=comboTaken;
+		if (comboTaken>1) comboTaken++;
+	}
+	
+	public int getDamage() {
+		return damageTaken;
+	}
+	
+	public void miss() {
+		recovery+=3;
+		comboTaken++;
+	}
+	
+	public void recover() {
+		if (recovery>0) recovery--;
+	}
+	
 }

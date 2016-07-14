@@ -47,9 +47,17 @@ public class BBListener implements Listener {
 
 	}
 	
+	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent e) {
 		if (e.getAction()==Action.PHYSICAL && BattleBricksCommand.isFighting(e.getPlayer())) return;
-		
+		else {
+			Competitor comp = BattleBricksCommand.findCompetitor(e.getPlayer());
+			boolean isLeft = e.getAction()==Action.LEFT_CLICK_AIR || e.getAction()==Action.LEFT_CLICK_BLOCK;
+			if (comp.nextIsLeft()==isLeft) BattleBricksCommand.hit(comp);
+			else {
+				BattleBricksCommand.miss(comp);
+			}
+		}
 	}
 
 	@EventHandler
