@@ -2,7 +2,7 @@ name: QuotableRules
 main: hydrogenn.quotableRules.QuotableRules
 version: 1.0
 commands:
-  newrule:
+  rule:
     description: Adds a rule.
     usage: /rule <remove/change/add/reload> ...
   rules:
