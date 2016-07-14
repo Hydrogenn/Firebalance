@@ -24,8 +24,7 @@ public class BattleBricksCommand implements CommandExecutor {
 	public static HashMap<Competitor, Integer> timeouts = new HashMap<Competitor, Integer>();
 
 	@Deprecated
-	public static HashMap<Player, Integer> twerkers = new HashMap<Player, Integer>();
-	public static HashMap<Player, Competitor> fighters = new HashMap<Player, Competitor>();
+	//public static HashMap<Player, Integer> twerkers = new HashMap<Player, Integer>();
 
 	private static final String HORIZONTAL_BAR = ChatColor.DARK_GRAY + "" + ChatColor.STRIKETHROUGH
 			+ "----------------------------------------------------";
@@ -138,8 +137,8 @@ public class BattleBricksCommand implements CommandExecutor {
 									@Override
 									public void run() {
 
-										twerkers.put(p, 0);
-										twerkers.put(other, 0);
+										requests.get(p1).setFighting(true);
+										requests.get(p2).setFighting(true);
 
 									}
 
@@ -308,14 +307,14 @@ public class BattleBricksCommand implements CommandExecutor {
 	 */
 	public void fightComplete(Competitor p1, Competitor p2) {
 
-		long twerk1 = twerkers.get(p1.getPlayer());
-		long twerk2 = twerkers.get(p2.getPlayer());
+		long damage1 = p2.getDamage();
+		long damage2 = p1.getDamage();
 
 		long level1 = p1.getBrick().getLevel();
 		long level2 = p2.getBrick().getLevel();
 
-		long score1 = twerk1 + level1 * 10;
-		long score2 = twerk2 + level2 * 10;
+		long score1 = damage1 + level1 * 5;
+		long score2 = damage2 + level2 * 5;
 
 		if (score1 == score2) {
 
@@ -411,13 +410,12 @@ public class BattleBricksCommand implements CommandExecutor {
 	}
 
 	public static void hit(Competitor c) {
-		// TODO Auto-generated method stub
-		// 
+		if (c.mustRecover()) c.recover();
+		else requests.get(c).takeHit();
 	}
 
 	public static void miss(Competitor c) {
-		// TODO Auto-generated method stub
-		
+		c.miss();
 	}
 
 }

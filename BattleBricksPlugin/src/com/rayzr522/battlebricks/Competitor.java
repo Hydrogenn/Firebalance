@@ -106,7 +106,7 @@ public class Competitor {
 		this.nextIsLeft = nextIsLeft;
 	}
 
-	public void addDamage() {
+	public void takeHit() {
 		damageTaken+=comboTaken;
 		if (comboTaken>1) comboTaken++;
 	}
@@ -122,6 +122,11 @@ public class Competitor {
 	
 	public void recover() {
 		if (recovery>0) recovery--;
+	}
+	
+	public boolean mustRecover() {
+		if (recovery>0) return true;
+		else return false;
 	}
 	
 }

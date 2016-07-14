@@ -34,18 +34,6 @@ public class BBListener implements Listener {
 		}
 
 	}
-
-	@EventHandler
-	public void onPlayerCrouch(PlayerToggleSneakEvent e) {
-
-		if (BattleBricksCommand.twerkers.containsKey(e.getPlayer())) {
-
-			Player p = e.getPlayer();
-			BattleBricksCommand.twerkers.put(p, BattleBricksCommand.twerkers.get(p) + 1);
-
-		}
-
-	}
 	
 	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent e) {
