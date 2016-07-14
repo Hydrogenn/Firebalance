@@ -63,8 +63,13 @@ public class Competitor {
 
 	@Override
 	public boolean equals(Object obj) {
-		return (obj instanceof Competitor
-				&& ((Competitor) obj).getPlayer().getUniqueId().equals(getPlayer().getUniqueId()));
+		if (obj instanceof Competitor) {
+			return ((Competitor) obj).getPlayer().getUniqueId().equals(getPlayer().getUniqueId());
+		} else if (obj instanceof Player) {
+			return ((Player) obj).getUniqueId().equals(getPlayer().getUniqueId());
+		}
+		
+		return false;
 	}
 
 	@Override
