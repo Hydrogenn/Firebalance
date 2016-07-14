@@ -23,7 +23,9 @@ public class BattleBricksCommand implements CommandExecutor {
 	public static HashMap<Competitor, Competitor> requests = new HashMap<Competitor, Competitor>();
 	public static HashMap<Competitor, Integer> timeouts = new HashMap<Competitor, Integer>();
 
+	@Deprecated
 	public static HashMap<Player, Integer> twerkers = new HashMap<Player, Integer>();
+	public static HashMap<Player, Competitor> fighters = new HashMap<Player, Competitor>();
 
 	private static final String HORIZONTAL_BAR = ChatColor.DARK_GRAY + "" + ChatColor.STRIKETHROUGH
 			+ "----------------------------------------------------";
@@ -87,7 +89,7 @@ public class BattleBricksCommand implements CommandExecutor {
 
 			} else {
 
-				if (requests.containsKey(p)) {
+				if (requests.containsKey(p1)) {
 
 					msg(p, "&bYou've already sent a fight request to &9" + requests.get(p));
 
@@ -126,10 +128,10 @@ public class BattleBricksCommand implements CommandExecutor {
 								}
 
 								Timed.message(0, "&eStarting battle in 5 seconds...", p, other);
-								Timed.message(3, "&c&l3...", p, other);
-								Timed.message(4, "&c&l2...", p, other);
-								Timed.message(5, "&c&l1...", p, other);
-								Timed.message(6, "&e&lBEGIN TWERKING", p, other);
+								Timed.message(3, "&c3...", p, other);
+								Timed.message(4, "&c2...", p, other);
+								Timed.message(5, "&c1...", p, other);
+								Timed.message(6, "&eBEGIN FIGHT!", p, other);
 
 								Timed.runnable(6, new BukkitRunnable() {
 
@@ -393,6 +395,11 @@ public class BattleBricksCommand implements CommandExecutor {
 
 		p.sendMessage(ChatColor.translateAlternateColorCodes('&', msg));
 
+	}
+	
+	public static boolean isFighting(Player p) {
+		if (requests.containsKey(p) && requests.get(p).isFighting()) return true;
+		else return false;
 	}
 
 }

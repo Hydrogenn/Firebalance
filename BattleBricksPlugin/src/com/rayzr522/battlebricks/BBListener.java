@@ -3,8 +3,10 @@ package com.rayzr522.battlebricks;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
@@ -43,6 +45,11 @@ public class BBListener implements Listener {
 
 		}
 
+	}
+	
+	public void onPlayerInteract(PlayerInteractEvent e) {
+		if (e.getAction()==Action.PHYSICAL && BattleBricksCommand.isFighting(e.getPlayer())) return;
+		
 	}
 
 	@EventHandler

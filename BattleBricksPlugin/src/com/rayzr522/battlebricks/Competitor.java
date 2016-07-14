@@ -14,7 +14,12 @@ public class Competitor {
 
 	private Player player;
 	private BrickItem brick;
-
+	private boolean fighting;
+	private int damageTaken;
+	private boolean nextIsLeft;
+	private int comboTaken;
+	private int recovery;
+	
 	public Competitor(Player player) {
 
 		this.player = player;
@@ -83,6 +88,14 @@ public class Competitor {
 
 	public String getName() {
 		return player.getDisplayName();
+	}
+
+	public boolean isFighting() {
+		return fighting;
+	}
+
+	public void setFighting(boolean fighting) {
+		this.fighting = fighting;
 	}
 
 }
