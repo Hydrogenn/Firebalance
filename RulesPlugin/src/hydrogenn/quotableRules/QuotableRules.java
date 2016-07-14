@@ -43,7 +43,6 @@ public class QuotableRules extends JavaPlugin {
 	private class ConfigManager {
 
 		private QuotableRules plugin;
-		@SuppressWarnings("unused")
 		private FileConfiguration config;
 
 		public ConfigManager(QuotableRules plugin) {

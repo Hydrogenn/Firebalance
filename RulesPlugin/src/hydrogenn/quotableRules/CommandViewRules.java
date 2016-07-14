@@ -16,6 +16,7 @@ public class CommandViewRules implements CommandExecutor {
 		for (Iterator<String> i = QuotableRules.ruleSet.iterator(); i.hasNext();) {
 
 			sender.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "" + x + ". " + ChatColor.GOLD + i.next());
+			x++;
 
 		}
 
