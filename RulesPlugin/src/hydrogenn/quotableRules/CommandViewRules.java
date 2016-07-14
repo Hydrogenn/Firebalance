@@ -12,12 +12,13 @@ public class CommandViewRules implements CommandExecutor {
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		int x = 1;
+
 		for (Iterator<String> i = QuotableRules.ruleSet.iterator(); i.hasNext();) {
-			String display = x+". ";
-			display += i.next();
-			sender.sendMessage(ChatColor.GOLD + display);
-			x++;
+
+			sender.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "" + x + ". " + ChatColor.GOLD + i.next());
+
 		}
+
 		return true;
 	}
 
