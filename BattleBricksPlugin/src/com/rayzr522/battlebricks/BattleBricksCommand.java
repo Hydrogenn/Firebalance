@@ -122,7 +122,7 @@ public class BattleBricksCommand implements CommandExecutor {
 									msg(other, "&cSomething went wrong...");
 
 								}
-								
+
 								requests.put(p1, p2);
 
 								Timed.message(0, "&eStarting battle in 5 seconds...", p, other);
@@ -145,23 +145,24 @@ public class BattleBricksCommand implements CommandExecutor {
 									}
 
 								});
-								
-								/*Timed.message(55, "&c5...", p, other);
-								Timed.message(56, "&c4...", p, other);
-								Timed.message(57, "&c3...", p, other);
-								Timed.message(58, "&c2...", p, other);
-								Timed.message(59, "&c1...", p, other);
 
-								Timed.runnable(60, new BukkitRunnable() {
-
-									@Override
-									public void run() {
-
-										fightComplete(p1, p2);
-
-									}
-
-								});*/
+								/*
+								 * Timed.message(55, "&c5...", p, other);
+								 * Timed.message(56, "&c4...", p, other);
+								 * Timed.message(57, "&c3...", p, other);
+								 * Timed.message(58, "&c2...", p, other);
+								 * Timed.message(59, "&c1...", p, other);
+								 * 
+								 * Timed.runnable(60, new BukkitRunnable() {
+								 * 
+								 * @Override public void run() {
+								 * 
+								 * fightComplete(p1, p2);
+								 * 
+								 * }
+								 * 
+								 * });
+								 */
 
 							}
 
@@ -307,8 +308,8 @@ public class BattleBricksCommand implements CommandExecutor {
 	 */
 	public static void fightComplete(Competitor p1, Competitor p2) {
 
-		long score1 = p1.getDamage()*1000/p1.getHealth();
-		long score2 = p2.getDamage()*1000/p2.getHealth();
+		long score1 = p1.getDamage() * 1000 / p1.getHealth();
+		long score2 = p2.getDamage() * 1000 / p2.getHealth();
 
 		long level1 = p1.getBrick().getLevel();
 		long level2 = p2.getBrick().getLevel();
@@ -355,7 +356,7 @@ public class BattleBricksCommand implements CommandExecutor {
 
 		removeFromLists(p1);
 		removeFromLists(p2);
-		
+
 	}
 
 	public static void playSound(Player p, Sound s, float pitch, float volume) {
@@ -395,59 +396,72 @@ public class BattleBricksCommand implements CommandExecutor {
 		p.sendMessage(ChatColor.translateAlternateColorCodes('&', msg));
 
 	}
-	
+
 	public static boolean isOnFight(Player p) {
 		Competitor c = findCompetitor(p);
-		if (c!=null && c.isFighting()) return true;
-		else return false;
+		if (c != null && c.isFighting())
+			return true;
+		else
+			return false;
 	}
-	
+
 	public static Competitor findCompetitor(Player p) {
-		for(Competitor c: requests.keySet()) {
-			if (c.getPlayer()==p) return c;
+		for (Competitor c : requests.keySet()) {
+			if (c.getPlayer() == p)
+				return c;
 		}
 		return null;
 	}
 
 	public static void hit(Competitor c) {
 		c.newThrow();
-		if (c.mustRecover()) c.recover();
-		else requests.get(c).takeHit();
+		if (c.mustRecover())
+			c.recover();
+		else
+			requests.get(c).takeHit();
 	}
 
 	public static void miss(Competitor c) {
 		c.miss();
 	}
-	
+
 	public static void updateActionBar(Competitor c) {
-		//TODO clean this up a bit; functional but seriously ugly
+		// TODO clean this up a bit; functional but seriously ugly
 		Competitor c2 = requests.get(c);
 		String message = c.nextIsLeft() ? "LEFT" : "RIGHT";
 		String messageAlt = c2.nextIsLeft() ? "LEFT" : "RIGHT";
 		if (c.mustRecover() && c2.mustRecover()) {
-			message=ChatColor.YELLOW + Strings.repeat('!', c.getRecovery()) + " : " + message + ChatColor.YELLOW + " : " + Strings.repeat('!', c2.getRecovery());
-			messageAlt=ChatColor.YELLOW + Strings.repeat('!', c2.getRecovery()) + " : " + messageAlt + ChatColor.YELLOW + " : " + Strings.repeat('!', c.getRecovery());
-		}
-		else if (c.mustRecover()) {
-			message=ChatColor.RED + Strings.repeat('!', c.getRecovery()) + " : " + message + ChatColor.RED + " : x" + c.getCombo();
-			messageAlt=ChatColor.GREEN + " : x" + c.getCombo() + " : " + messageAlt + ChatColor.GREEN + " : " + Strings.repeat('!', c.getRecovery());
+			message = ChatColor.YELLOW + Strings.repeat('!', c.getRecovery()) + " : " + message + ChatColor.YELLOW
+					+ " : " + Strings.repeat('!', c2.getRecovery());
+			messageAlt = ChatColor.YELLOW + Strings.repeat('!', c2.getRecovery()) + " : " + messageAlt
+					+ ChatColor.YELLOW + " : " + Strings.repeat('!', c.getRecovery());
+		} else if (c.mustRecover()) {
+			message = ChatColor.RED + Strings.repeat('!', c.getRecovery()) + " : " + message + ChatColor.RED + " : x"
+					+ c.getCombo();
+			messageAlt = ChatColor.GREEN + " : x" + c.getCombo() + " : " + messageAlt + ChatColor.GREEN + " : "
+					+ Strings.repeat('!', c.getRecovery());
 		} else if (c2.mustRecover()) {
-			message=ChatColor.GREEN + " : x" + c2.getCombo() + " : " + message + ChatColor.GREEN + " : " + Strings.repeat('!', c2.getRecovery());
-			messageAlt=ChatColor.RED + Strings.repeat('!', c2.getRecovery()) + " : " + messageAlt + ChatColor.RED + " : x" + c2.getCombo();
+			message = ChatColor.GREEN + " : x" + c2.getCombo() + " : " + message + ChatColor.GREEN + " : "
+					+ Strings.repeat('!', c2.getRecovery());
+			messageAlt = ChatColor.RED + Strings.repeat('!', c2.getRecovery()) + " : " + messageAlt + ChatColor.RED
+					+ " : x" + c2.getCombo();
 		} else {
-			message=ChatColor.WHITE + "x1 : " + message + ChatColor.WHITE + " : x1";
-			messageAlt=ChatColor.WHITE + "x1 : " + messageAlt + ChatColor.WHITE + " : x1";
+			message = ChatColor.WHITE + "x1 : " + message + ChatColor.WHITE + " : x1";
+			messageAlt = ChatColor.WHITE + "x1 : " + messageAlt + ChatColor.WHITE + " : x1";
 		}
-		
-		message = ChatColor.WHITE+c.getBrick().getItemMeta().getDisplayName()+ChatColor.WHITE+" : "+message+ChatColor.WHITE+" : "+c2.getBrick().getItemMeta().getDisplayName();
-		messageAlt = ChatColor.WHITE+c2.getBrick().getItemMeta().getDisplayName()+" : "+messageAlt+ChatColor.WHITE+" : "+c.getBrick().getItemMeta().getDisplayName();
-		
-		message = ChatColor.GREEN+c.getHealthBar(true) + " : " +message+ ChatColor.GREEN+" : " + c2.getHealthBar(false);
-		messageAlt = ChatColor.GREEN+c2.getHealthBar(true) + " : " +messageAlt+ ChatColor.GREEN+" : " + c.getHealthBar(false);
-		
-		ActionBarUtil.sendActionBar(message,c.getPlayer());
-		ActionBarUtil.sendActionBar(messageAlt,c2.getPlayer());
+
+		message = ChatColor.WHITE + c.getBrick().getItemMeta().getDisplayName() + ChatColor.WHITE + " : " + message
+				+ ChatColor.WHITE + " : " + c2.getBrick().getItemMeta().getDisplayName();
+		messageAlt = ChatColor.WHITE + c2.getBrick().getItemMeta().getDisplayName() + " : " + messageAlt
+				+ ChatColor.WHITE + " : " + c.getBrick().getItemMeta().getDisplayName();
+
+		message = ChatColor.GREEN + c.getHealthBar(true) + " : " + message + ChatColor.GREEN + " : "
+				+ c2.getHealthBar(false);
+		messageAlt = ChatColor.GREEN + c2.getHealthBar(true) + " : " + messageAlt + ChatColor.GREEN + " : "
+				+ c.getHealthBar(false);
+
+		ActionBarUtil.sendActionBar(message, c.getPlayer());
+		ActionBarUtil.sendActionBar(messageAlt, c2.getPlayer());
 	}
-	
 
 }

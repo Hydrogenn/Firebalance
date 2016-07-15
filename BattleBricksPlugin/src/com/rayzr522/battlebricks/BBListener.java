@@ -1,8 +1,11 @@
 package com.rayzr522.battlebricks;
 
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -37,17 +40,41 @@ public class BBListener implements Listener {
 		}
 
 	}
-	
+
 	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent e) {
-		if (e.getAction()==Action.PHYSICAL || !BattleBricksCommand.isOnFight(e.getPlayer())) return;
+		if (e.getAction() == Action.PHYSICAL || !BattleBricksCommand.isOnFight(e.getPlayer()))
+			return;
 		Competitor comp = BattleBricksCommand.findCompetitor(e.getPlayer());
-		boolean isLeft = e.getAction()==Action.LEFT_CLICK_AIR || e.getAction()==Action.LEFT_CLICK_BLOCK;
-		if (comp.nextIsLeft()==isLeft) BattleBricksCommand.hit(comp);
+		boolean isLeft = e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK;
+		if (comp.nextIsLeft() == isLeft)
+			BattleBricksCommand.hit(comp);
 		else {
 			BattleBricksCommand.miss(comp);
 		}
 		e.setCancelled(true);
+	}
+
+	@EventHandler
+	public void onPlayerBreakBlock(BlockBreakEvent e) {
+
+		if (BattleBricksCommand.isOnFight(e.getPlayer())
+				&& BrickItem.isValid(e.getPlayer().getInventory().getItemInMainHand())) {
+			e.setCancelled(true);
+		}
+
+	}
+
+	@EventHandler
+	public void onPlayerDamaged(EntityDamageByEntityEvent e) {
+
+		if (e.getDamager() instanceof Player) {
+			Player p = (Player) e.getDamager();
+			if (BrickItem.isValid(p.getInventory().getItemInMainHand())) {
+				e.setCancelled(true);
+			}
+		}
+
 	}
 
 	@EventHandler
@@ -113,20 +140,20 @@ public class BBListener implements Listener {
 
 	@EventHandler
 	public void onInventoryClick(InventoryClickEvent e) {
-		
+
 	}
-	
+
 	@EventHandler
 	public void onPlayerChangeItem(PlayerItemHeldEvent e) {
 		Competitor comp = BattleBricksCommand.findCompetitor(e.getPlayer());
-		if (comp==null) return;
+		if (comp == null)
+			return;
 		if (BattleBricksCommand.isOnFight(e.getPlayer())) {
 			comp.getPlayer().sendMessage("The fight was cancelled.");
 			BattleBricksCommand.requests.get(comp).getPlayer().sendMessage("The fight was cancelled.");
 			BattleBricksCommand.requests.remove(BattleBricksCommand.requests.get(comp));
 			BattleBricksCommand.requests.remove(comp);
-		}
-		else {
+		} else {
 			comp.getPlayer().sendMessage("Your request has been cancelled.");
 		}
 		BattleBricksCommand.requests.remove(comp);
