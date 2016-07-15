@@ -13,6 +13,7 @@ import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.CraftingInventory;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
 /* 
@@ -43,7 +44,8 @@ public class BBListener implements Listener {
 
 	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent e) {
-		if (e.getAction() == Action.PHYSICAL || !BattleBricksCommand.isOnFight(e.getPlayer()))
+		if (e.getHand() != EquipmentSlot.HAND || e.getAction() == Action.PHYSICAL
+				|| !BattleBricksCommand.isOnFight(e.getPlayer()))
 			return;
 		Competitor comp = BattleBricksCommand.findCompetitor(e.getPlayer());
 		boolean isLeft = e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK;
