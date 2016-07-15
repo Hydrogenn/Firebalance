@@ -6,6 +6,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.CraftingInventory;
@@ -112,8 +113,24 @@ public class BBListener implements Listener {
 	}
 
 	@EventHandler
-	public void onInventoryClickEvent(InventoryClickEvent e) {
-
+	public void onInventoryClick(InventoryClickEvent e) {
+		
+	}
+	
+	@EventHandler
+	public void onPlayerChangeItem(PlayerItemHeldEvent e) {
+		Competitor comp = BattleBricksCommand.findCompetitor(e.getPlayer());
+		if (comp==null) return;
+		if (BattleBricksCommand.isOnFight(e.getPlayer())) {
+			comp.getPlayer().sendMessage("The fight was cancelled.");
+			BattleBricksCommand.requests.get(comp).getPlayer().sendMessage("The fight was cancelled.");
+			BattleBricksCommand.requests.remove(BattleBricksCommand.requests.get(comp));
+			BattleBricksCommand.requests.remove(comp);
+		}
+		else {
+			comp.getPlayer().sendMessage("Your request has been cancelled.");
+		}
+		BattleBricksCommand.requests.remove(comp);
 	}
 
 }

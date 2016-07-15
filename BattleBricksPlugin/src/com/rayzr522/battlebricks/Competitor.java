@@ -43,7 +43,9 @@ public class Competitor {
 		nextIsLeft = rand.nextBoolean();
 		comboTaken = 1;
 		recovery = 0;
-		hp = this.getBrick().getLevel()*12+24;
+		if (brick!=null)
+			hp = brick.getLevel()*12+24;
+		else hp = 0;
 
 	}
 

@@ -430,16 +430,16 @@ public class BattleBricksCommand implements CommandExecutor {
 		}
 		else if (c.mustRecover()) {
 			message=ChatColor.RED + Strings.repeat('!', c.getRecovery()) + " : " + message + ChatColor.RED + " : x" + c.getCombo();
-			messageAlt=ChatColor.BLUE + " : x" + c.getCombo() + " : " + messageAlt + ChatColor.BLUE + " : " + Strings.repeat('!', c.getRecovery());
+			messageAlt=ChatColor.GREEN + " : x" + c.getCombo() + " : " + messageAlt + ChatColor.GREEN + " : " + Strings.repeat('!', c.getRecovery());
 		} else if (c2.mustRecover()) {
-			message=ChatColor.BLUE + " : x" + c2.getCombo() + " : " + message + ChatColor.BLUE + " : " + Strings.repeat('!', c2.getRecovery());
+			message=ChatColor.GREEN + " : x" + c2.getCombo() + " : " + message + ChatColor.GREEN + " : " + Strings.repeat('!', c2.getRecovery());
 			messageAlt=ChatColor.RED + Strings.repeat('!', c2.getRecovery()) + " : " + messageAlt + ChatColor.RED + " : x" + c2.getCombo();
 		} else {
 			message=ChatColor.WHITE + "x1 : " + message + ChatColor.WHITE + " : x1";
 			messageAlt=ChatColor.WHITE + "x1 : " + messageAlt + ChatColor.WHITE + " : x1";
 		}
 		
-		message = ChatColor.WHITE+c.getBrick().getItemMeta().getDisplayName()+" : "+message+ChatColor.WHITE+" : "+c2.getBrick().getItemMeta().getDisplayName();
+		message = ChatColor.WHITE+c.getBrick().getItemMeta().getDisplayName()+ChatColor.WHITE+" : "+message+ChatColor.WHITE+" : "+c2.getBrick().getItemMeta().getDisplayName();
 		messageAlt = ChatColor.WHITE+c2.getBrick().getItemMeta().getDisplayName()+" : "+messageAlt+ChatColor.WHITE+" : "+c.getBrick().getItemMeta().getDisplayName();
 		
 		message = ChatColor.GREEN+c.getHealthBar(true) + " : " +message+ ChatColor.GREEN+" : " + c2.getHealthBar(false);
