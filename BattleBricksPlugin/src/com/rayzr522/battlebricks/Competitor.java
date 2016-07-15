@@ -3,6 +3,7 @@ package com.rayzr522.battlebricks;
 import java.util.Random;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Sound;
 import org.bukkit.craftbukkit.libs.joptsimple.internal.Strings;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -121,6 +122,7 @@ public class Competitor {
 	}
 
 	public void takeHit() {
+		BattleBricksCommand.playSound(BattleBricksCommand.requests.get(this).getPlayer(), Sound.BLOCK_ANVIL_PLACE, 1.0f, (float) Math.max(1.75f-0.1*comboTaken,0.5f));
 		damageTaken+=comboTaken;
 		if (comboTaken>1) comboTaken++;
 		BattleBricksCommand.updateActionBar(this);
@@ -132,12 +134,14 @@ public class Competitor {
 	}
 	
 	public void miss() {
+		BattleBricksCommand.playSound(player, Sound.BLOCK_GLASS_BREAK, 1.0f, 0.75f);
 		recovery+=3;
 		comboTaken++;
 		BattleBricksCommand.updateActionBar(this);
 	}
 	
 	public void recover() {
+		BattleBricksCommand.playSound(player, Sound.BLOCK_LAVA_EXTINGUISH, 1.0f, 2f);
 		if (recovery>0) recovery--;
 		if (recovery==0) comboTaken=1;
 		BattleBricksCommand.updateActionBar(this);

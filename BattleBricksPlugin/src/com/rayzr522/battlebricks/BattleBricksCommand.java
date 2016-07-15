@@ -145,8 +145,8 @@ public class BattleBricksCommand implements CommandExecutor {
 									}
 
 								});
-
-								Timed.message(55, "&c5...", p, other);
+								
+								/*Timed.message(55, "&c5...", p, other);
 								Timed.message(56, "&c4...", p, other);
 								Timed.message(57, "&c3...", p, other);
 								Timed.message(58, "&c2...", p, other);
@@ -161,7 +161,7 @@ public class BattleBricksCommand implements CommandExecutor {
 
 									}
 
-								});
+								});*/
 
 							}
 
@@ -307,8 +307,8 @@ public class BattleBricksCommand implements CommandExecutor {
 	 */
 	public static void fightComplete(Competitor p1, Competitor p2) {
 
-		long score1 = p2.getDamage()/p1.getHealth();
-		long score2 = p1.getDamage()/p2.getHealth();
+		long score1 = p1.getDamage()*1000/p1.getHealth();
+		long score2 = p2.getDamage()*1000/p2.getHealth();
 
 		long level1 = p1.getBrick().getLevel();
 		long level2 = p2.getBrick().getLevel();
@@ -321,7 +321,7 @@ public class BattleBricksCommand implements CommandExecutor {
 			playSound(p1.getPlayer(), Sound.ENTITY_CREEPER_DEATH, 1.0f, 1.0f);
 			playSound(p2.getPlayer(), Sound.ENTITY_CREEPER_DEATH, 1.0f, 1.0f);
 
-		} else if (score1 > score2) {
+		} else if (score1 < score2) {
 
 			p1.msg("&9" + p1.getName() + "&b won!");
 			p2.msg("&9" + p1.getName() + "&b won!");
@@ -358,7 +358,7 @@ public class BattleBricksCommand implements CommandExecutor {
 		
 	}
 
-	private static void playSound(Player p, Sound s, float pitch, float volume) {
+	public static void playSound(Player p, Sound s, float pitch, float volume) {
 
 		p.playSound(p.getLocation(), s, pitch, volume);
 
@@ -410,9 +410,9 @@ public class BattleBricksCommand implements CommandExecutor {
 	}
 
 	public static void hit(Competitor c) {
+		c.newThrow();
 		if (c.mustRecover()) c.recover();
 		else requests.get(c).takeHit();
-		c.newThrow();
 	}
 
 	public static void miss(Competitor c) {
