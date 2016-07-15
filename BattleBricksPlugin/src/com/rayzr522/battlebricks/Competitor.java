@@ -1,6 +1,9 @@
 package com.rayzr522.battlebricks;
 
+import java.util.Random;
+
 import org.bukkit.ChatColor;
+import org.bukkit.craftbukkit.libs.joptsimple.internal.Strings;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -19,6 +22,8 @@ public class Competitor {
 	private boolean nextIsLeft;
 	private int comboTaken;
 	private int recovery;
+	private long hp;
+	private static Random rand = new Random();
 	
 	public Competitor(Player player) {
 
@@ -32,6 +37,13 @@ public class Competitor {
 			brick = BrickItem.fromItem(item);
 
 		}
+		
+		fighting = false;
+		damageTaken = 0;
+		nextIsLeft = rand.nextBoolean();
+		comboTaken = 1;
+		recovery = 0;
+		hp = this.getBrick().getLevel()*12+24;
 
 	}
 
@@ -109,6 +121,7 @@ public class Competitor {
 	public void takeHit() {
 		damageTaken+=comboTaken;
 		if (comboTaken>1) comboTaken++;
+		if (damageTaken>=hp) BattleBricksCommand.fightComplete(this,BattleBricksCommand.requests.get(this));
 	}
 	
 	public int getDamage() {
@@ -122,11 +135,35 @@ public class Competitor {
 	
 	public void recover() {
 		if (recovery>0) recovery--;
+		if (recovery==0) comboTaken=1;
 	}
 	
 	public boolean mustRecover() {
 		if (recovery>0) return true;
 		else return false;
+	}
+	
+	public int getCombo() {
+		return comboTaken;
+	}
+	
+	public int getRecovery() {
+		return recovery;
+	}
+	
+	public void newThrow() {
+		nextIsLeft = rand.nextBoolean();
+	}
+
+	public long getHealth() {
+		return hp;
+	}
+	
+	public String getHealthBar(boolean self) {
+		String healthRemain = Strings.repeat('■', (int) ((this.getHealth()-this.getDamage())/6));
+		String healthLost = Strings.repeat('□', this.getDamage()/6);
+		if (self) return healthLost+healthRemain;
+		else return healthRemain+healthLost;
 	}
 	
 }

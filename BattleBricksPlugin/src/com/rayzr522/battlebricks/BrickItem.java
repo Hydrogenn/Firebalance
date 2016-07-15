@@ -51,10 +51,14 @@ public class BrickItem extends ItemStack {
 	}
 
 	public static final List<String> BOY_NAMES = Arrays.asList("Bob", "Joe", "Seinfeld", "Pfaff", "Allen", "Jeff", "Gary", "Joshua",
-			"Peter", "Nathan", "Henry", "Xavier", "Andrew", "Tony", "Doggo", "Kyle", "Carl", "Richard", "Metel");
+			"Peter", "Nathan", "Henry", "Xavier", "Andrew", "Tony", "Doggo", "Kyle", "Karl", "Richard", "Metel", "Caleb", "Jacob",
+			"Jenkins", "Matthew", "Stephen Hawking", "Steven", "Roy", "Donkey Kong", "Charizard", "Oliver", "&2Zombo", "Orteil",
+			"Nicholas", "Jay", "Brandon", "Max", "Marx", "Ghandi", "Gandhi", "Garrett", "Noah", "Sam", "Pterodactyl");
 	public static final List<String> GIRL_NAMES = Arrays.asList("Alice", "Kate", "Melissa", "Samantha", "Sarah",
-			"Sally", "Beatrice", "Noelle", "Jessica", "Alexa", "Cosmo Wanda", "Jessica", "Ashley");
-	public static final List<String> RARE_NAMES = Arrays.asList("Pepe","Sample Text");
+			"Sally", "Beatrice", "Noelle", "Jessica", "Alexa", "Cosmo Wanda", "Jessica", "Ashley", "Kaitlin", "Chloe",
+			"Katherine", "Alissa", "Alane", "Bridgette", "Hannah", "Kirby", "Amy", "Generic Brick Name", "Skeltal",
+			"Type F to Pay Respects", "Taylor", "Marie", "Lynn", "Patricia");
+	public static final List<String> RARE_NAMES = Arrays.asList("Pepe","Sample Text", "Slim Shady");
 
 	public static final Enchantment BRICK_ENCHANT = Enchantment.PROTECTION_ENVIRONMENTAL;
 	public static final String IDENTIFIER_LORE = ChatColor.translateAlternateColorCodes('&', "&b&r&1&c&k");
@@ -254,7 +258,7 @@ public class BrickItem extends ItemStack {
 	 */
 	public long updateNextLevel() {
 
-		return nextLevel = Math.round(Math.pow(100, Math.pow(level, 0.2)) / 10) * 10;
+		return nextLevel = Math.round((Math.pow(10*level, 0.7)*0.3*level+7) * 2) * 5;
 
 	}
 

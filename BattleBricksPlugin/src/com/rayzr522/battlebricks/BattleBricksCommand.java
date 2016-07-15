@@ -9,9 +9,12 @@ import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.craftbukkit.libs.joptsimple.internal.Strings;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+
+import com.rayzr522.battlebricks.utils.ActionBarUtil;
 
 /* 
  * BattleBricksCommand.java
@@ -23,14 +26,11 @@ public class BattleBricksCommand implements CommandExecutor {
 	public static HashMap<Competitor, Competitor> requests = new HashMap<Competitor, Competitor>();
 	public static HashMap<Competitor, Integer> timeouts = new HashMap<Competitor, Integer>();
 
-	@Deprecated
-	//public static HashMap<Player, Integer> twerkers = new HashMap<Player, Integer>();
-
 	private static final String HORIZONTAL_BAR = ChatColor.DARK_GRAY + "" + ChatColor.STRIKETHROUGH
 			+ "----------------------------------------------------";
 	private static final String HELP_PREFIX = "&7&l|&b ";
 
-	private static final String NO_PERMISSION = "&cYou dont' have permission to do that!";
+	private static final String NO_PERMISSION = "&cYou don't have permission to do that!";
 
 	private BattleBricks plugin;
 
@@ -116,15 +116,14 @@ public class BattleBricksCommand implements CommandExecutor {
 										+ "&b.");
 							} else {
 
-								removeFromLists(p1);
-								removeFromLists(p2);
-
 								if (!(p1.isValid() && p2.isValid())) {
 
 									msg(p, "&cSomething went wrong...");
 									msg(other, "&cSomething went wrong...");
 
 								}
+								
+								requests.put(p1, p2);
 
 								Timed.message(0, "&eStarting battle in 5 seconds...", p, other);
 								Timed.message(3, "&c3...", p, other);
@@ -137,20 +136,23 @@ public class BattleBricksCommand implements CommandExecutor {
 									@Override
 									public void run() {
 
-										requests.get(p1).setFighting(true);
-										requests.get(p2).setFighting(true);
+										p1.setFighting(true);
+										requests.remove(findCompetitor(other));
+										p2.setFighting(true);
+										requests.put(p2, p1);
+										updateActionBar(p1);
 
 									}
 
 								});
 
-								Timed.message(7, "&c&l5...", p, other);
-								Timed.message(8, "&c&l4...", p, other);
-								Timed.message(9, "&c&l3...", p, other);
-								Timed.message(10, "&c&l2...", p, other);
-								Timed.message(11, "&c&l1...", p, other);
+								Timed.message(55, "&c5...", p, other);
+								Timed.message(56, "&c4...", p, other);
+								Timed.message(57, "&c3...", p, other);
+								Timed.message(58, "&c2...", p, other);
+								Timed.message(59, "&c1...", p, other);
 
-								Timed.runnable(12, new BukkitRunnable() {
+								Timed.runnable(60, new BukkitRunnable() {
 
 									@Override
 									public void run() {
@@ -174,8 +176,6 @@ public class BattleBricksCommand implements CommandExecutor {
 							startTimeout(p1);
 
 						}
-
-						requests.put(p1, p2);
 
 					}
 
@@ -239,7 +239,7 @@ public class BattleBricksCommand implements CommandExecutor {
 	 * @param p
 	 *            = the competitor
 	 */
-	public void removeFromLists(Competitor p) {
+	public static void removeFromLists(Competitor p) {
 
 		requests.remove(p);
 
@@ -298,23 +298,20 @@ public class BattleBricksCommand implements CommandExecutor {
 	}
 
 	/**
-	 * Called after the 5 seconds of twerking
+	 * Called after the 5 seconds of fighting
 	 * 
 	 * @param p1
 	 *            = the first competitor
 	 * @param p2
 	 *            = the second competitor
 	 */
-	public void fightComplete(Competitor p1, Competitor p2) {
+	public static void fightComplete(Competitor p1, Competitor p2) {
 
-		long damage1 = p2.getDamage();
-		long damage2 = p1.getDamage();
+		long score1 = p2.getDamage()/p1.getHealth();
+		long score2 = p1.getDamage()/p2.getHealth();
 
 		long level1 = p1.getBrick().getLevel();
 		long level2 = p2.getBrick().getLevel();
-
-		long score1 = damage1 + level1 * 5;
-		long score2 = damage2 + level2 * 5;
 
 		if (score1 == score2) {
 
@@ -356,9 +353,12 @@ public class BattleBricksCommand implements CommandExecutor {
 
 		}
 
+		removeFromLists(p1);
+		removeFromLists(p2);
+		
 	}
 
-	private void playSound(Player p, Sound s, float pitch, float volume) {
+	private static void playSound(Player p, Sound s, float pitch, float volume) {
 
 		p.playSound(p.getLocation(), s, pitch, volume);
 
@@ -396,7 +396,7 @@ public class BattleBricksCommand implements CommandExecutor {
 
 	}
 	
-	public static boolean isFighting(Player p) {
+	public static boolean isOnFight(Player p) {
 		Competitor c = findCompetitor(p);
 		if (c!=null && c.isFighting()) return true;
 		else return false;
@@ -412,10 +412,42 @@ public class BattleBricksCommand implements CommandExecutor {
 	public static void hit(Competitor c) {
 		if (c.mustRecover()) c.recover();
 		else requests.get(c).takeHit();
+		c.newThrow();
 	}
 
 	public static void miss(Competitor c) {
 		c.miss();
 	}
+	
+	public static void updateActionBar(Competitor c) {
+		//TODO clean this up a bit; functional but seriously ugly
+		Competitor c2 = requests.get(c);
+		String message = c.nextIsLeft() ? "LEFT" : "RIGHT";
+		String messageAlt = c2.nextIsLeft() ? "LEFT" : "RIGHT";
+		if (c.mustRecover() && c2.mustRecover()) {
+			message=ChatColor.YELLOW + Strings.repeat('!', c.getRecovery()) + " : " + message + ChatColor.YELLOW + " : " + Strings.repeat('!', c2.getRecovery());
+			messageAlt=ChatColor.YELLOW + Strings.repeat('!', c2.getRecovery()) + " : " + messageAlt + ChatColor.YELLOW + " : " + Strings.repeat('!', c.getRecovery());
+		}
+		else if (c.mustRecover()) {
+			message=ChatColor.RED + Strings.repeat('!', c.getRecovery()) + " : " + message + ChatColor.RED + " : x" + c.getCombo();
+			messageAlt=ChatColor.BLUE + " : x" + c.getCombo() + " : " + messageAlt + ChatColor.BLUE + " : " + Strings.repeat('!', c.getRecovery());
+		} else if (c2.mustRecover()) {
+			message=ChatColor.BLUE + " : x" + c2.getCombo() + " : " + message + ChatColor.BLUE + " : " + Strings.repeat('!', c2.getRecovery());
+			messageAlt=ChatColor.RED + Strings.repeat('!', c2.getRecovery()) + " : " + messageAlt + ChatColor.RED + " : x" + c2.getCombo();
+		} else {
+			message=ChatColor.WHITE + "x1 : " + message + ChatColor.WHITE + " : x1";
+			messageAlt=ChatColor.WHITE + "x1 : " + messageAlt + ChatColor.WHITE + " : x1";
+		}
+		
+		message = ChatColor.WHITE+c.getBrick().getItemMeta().getDisplayName()+" : "+message+ChatColor.WHITE+" : "+c2.getBrick().getItemMeta().getDisplayName();
+		messageAlt = ChatColor.WHITE+c2.getBrick().getItemMeta().getDisplayName()+" : "+messageAlt+ChatColor.WHITE+" : "+c.getBrick().getItemMeta().getDisplayName();
+		
+		message = ChatColor.GREEN+c.getHealthBar(true) + " : " +message+ ChatColor.GREEN+" : " + c2.getHealthBar(false);
+		messageAlt = ChatColor.GREEN+c2.getHealthBar(true) + " : " +messageAlt+ ChatColor.GREEN+" : " + c.getHealthBar(false);
+		
+		ActionBarUtil.sendActionBar(message,c.getPlayer());
+		ActionBarUtil.sendActionBar(messageAlt,c2.getPlayer());
+	}
+	
 
 }
