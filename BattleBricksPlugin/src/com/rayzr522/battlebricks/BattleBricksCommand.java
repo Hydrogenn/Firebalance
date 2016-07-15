@@ -90,7 +90,7 @@ public class BattleBricksCommand implements CommandExecutor {
 
 				if (requests.containsKey(p1)) {
 
-					msg(p, "&bYou've already sent a fight request to &9" + requests.get(p));
+					msg(p, "&bYou've already sent a fight request to &9" + requests.get(p1).getName());
 
 				} else {
 

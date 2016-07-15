@@ -50,15 +50,16 @@ public class BrickItem extends ItemStack {
 		PLACEHOLDER_3.setItemMeta(meta3);
 	}
 
-	public static final List<String> BOY_NAMES = Arrays.asList("Bob", "Joe", "Seinfeld", "Pfaff", "Allen", "Jeff", "Gary", "Joshua",
-			"Peter", "Nathan", "Henry", "Xavier", "Andrew", "Tony", "Doggo", "Kyle", "Karl", "Richard", "Metel", "Caleb", "Jacob",
-			"Jenkins", "Matthew", "Stephen Hawking", "Steven", "Roy", "Donkey Kong", "Charizard", "Oliver", "&2Zombo", "Orteil",
-			"Nicholas", "Jay", "Brandon", "Max", "Marx", "Ghandi", "Gandhi", "Garrett", "Noah", "Sam", "Pterodactyl");
+	public static final List<String> BOY_NAMES = Arrays.asList("Bob", "Joe", "Seinfeld", "Pfaff", "Allen", "Jeff",
+			"Gary", "Joshua", "Peter", "Nathan", "Henry", "Xavier", "Andrew", "Tony", "Doggo", "Kyle", "Karl",
+			"Richard", "Metel", "Caleb", "Jacob", "Jenkins", "Matthew", "Stephen Hawking", "Steven", "Roy",
+			"Donkey Kong", "Charizard", "Oliver", "&2Zombo", "Orteil", "Nicholas", "Jay", "Brandon", "Max", "Marx",
+			"Ghandi", "Gandhi", "Garrett", "Noah", "Sam", "Pterodactyl");
 	public static final List<String> GIRL_NAMES = Arrays.asList("Alice", "Kate", "Melissa", "Samantha", "Sarah",
 			"Sally", "Beatrice", "Noelle", "Jessica", "Alexa", "Cosmo Wanda", "Jessica", "Ashley", "Kaitlin", "Chloe",
 			"Katherine", "Alissa", "Alane", "Bridgette", "Hannah", "Kirby", "Amy", "Generic Brick Name", "Skeltal",
 			"Type F to Pay Respects", "Taylor", "Marie", "Lynn", "Patricia");
-	public static final List<String> RARE_NAMES = Arrays.asList("Pepe","Sample Text", "Slim Shady");
+	public static final List<String> RARE_NAMES = Arrays.asList("Pepe", "Sample Text", "Slim Shady");
 
 	public static final Enchantment BRICK_ENCHANT = Enchantment.PROTECTION_ENVIRONMENTAL;
 	public static final String IDENTIFIER_LORE = ChatColor.translateAlternateColorCodes('&', "&b&r&1&c&k");
@@ -101,8 +102,10 @@ public class BrickItem extends ItemStack {
 		ItemMeta meta = brick.getItemMeta();
 
 		String name = randomName();
-		if (RARE_NAMES.contains(name)) meta.setDisplayName(ChatColor.GOLD + name); else
-		meta.setDisplayName(BOY_NAMES.contains(name) ? ChatColor.BLUE + name : ChatColor.LIGHT_PURPLE + name);
+		if (RARE_NAMES.contains(name))
+			meta.setDisplayName(ChatColor.GOLD + name);
+		else
+			meta.setDisplayName(BOY_NAMES.contains(name) ? ChatColor.BLUE + name : ChatColor.LIGHT_PURPLE + name);
 
 		brick.setItemMeta(meta);
 
@@ -117,9 +120,10 @@ public class BrickItem extends ItemStack {
 	public static String randomName() {
 
 		boolean boy = rand.nextBoolean();
-		boolean isShiny = rand.nextInt(8191)==1;
-		
-		if (isShiny) return RARE_NAMES.get(rand.nextInt(RARE_NAMES.size()));
+		boolean isShiny = rand.nextInt(8191) == 1;
+
+		if (isShiny)
+			return RARE_NAMES.get(rand.nextInt(RARE_NAMES.size()));
 		return boy ? BOY_NAMES.get(rand.nextInt(BOY_NAMES.size())) : GIRL_NAMES.get(rand.nextInt(GIRL_NAMES.size()));
 
 	}
@@ -258,7 +262,7 @@ public class BrickItem extends ItemStack {
 	 */
 	public long updateNextLevel() {
 
-		return nextLevel = Math.round((Math.pow(10*level, 0.7)*0.3*level+7) * 2) * 5;
+		return nextLevel = Math.round((Math.pow(10 * level, 0.7) * 0.3 * level + 7) * 2) * 5;
 
 	}
 
@@ -348,7 +352,8 @@ public class BrickItem extends ItemStack {
 	 * Formats a large number by inserting commas, as is usually when writing
 	 * numbers by hand.
 	 * 
-	 * No longer used, as I (Rayzr522) found a better method to do this: {@link BrickItem#formatNumber(long)}
+	 * No longer used, as I (Rayzr522) found a better method to do this:
+	 * {@link BrickItem#formatNumber(long)}
 	 * 
 	 * @param num
 	 *            = the number to format.

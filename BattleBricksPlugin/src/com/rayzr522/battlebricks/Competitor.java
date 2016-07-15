@@ -175,4 +175,6 @@ public class Competitor {
 		else return healthRemain+healthLost;
 	}
 	
+	
+	
 }
