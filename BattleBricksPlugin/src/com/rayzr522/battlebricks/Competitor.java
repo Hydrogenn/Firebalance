@@ -123,6 +123,7 @@ public class Competitor {
 	public void takeHit() {
 		damageTaken+=comboTaken;
 		if (comboTaken>1) comboTaken++;
+		BattleBricksCommand.updateActionBar(this);
 		if (damageTaken>=hp) BattleBricksCommand.fightComplete(this,BattleBricksCommand.requests.get(this));
 	}
 	
@@ -133,11 +134,13 @@ public class Competitor {
 	public void miss() {
 		recovery+=3;
 		comboTaken++;
+		BattleBricksCommand.updateActionBar(this);
 	}
 	
 	public void recover() {
 		if (recovery>0) recovery--;
 		if (recovery==0) comboTaken=1;
+		BattleBricksCommand.updateActionBar(this);
 	}
 	
 	public boolean mustRecover() {

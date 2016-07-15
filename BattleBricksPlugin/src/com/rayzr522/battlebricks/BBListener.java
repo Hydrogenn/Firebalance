@@ -47,7 +47,6 @@ public class BBListener implements Listener {
 		else {
 			BattleBricksCommand.miss(comp);
 		}
-		BattleBricksCommand.updateActionBar(comp);
 		e.setCancelled(true);
 	}
 
