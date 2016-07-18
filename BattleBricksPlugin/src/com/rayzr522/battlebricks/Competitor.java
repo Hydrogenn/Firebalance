@@ -134,14 +134,14 @@ public class Competitor {
 	}
 	
 	public void miss() {
-		BattleBricksCommand.playSound(player, Sound.BLOCK_GLASS_BREAK, 1.0f, 0.75f);
+		BattleBricksCommand.playSound(player, Sound.ENTITY_SILVERFISH_DEATH, 1.0f, 1.25f);
 		recovery+=3;
 		comboTaken++;
 		BattleBricksCommand.updateActionBar(this);
 	}
 	
 	public void recover() {
-		BattleBricksCommand.playSound(player, Sound.BLOCK_LAVA_EXTINGUISH, 1.0f, 2f);
+		BattleBricksCommand.playSound(player, Sound.ENTITY_ZOMBIE_INFECT, 1.0f, (float) Math.max(2.0f-0.25*recovery,0.5f));
 		if (recovery>0) recovery--;
 		if (recovery==0) comboTaken=1;
 		BattleBricksCommand.updateActionBar(this);
