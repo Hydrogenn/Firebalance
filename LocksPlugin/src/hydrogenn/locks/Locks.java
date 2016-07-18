@@ -50,6 +50,8 @@ public class Locks extends JavaPlugin {
 		getServer().addRecipe(keyAdd);
 
 		getServer().getPluginManager().registerEvents(new LocksListener(), this);
+		
+		ConfigManager.init(this);
 
 		getLogger().info("Locks v" + getDescription().getVersion() + " enabled");
 
@@ -57,7 +59,7 @@ public class Locks extends JavaPlugin {
 
 	public void onDisable() {
 
-		
+		ConfigManager.save();
 		getLogger().info("Locks v" + getDescription().getVersion() + " disabled");
 
 	}
