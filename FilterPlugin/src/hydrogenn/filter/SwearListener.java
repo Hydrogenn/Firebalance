@@ -64,8 +64,6 @@ public class SwearListener implements Listener {
 		ItemStack item = e.getCurrentItem();
 		ItemMeta meta = item.getItemMeta();
 
-		System.out.println("Has display name? " + meta.hasDisplayName());
-
 		if (meta.hasDisplayName()) {
 			String name = filterAll(meta.getDisplayName(), filters).replace(ChatColor.RESET.toString(),
 					ChatColor.RESET + "" + ChatColor.ITALIC); // The extra
