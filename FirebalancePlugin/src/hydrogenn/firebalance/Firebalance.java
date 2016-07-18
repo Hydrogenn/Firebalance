@@ -16,7 +16,6 @@ import java.util.Hashtable;
 import java.util.List;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
@@ -212,12 +211,12 @@ public class Firebalance extends JavaPlugin {
 
 	@Deprecated
 	public void loadMiscellaneous() {
-
 		
 		// Set up configs
 		config.addDefault("test", true);
 		config.options().copyDefaults(true);
 		saveConfig();
+
 		// Read and transfer chunk and player data from flatfile
 		List<String> lineList = new ArrayList<>();
 
@@ -237,7 +236,7 @@ public class Firebalance extends JavaPlugin {
 					new ArrayList<String>(Arrays.asList(subList[7].split(",")))));
 		}*/
 
-		lineList = displayObjects("chest");
+		/*lineList = displayObjects("chest");
 		for (int i = 0; i < lineList.size(); i++) {
 			String[] subList = lineList.get(i).split(":");
 			if (subList.length < 4) {
@@ -247,7 +246,7 @@ public class Firebalance extends JavaPlugin {
 				ChestSpec.list.add(new ChestSpec(new Location(Bukkit.getWorld(Bukkit.getWorlds().get(0).getName()),
 						Integer.parseInt(subList[0]), Integer.parseInt(subList[1]), Integer.parseInt(subList[2])),
 						subList[3]));
-		}
+		}*/
 
 		lineList = displayObjects("misc");
 		{
