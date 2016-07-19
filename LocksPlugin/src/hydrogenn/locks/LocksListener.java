@@ -23,9 +23,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import hydrogenn.firebalance.ChestSpec;
-import hydrogenn.firebalance.utils.Messenger;
-
 public class LocksListener implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGH)
@@ -114,6 +111,7 @@ public class LocksListener implements Listener {
 
 			Player player = event.getPlayer();
 			Block chest = event.getClickedBlock();
+			//TODO find the large chest
 
 			String chestId = null;
 			ItemStack key = event.getItem();
@@ -128,7 +126,7 @@ public class LocksListener implements Listener {
 
 			for (ChestSpec s : ChestSpec.list) {
 				if (s.getCoords().equals(chest.getLocation())) {
-					chestId = s.getId();
+					chestId = s.getLock();
 					if (chestId.length() < 1) {
 						chestId = null;
 						return;
@@ -154,7 +152,8 @@ public class LocksListener implements Listener {
 				}
 			} else if (isKey && !player.isSneaking()) {
 				ChestSpec.list.add(
-						new ChestSpec(chest.getLocation(), keyMeta.getLore().get(0).replace(ChatColor.GRAY + "", "")));
+					new ChestSpec(chest.getLocation(), chest.getLocation(),
+					keyMeta.getLore().get(0).replace(ChatColor.GRAY + "", "")));
 				event.setCancelled(true);
 			}
 			if (key != null & keyMeta != null)
@@ -187,6 +186,7 @@ public class LocksListener implements Listener {
 				return;
 			}
 		}
+		//TODO check if the player is creating a large chest
 
 	}
 

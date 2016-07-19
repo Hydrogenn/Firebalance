@@ -70,7 +70,7 @@ public class ConfigManager {
 				continue;
 			}
 
-			File f = new File(chests, spec.getCoords().toString() + ".yml");
+			File f = new File(chests, spec.getId() + ".yml");
 			YamlConfiguration conf = YamlConfiguration.loadConfiguration(f);
 
 			try {
