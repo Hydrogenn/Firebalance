@@ -3,7 +3,9 @@ package hydrogenn.firebalance;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.UUID;
 
+import org.bukkit.Location;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 public class ChunkSpec {
@@ -14,12 +16,12 @@ public class ChunkSpec {
 	private String owner;
 	private boolean national;
 	private boolean outpost;
-	private ArrayList<String> shared;
+	private ArrayList<UUID> shared;
 	public static List<ChunkSpec> list = new ArrayList<>();
-	public static Hashtable<int[], ChunkSpec> table = new Hashtable<int[], ChunkSpec>();
+	public static Hashtable<Location, ChunkSpec> table = new Hashtable<Location, ChunkSpec>();
 
 	public ChunkSpec(int x, int y, int z, byte nation, String owner, boolean national, boolean outpost,
-			ArrayList<String> shared) {
+			ArrayList<UUID> shared) {
 		this.setX(x);
 		this.setY(y);
 		this.setZ(z);
@@ -28,7 +30,7 @@ public class ChunkSpec {
 		this.setNational(national);
 		this.setOutpost(outpost);
 		this.setShared(shared);
-		// TODO send new items to table
+		// FIXME send new items to table
 		// int[] xyz = {x,y,z};
 		// table.put(xyz, this);
 	}
@@ -41,7 +43,7 @@ public class ChunkSpec {
 		this.setOwner(owner);
 		this.setNational(national);
 		this.setOutpost(outpost);
-		this.setShared(new ArrayList<String>());
+		this.setShared(new ArrayList<UUID>());
 	}
 
 	public byte getNation() {
@@ -92,11 +94,11 @@ public class ChunkSpec {
 		this.national = national;
 	}
 
-	public ArrayList<String> getShared() {
+	public ArrayList<UUID> getShared() {
 		return shared;
 	}
 
-	public void setShared(ArrayList<String> shared) {
+	public void setShared(ArrayList<UUID> shared) {
 		this.shared = shared;
 	}
 
@@ -109,14 +111,13 @@ public class ChunkSpec {
 	}
 
 	public static String getHeightString(int height) {
-		String result = null;
 		if (height == -1)
-			result = "Undergrounds";
-		if (height == 0)
-			result = "Surface";
-		if (height == 1)
-			result = "Skyloft";
-		return result;
+			return "Undergrounds";
+		else if (height == 0)
+			return "Surface";
+		else if (height == 1)
+			return "Skyloft";
+		else throw new IllegalArgumentException("Invalid height");
 	}
 
 	public static ChunkSpec loadFromConfig(YamlConfiguration config) {

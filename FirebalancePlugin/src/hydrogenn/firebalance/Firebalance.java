@@ -14,11 +14,10 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import hydrogenn.firebalance.command.CommandAggressive;
@@ -34,13 +33,10 @@ import hydrogenn.firebalance.command.CommandSentence;
 import hydrogenn.firebalance.command.CommandSetNation;
 import hydrogenn.firebalance.file.ConfigManager;
 
-//TODO let's make a plugin where you can enchant pumpkins like a helmet. You cannot place it.
-//TODO test adding multiple nations
+//as a side note, why can't you enchant pumpkins like a helmet? should make that sometime.
+//FIXME player-built nations
 public class Firebalance extends JavaPlugin {
-
-	public static MetadataValue fromSpawner;
-	// TODO change to hashmap storage
-	// TODO add special permissions list (?)
+	
 	FileConfiguration config = getConfig();
 	public static List<String> nationNameList = new ArrayList<>();
 	public static Hashtable<String, String> killList = new Hashtable<String, String>();
@@ -162,8 +158,6 @@ public class Firebalance extends JavaPlugin {
 
 	@Override
 	public void onEnable() {
-
-		fromSpawner = new FixedMetadataValue(this, true);
 		
 		// Register commands
 		this.getCommand("nation").setExecutor(new CommandSetNation());
@@ -188,7 +182,7 @@ public class Firebalance extends JavaPlugin {
 		loadMiscellaneous();
 
 		// Find online players (for compatibility with /rl)
-		for (PlayerSpec s : PlayerSpec.table.values()) {
+		for (PlayerSpec s : PlayerSpec.getPlayers()) {
 			if (Bukkit.getPlayer(s.getName()) != null)
 				s.setOnline(true);
 		}
@@ -220,34 +214,6 @@ public class Firebalance extends JavaPlugin {
 		// Read and transfer chunk and player data from flatfile
 		List<String> lineList = new ArrayList<>();
 
-		/*lineList = displayObjects("users");
-		for (int i = 0; i < lineList.size(); i++) {
-			String[] subList = lineList.get(i).split(":");
-			PlayerSpec.list.add(new PlayerSpec(subList[0], subList.length > 4 ? UUID.fromString(subList[4]) : null,
-					Byte.parseByte(subList[1]), Integer.parseInt(subList[2]), Integer.parseInt(subList[3]), false));
-		}
-
-		lineList = displayObjects("chunk");
-		for (int i = 0; i < lineList.size(); i++) {
-			String[] subList = lineList.get(i).split(":");
-			ChunkSpec.list.add(new ChunkSpec(Integer.parseInt(subList[0]), Integer.parseInt(subList[1]),
-					Integer.parseInt(subList[2]), Byte.parseByte(subList[3]), subList[4],
-					Boolean.parseBoolean(subList[5]), Boolean.parseBoolean(subList[6]),
-					new ArrayList<String>(Arrays.asList(subList[7].split(",")))));
-		}*/
-
-		/*lineList = displayObjects("chest");
-		for (int i = 0; i < lineList.size(); i++) {
-			String[] subList = lineList.get(i).split(":");
-			if (subList.length < 4) {
-				ChestSpec.list.add(new ChestSpec(new Location(Bukkit.getWorld(Bukkit.getWorlds().get(0).getName()),
-						Integer.parseInt(subList[0]), Integer.parseInt(subList[1]), Integer.parseInt(subList[2])), ""));
-			} else
-				ChestSpec.list.add(new ChestSpec(new Location(Bukkit.getWorld(Bukkit.getWorlds().get(0).getName()),
-						Integer.parseInt(subList[0]), Integer.parseInt(subList[1]), Integer.parseInt(subList[2])),
-						subList[3]));
-		}*/
-
 		lineList = displayObjects("misc");
 		{
 			{
@@ -269,17 +235,18 @@ public class Firebalance extends JavaPlugin {
 
 	}
 
+	//Kept for compatibility reasons
 	@Deprecated
 	public void OLD_configSave() {
 
 		clearObject("users");
-		for (int i = 0; i < PlayerSpec.list.size(); i++) {
+		for (PlayerSpec playerSpec : PlayerSpec.getPlayers()) {
 			String line = "";
-			line += PlayerSpec.list.get(i).getName();
-			line += ":" + PlayerSpec.list.get(i).getNation();
-			line += ":" + PlayerSpec.list.get(i).getRole();
-			line += ":" + PlayerSpec.list.get(i).getCredits();
-			line += ":" + PlayerSpec.list.get(i).getUUID();
+			line += playerSpec.getName();
+			line += ":" + playerSpec.getNation();
+			line += ":" + playerSpec.getRole();
+			line += ":" + playerSpec.getCredits();
+			line += ":" + playerSpec.getUUID();
 			storeObject(line, "users");
 		}
 		clearObject("chunk");
@@ -293,7 +260,7 @@ public class Firebalance extends JavaPlugin {
 			line += ":" + ChunkSpec.list.get(i).isNational();
 			line += ":" + ChunkSpec.list.get(i).isOutpost();
 			line += ":";
-			for (String s2 : ChunkSpec.list.get(i).getShared()) {
+			for (UUID s2 : ChunkSpec.list.get(i).getShared()) {
 				line += s2 + ",";
 			}
 			if (ChunkSpec.list.get(i).getShared().size() == 0)

@@ -18,7 +18,6 @@ import hydrogenn.firebalance.PlayerSpec;
  * Made by Rayzr522
  * Date: Jul 9, 2016
  */
-@SuppressWarnings("deprecation")
 public class ConfigManager {
 
 	private static Firebalance plugin;
@@ -66,13 +65,13 @@ public class ConfigManager {
 
 		List<File> files = Arrays.asList(players.listFiles());
 
-		PlayerSpec.list.clear();
+		PlayerSpec.clearPlayers();
 
 		for (File f : files) {
 
 			YamlConfiguration conf = YamlConfiguration.loadConfiguration(f);
 
-			PlayerSpec.list.add(PlayerSpec.loadFromConfig(conf));
+			PlayerSpec.loadFromConfig(conf);
 
 		}
 
@@ -82,11 +81,11 @@ public class ConfigManager {
 
 		File players = getFolder("players");
 		
-		for (PlayerSpec spec : PlayerSpec.list) {
+		for (PlayerSpec spec : PlayerSpec.getPlayers()) {
 			
 			if (spec == null) {
 				continue;
-			}
+			} //why is this here?
 
 			File f = new File(players, spec.getUUID() + ".yml");
 			YamlConfiguration conf = YamlConfiguration.loadConfiguration(f);

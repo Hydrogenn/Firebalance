@@ -20,13 +20,12 @@ public class CommandSetNation implements CommandExecutor {
 		int[] count = { 0, 0, 0, 0, 0 };
 		boolean[] options = { true, true, true, false, true };
 		String optionString = "";
-		for (PlayerSpec s : PlayerSpec.list) {
+		for (PlayerSpec s : PlayerSpec.getPlayers()) {
 			if (s.getNation() != -1)
 				count[s.getNation()]++;
 		}
 		if (args.length < 1) {
 			for (int i = 0; i <= 4; i++) {
-				// TODO readd a more limited BOP check
 				/*
 				 * count[i]++; if (currentNation!=-1) count[currentNation]--; if
 				 * (i!=0&&count[i]>Math.ceil(1.5*Math.min(Math.min(count[1],
@@ -48,12 +47,11 @@ public class CommandSetNation implements CommandExecutor {
 		}
 		if (sender instanceof Player) {
 			Player player = (Player) sender;
-			byte nationValue = -1;
+			PlayerSpec playerSpec = PlayerSpec.getPlayer(player.getUniqueId());
+			byte nationValue = Firebalance.getNationByte(args[0]);
 			boolean setKing = true;
 			boolean setKingQuery = true;
 			boolean noChange = false;
-			PlayerSpec result = null;
-			nationValue = Firebalance.getNationByte(args[0]);
 			if (nationValue == -1) {
 				Messenger.send(player, "&cThe computer didn't understand, so I guess you're a freelancer now.");
 				nationValue = 0;
@@ -64,51 +62,44 @@ public class CommandSetNation implements CommandExecutor {
 			}
 			String nationString = "the freelancers";
 			String nationColor = ChatColor.WHITE + "";
-			for (PlayerSpec s : PlayerSpec.list) {
-				if (s.getName().equals(player.getName())) {
-					// TODO readd a more limited BOP check
-					/*
-					 * count[nationValue]++; if (s.getNation()!=-1)
-					 * count[s.getNation()]--; if
-					 * (nationValue!=0&&count[nationValue]>Math.ceil(1.5*Math.
-					 * min(Math.min(count[1], count[2]), count[4]))) {
-					 * player.sendMessage(
-					 * "You can't join this nation. It would break the balance of power."
-					 * ); noChange=true; count[nationValue]--; if
-					 * (s.getNation()!=-1) count[s.getNation()]++; } else if
-					 * (nationValue==0&&count[nationValue]>Math.ceil(2*Math.min(
-					 * Math.min(count[1], count[2]), count[4]))) {
-					 * player.sendMessage(
-					 * "You can't play freelance, there are too many.");
-					 * noChange=true; count[nationValue]--; if
-					 * (s.getNation()!=-1) count[s.getNation()]++; } else {
-					 */
-					if (s.getNation() != nationValue) {
-						s.setRole(0);
-						s.setNation(nationValue);
-					} else {
-						player.sendMessage("Changing from your current nation to your current nation.");
-						setKingQuery = false;
-						setKing = false;
-						noChange = true;
-					}
-					if (Firebalance.getNationName(nationValue, true) != null) {
-						nationString = Firebalance.getNationName(nationValue, true);
-						nationColor = Firebalance.getNationColor(nationValue, true);
-					}
-					result = s;
-					// }
-				}
+			/*
+			 * count[nationValue]++; if (s.getNation()!=-1)
+			 * count[s.getNation()]--; if
+			 * (nationValue!=0&&count[nationValue]>Math.ceil(1.5*Math.
+			 * min(Math.min(count[1], count[2]), count[4]))) {
+			 * player.sendMessage(
+			 * "You can't join this nation. It would break the balance of power."
+			 * ); noChange=true; count[nationValue]--; if
+			 * (s.getNation()!=-1) count[s.getNation()]++; } else if
+			 * (nationValue==0&&count[nationValue]>Math.ceil(2*Math.min(
+			 * Math.min(count[1], count[2]), count[4]))) {
+			 * player.sendMessage(
+			 * "You can't play freelance, there are too many.");
+			 * noChange=true; count[nationValue]--; if
+			 * (s.getNation()!=-1) count[s.getNation()]++; } else {
+			 */
+			if (playerSpec.getNation() != nationValue) {
+				playerSpec.setRole(0);
+				playerSpec.setNation(nationValue);
+			} else {
+				player.sendMessage("Changing from your current nation to your current nation.");
+				setKingQuery = false;
+				setKing = false;
+				noChange = true;
+			}
+			if (Firebalance.getNationName(nationValue, true) != null) {
+				nationString = Firebalance.getNationName(nationValue, true);
+				nationColor = Firebalance.getNationColor(nationValue, true);
 			}
 			if (setKingQuery == true) {
-				for (PlayerSpec s : PlayerSpec.table.values()) {
+				for (PlayerSpec s : PlayerSpec.getPlayers()) {
 					if (s.getNation() == nationValue && !s.getName().equals(player.getName())) {
 						setKing = false;
 					}
 				}
 			}
 			if (setKing) {
-				result.setRole(1);
+				playerSpec.setRole(1);
 				Bukkit.broadcastMessage(
 						nationColor + player.getName() + " has claimed the throne of " + nationString + "!");
 			} else if (!noChange)

@@ -2,6 +2,7 @@
 package hydrogenn.firebalance.command;
 
 import java.util.Iterator;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -17,7 +18,6 @@ import hydrogenn.firebalance.utils.ArgList;
 import hydrogenn.firebalance.utils.Messenger;
 import hydrogenn.firebalance.utils.MultiMessage;
 
-@SuppressWarnings("deprecation")
 public class CommandChunk implements CommandExecutor {
 
 	private MultiMessage helpMessage = new MultiMessage().setPrefix("&7")
@@ -61,15 +61,14 @@ public class CommandChunk implements CommandExecutor {
 		if (sender instanceof Player) {
 
 			final Player player = (Player) sender;
+			PlayerSpec spec = PlayerSpec.getPlayer(player.getUniqueId());
 			final int x = player.getLocation().getChunk().getX();
-
-			int yp = 0;
+			final int y;
 			if (player.getLocation().getBlockY() < 56)
-				yp = -1;
-			if (player.getLocation().getBlockY() > 112)
-				yp = 1;
-
-			final int y = yp;
+				y = -1;
+			else if (player.getLocation().getBlockY() > 112)
+				y = 1;
+			else y = 0;
 			final int z = player.getLocation().getChunk().getZ();
 
 			byte nationp = 0;
@@ -78,17 +77,13 @@ public class CommandChunk implements CommandExecutor {
 
 			String nationStringp = "";
 			String chunkNationString = "yourself";
-			for (PlayerSpec s : PlayerSpec.list) {
-				if (s.getName().equals(player.getName())) {
-					nationp = s.getNation();
-					king = (s.getRole() == 1);
-					if (nationp == -1 && !arg.equals("info")) {
-						Messenger.send(player, "You need to be a member of a nation before you can do land claims.");
-						return true;
-					}
-					nationStringp = Firebalance.getNationName(nationp, false);
-				}
+			nationp = spec.getNation();
+			king = (spec.getRole() == 1);
+			if (nationp == -1 && !arg.equals("info")) {
+				Messenger.send(player, "You need to be a member of a nation before you can do land claims.");
+				return true;
 			}
+			nationStringp = Firebalance.getNationName(nationp, false);
 			final byte nation = nationp;
 			final String nationString = nationStringp;
 			// Return information on current chunk
@@ -252,15 +247,12 @@ public class CommandChunk implements CommandExecutor {
 							Messenger.send(player, "This claim is already shared with that player.");
 						else
 							try {
-								for (PlayerSpec s2 : PlayerSpec.list) {
-									if (s2.getName().equals(args[1])) {
-										s.getShared().add(args[1]);
-										Messenger.send(player, "Shared your chunk with " + args[1]);
-										if (Bukkit.getPlayer(args[1]) != null)
-											Bukkit.getPlayer(args[1])
-													.sendMessage(player.getName() + " has shared a chunk with you.");
-									}
-								}
+								PlayerSpec otherPlayer = PlayerSpec.getPlayerFromName(args[1]);
+								s.getShared().add(otherPlayer.getUUID());
+								Messenger.send(player, "Shared your chunk with " + args[1]);
+								if (Bukkit.getPlayer(args[1]) != null)
+									Bukkit.getPlayer(args[1])
+											.sendMessage(player.getName() + " has shared a chunk with you.");
 							} catch (ArrayIndexOutOfBoundsException e) {
 								Messenger.send(player, "You'll have to specify a player to share with.");
 							}
@@ -268,8 +260,8 @@ public class CommandChunk implements CommandExecutor {
 					}
 					if (arg.equals("unshare")) {
 						try {
-							for (Iterator<String> i2 = s.getShared().iterator(); i2.hasNext();) {
-								String s2 = i2.next();
+							for (Iterator<UUID> i2 = s.getShared().iterator(); i2.hasNext();) {
+								UUID s2 = i2.next();
 								if (s2.equals(args[1])) {
 									i2.remove();
 									Messenger.send(player, "Removed a share with " + args[1]);
@@ -299,7 +291,7 @@ public class CommandChunk implements CommandExecutor {
 
 									public void run() {
 										s.setNation((byte) (otherNation | nation));
-										for (PlayerSpec s2 : PlayerSpec.list) {
+										for (PlayerSpec s2 : PlayerSpec.getPlayers()) {
 											if ((s2.getNation() & otherNation) > 0 && s2.getRole() == 1) {
 												Bukkit.getPlayer(s2.getName())
 														.sendMessage(nationString
@@ -318,7 +310,7 @@ public class CommandChunk implements CommandExecutor {
 								return true;
 							}
 						} else
-							Messenger.send(player, "Only kings can set up embassies.");
+							Messenger.send(player, "Only leaders can set up embassies.");
 						return true;
 					}
 				}

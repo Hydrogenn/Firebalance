@@ -45,7 +45,7 @@ public class CommandEnthrone implements CommandExecutor {
 									"Can't do that. The leader's officials are in queue right now.");
 						return true;
 					}
-					for (PlayerSpec s : PlayerSpec.table.values()) {
+					for (PlayerSpec s : PlayerSpec.getPlayers()) {
 						if (s.getRole() == 1 && s.getNation() == nationValue) {
 							Messenger.send(player, "Can't do that. There's already a king.");
 							return true;

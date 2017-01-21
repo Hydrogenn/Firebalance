@@ -5,25 +5,20 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 import org.bukkit.BanList.Type;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.entity.Creature;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockExpEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.CreatureSpawnEvent;
-import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.entity.EntityInteractEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -37,14 +32,13 @@ import hydrogenn.firebalance.utils.TextUtils;
 public class MyListener implements Listener {
 
 	//TODO remove this once all data has been moved to
-	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		Player player = event.getPlayer();
 		PlayerSpec playerSpec = PlayerSpec.getPlayer(player.getUniqueId());
-		
+
 		if (playerSpec == null)
-			PlayerSpec.list.add(new PlayerSpec(player.getName(), player.getUniqueId(), (byte) -1, 0, 0, 0, true));
+			PlayerSpec.addNewPlayer(player);
 		
 		if (!player.hasPlayedBefore()) {
 			event.setJoinMessage(ChatColor.GOLD + player.getName() + " has joined Firebalance for the first time!");
@@ -83,7 +77,7 @@ public class MyListener implements Listener {
 			event.setQuitMessage(ChatColor.GOLD + event.getPlayer().getName() + " has left. We hope to see you again!");
 		else
 			event.setQuitMessage(ChatColor.YELLOW + event.getPlayer().getName() + " has left.");
-		PlayerSpec.table.get(event.getPlayer().getUniqueId())
+		PlayerSpec.getPlayer(event.getPlayer().getUniqueId())
 			.setOnline(false);
 	}
 
@@ -152,7 +146,7 @@ public class MyListener implements Listener {
 			nationString = Firebalance.getNationName(nationVict, true);
 		victimSpec.setRole(0);
 
-		for(PlayerSpec s: PlayerSpec.table.values()) {
+		for(PlayerSpec s: PlayerSpec.getPlayers()) {
 			if (s.getNation()==nationVict && s.getRole()>1) {
 				validElites = true;
 			}
@@ -290,17 +284,17 @@ public class MyListener implements Listener {
 						"&7You are now leaving " + heightPrefix + nationString + heightSuffix);
 		}
 	}
-
+	
 	@EventHandler
 	public void onChatMessage(AsyncPlayerChatEvent event) {
-		boolean king = false;
 		String prefix = ChatColor.RED + "";
-		byte nationValue = -1;
-		// Set<Player> recipients = event.getRecipients();
 		PlayerSpec s = PlayerSpec.getPlayer(event.getPlayer().getUniqueId());
-		nationValue = s.getNation();
+		byte nationValue = s.getNation();
+		boolean king;
 		if (s.getRole() == 1)
 			king = true;
+		else
+			king = false;
 		prefix = Firebalance.getNationColor(nationValue, false);
 		if (prefix == "")
 			prefix = ChatColor.DARK_GRAY + "";
@@ -312,11 +306,12 @@ public class MyListener implements Listener {
 			event.setFormat(TextUtils.colorize(prefix + "%1$s: &7%2$s"));
 	}
 
+	/* TODO separate this from firebalance and fix it
 	@EventHandler
 	public void onEntityInteract(EntityInteractEvent event) {
-		if (event.getBlock().getType() == Material.SOIL && event.getEntity() instanceof Creature)
+		if (event.getBlock().getType().equals(Material.SOIL) && event.getEntity() instanceof Creature)
 			event.setCancelled(true);
-	}
+	}*/
 
 	@EventHandler
 	public void onBreakBlock(BlockBreakEvent event) {
@@ -340,7 +335,7 @@ public class MyListener implements Listener {
 			int chunkNation = -1;
 			boolean chunkUnlocked = true;
 			String chunkOwner = "";
-			ArrayList<String> chunkShared = new ArrayList<>();
+			ArrayList<UUID> chunkShared = new ArrayList<>();
 			boolean hasAccess = false;
 			for (ChunkSpec s : ChunkSpec.list) {
 				if (s.getX() == x && s.getY() == y && s.getZ() == z) {
@@ -393,7 +388,7 @@ public class MyListener implements Listener {
 		int chunkNation = -1;
 		boolean chunkUnlocked = true;
 		String chunkOwner = "";
-		ArrayList<String> chunkShared = new ArrayList<>();
+		ArrayList<UUID> chunkShared = new ArrayList<>();
 		boolean hasAccess = false;
 		// Check if the player is placing a blacklisted block
 		if (event.getItemInHand().getItemMeta().getDisplayName() != null)
@@ -446,30 +441,6 @@ public class MyListener implements Listener {
 				event.setCancelled(true);
 			}
 		}
-	}
-	
-	@EventHandler
-	public void onEntityKilled(EntityDeathEvent event) {
-		if (event.getEntity().getKiller()!=null && !(event.getEntity() instanceof Player)) {
-			
-			Player player = event.getEntity().getKiller();
-			PlayerSpec playerSpec = PlayerSpec.getPlayer(player.getUniqueId());
-			
-			playerSpec.addPower(event.getDroppedExp());
-			
-		}
-	}
-	
-	@EventHandler
-	public void onEntitySpawn(CreatureSpawnEvent event) {
-		if (event.getSpawnReason() == SpawnReason.SPAWNER) {
-			event.getEntity().setMetadata("fromSpawner", Firebalance.fromSpawner);
-		}
-	}
-	
-	@EventHandler
-	public void onBlockDropXp(BlockExpEvent event) {
-		//TODO give power for mining out experience-dropping blocks
 	}
 	
 }

@@ -47,7 +47,7 @@ public class CommandNationChat implements CommandExecutor {
 
 		String msg = getMessage(p, ArrayUtils.concatArray(args, " "), prefix, nation);
 
-		for (PlayerSpec player : PlayerSpec.table.values()) {
+		for (PlayerSpec player : PlayerSpec.getPlayers()) {
 
 			if (player.getNation() != nation || !player.getOnline()) continue;
 

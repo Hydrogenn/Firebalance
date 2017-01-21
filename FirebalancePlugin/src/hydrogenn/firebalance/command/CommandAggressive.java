@@ -14,10 +14,10 @@ public class CommandAggressive implements CommandExecutor {
         if (sender instanceof Player) {
         	Player player = (Player) sender;
         	if (PlayerSpec.aggressives.contains(player.getUniqueId())!=true) {
-        		PlayerSpec.aggressives.add(player.getUniqueId());
+        		PlayerSpec.markAsAggressive(player.getUniqueId());
     			Messenger.send(player, "&cYou are now aggresive. Kicks and bans are enabled.");
         	} else {
-        		PlayerSpec.aggressives.remove(player.getUniqueId());
+        		PlayerSpec.markAsPassive(player.getUniqueId());
         		Messenger.send(player, "&aYou are now passive. You will not ban or kick other passive players.");
         	}
         }
