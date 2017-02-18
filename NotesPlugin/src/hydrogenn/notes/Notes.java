@@ -14,10 +14,8 @@ public class Notes extends JavaPlugin {
         config.options().copyDefaults(true);
         saveConfig();
 		// Register commands
-		this.getCommand("note").setExecutor(new CommandNoteFB());
 		this.getCommand("stamp").setExecutor(new CommandStamp());
 		this.getCommand("sign").setExecutor(new CommandNoteSign());
-		this.getCommand("unsign").setExecutor(new CommandNoteUnsign());
 		if (getServer().getPluginManager().getPlugin("Firebalance") != null) {
 			if (config.getBoolean("fb-enabled")) {
 				getLogger().log(Level.INFO, "Firebalance plugin is now being used");

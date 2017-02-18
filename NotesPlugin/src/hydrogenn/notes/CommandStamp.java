@@ -18,6 +18,8 @@ public class CommandStamp implements CommandExecutor {
             ItemMeta stampMeta = stamp.getItemMeta();
             if (paper.getType() == Material.PAPER && stamp.getType() == Material.WOOD_BUTTON)
             	paper.setItemMeta(stampMeta);
+            else
+            	player.sendMessage("You need to hold the stamp in the offhand and paper in the main hand.");
         }
         return true;
     }
