@@ -1,0 +1,9 @@
+name: Heurensics
+description: Grief logging for muggles.
+main: hydrogenn.heurensics.Heurensics
+version: 1.0
+commands:
+  investigate:
+    description: Toggle whether you investigate all blocks that you shift-right-click.
+    usage: "/investigate"
+    aliases: "/i"

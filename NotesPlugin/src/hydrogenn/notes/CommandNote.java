@@ -34,7 +34,7 @@ public class CommandNote implements CommandExecutor {
 		ChatColor prefix = ChatColor.WHITE; //TODO implement color prefixes
 		if (itemMeta.getLore()!=null) {
 			for (int i=0; i < itemMeta.getLore().size();i++) {
-				if (itemMeta.getLore().get(i).contains(ChatColor.GRAY.toString() + ChatColor.ITALIC)) { //TODO clean this up to detect grey italics
+				if (itemMeta.getLore().get(i).contains(ChatColor.GRAY.toString() + ChatColor.ITALIC)) {
        				player.sendMessage("This has been signed. No further changes can be made.");
        				return true;
        		 	}

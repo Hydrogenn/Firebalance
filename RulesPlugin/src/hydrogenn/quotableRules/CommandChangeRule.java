@@ -26,13 +26,24 @@ public class CommandChangeRule implements CommandExecutor {
 			args[0] = args[0].toLowerCase();
 
 			StringBuilder ruleText = new StringBuilder();
-
-			for (String string : args) {
+			
+			int wordsToRemove;
+			if (args[0] == "change")
+				wordsToRemove = 2;
+			else
+				wordsToRemove = 1;
+			
+			String[] words = new String[args.length-wordsToRemove];
+			for (int i = 0; i < words.length; i++) {
+				words[i] = args[i+wordsToRemove];
+			}
+			
+			for (String word : words) {
 
 				if (ruleText.length() > 0) {
 					ruleText.append(" ");
 				}
-				ruleText.append(string);
+				ruleText.append(word);
 
 			}
 
@@ -40,7 +51,7 @@ public class CommandChangeRule implements CommandExecutor {
 
 				try {
 
-					QuotableRules.ruleSet.remove(Integer.parseInt(args[1]));
+					QuotableRules.ruleSet.remove(Integer.parseInt(args[1]) - 1);
 					sender.sendMessage("Removed rule.");
 
 					save();
@@ -53,13 +64,16 @@ public class CommandChangeRule implements CommandExecutor {
 
 					sender.sendMessage("There aren't THAT many rules.");
 
+				} catch (NumberFormatException e) {
+					
+					sender.sendMessage("That's not a number.");
+					
 				}
 
 			} else if (args[0].equals("change")) {
 
 				try {
-
-					ruleText.delete(0, 10);
+					
 					QuotableRules.ruleSet.set(Integer.parseInt(args[1]) - 1, ruleText.toString());
 					sender.sendMessage("Changed rule.");
 
@@ -78,8 +92,6 @@ public class CommandChangeRule implements CommandExecutor {
 			} else if (args[0].equals("add")) {
 
 				try {
-
-					ruleText.delete(0, 4);
 					QuotableRules.ruleSet.add(ruleText.toString());
 					sender.sendMessage("Added rule.");
 
@@ -106,7 +118,7 @@ public class CommandChangeRule implements CommandExecutor {
 
 		}
 
-		sender.sendMessage("Nice try, pal!");
+		sender.sendMessage("Nice try, pal! You don't have permission.");
 
 		return true;
 

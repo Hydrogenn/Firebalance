@@ -30,7 +30,7 @@ import hydrogenn.firebalance.utils.Messenger;
 import hydrogenn.firebalance.utils.TextUtils;
 
 public class MyListener implements Listener {
-
+	
 	//TODO remove this once all data has been moved to
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {
