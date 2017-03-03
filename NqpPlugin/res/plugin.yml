@@ -1,0 +1,7 @@
+name: NotQuitePermadeath
+main: hydrogenn.nqp.NotQuitePermadeath
+version: 1.0
+commands:
+  nqp:
+    description: Revive a buddy.
+    usage: "/nqp <playername>"
