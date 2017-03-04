@@ -8,14 +8,13 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class Notes extends JavaPlugin {
 	FileConfiguration config = getConfig();
 	@Override
+	@SuppressWarnings("deprecation")
     public void onEnable() {
 		//Set up configs
         config.addDefault("fb-enabled", false);
         config.options().copyDefaults(true);
         saveConfig();
-		// Register commands
-		this.getCommand("stamp").setExecutor(new CommandStamp());
-		this.getCommand("sign").setExecutor(new CommandNoteSign());
+		// Register command
 		if (getServer().getPluginManager().getPlugin("Firebalance") != null) {
 			if (config.getBoolean("fb-enabled")) {
 				getLogger().log(Level.INFO, "Firebalance plugin is now being used");

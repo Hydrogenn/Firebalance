@@ -13,6 +13,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import hydrogenn.firebalance.PlayerSpec;
 
+@Deprecated
 public class CommandNoteFB implements CommandExecutor {
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {

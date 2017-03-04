@@ -12,6 +12,7 @@ import org.bukkit.inventory.ItemStack;
 public class DeadPlayer {
 
 	private static HashMap<Inventory,UUID> activeInventories = new HashMap<Inventory,UUID>();
+	private static HashMap<UUID,UUID> carriers = new HashMap<UUID,UUID>();
 	
 	private Location location;
 	private Inventory inventory;
@@ -44,7 +45,8 @@ public class DeadPlayer {
 	}
 
 	public Location getLocation() {
-		return location;
+		if (carrier == null) return location;
+		else return Bukkit.getServer().getPlayer(carrier).getLocation();
 	}
 	public void setLocation(Location location) {
 		this.location = location;
@@ -62,9 +64,12 @@ public class DeadPlayer {
 		this.uuid = uuid;
 	}
 	public UUID getCarrier() {
+		
 		return carrier;
 	}
 	public void setCarrier(UUID carrier) {
+		if (this.carrier != null) carriers.remove(this.carrier);
+		if (carrier != null) carriers.put(carrier,uuid);
 		this.carrier = carrier;
 	}
 
@@ -101,6 +106,14 @@ public class DeadPlayer {
 
 	public static void closeInventory(Inventory inventory) {
 		activeInventories.remove(inventory);
+	}
+
+	public static boolean isCarrier(Player player) {
+		return carriers.containsKey(player.getUniqueId());
+	}
+
+	public static UUID getCarrying(Player player) {
+		return carriers.get(player.getUniqueId());
 	}
 	
 	

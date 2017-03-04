@@ -30,6 +30,11 @@ public class CommandNqp implements CommandExecutor {
 		
 		Player player = (Player) sender;
 		
+		if (NotQuitePermadeath.isDead(player)) {
+			player.sendMessage("You cannot do that while dead.");
+			return true;
+		}
+		
 		if (!NotQuitePermadeath.isDead(target)) {
 			player.sendMessage("That player isn't dead.");
 			return true;
@@ -41,18 +46,19 @@ public class CommandNqp implements CommandExecutor {
 		}
 		
 		if (args[0].equals("revive")) {
-			
-			try {
-				NotQuitePermadeath.revive(target);
-				sender.sendMessage("Successfully revived "+target.getDisplayName());
-			} catch (NullPointerException e) {
-				sender.sendMessage("Failed to revive that player.");
-			}
+
+			//TODO make this consume an item in the player's inventory
+			sender.sendMessage("Successfully revived "+target.getDisplayName());
 			
 		}
 		
-		else if (args[0].equals("loot"))
-				NotQuitePermadeath.loot(player,target);
+		else if (args[0].equals("loot")) {
+			NotQuitePermadeath.loot(player,target);
+		}
+		
+		else if (args[0].equals("carry")) {
+			NotQuitePermadeath.carry(player,target);
+		}
 		
 		return true;
 	}

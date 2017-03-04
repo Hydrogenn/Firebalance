@@ -6,9 +6,12 @@ import java.util.UUID;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 
@@ -65,7 +68,6 @@ public class NotQuitePermadeath extends JavaPlugin {
 	}
 	
 	public static void revive(Player target) {
-		//TODO make this consume an item in the player's inventory
 		DeadPlayer formerStats = deadPlayers.get(target.getUniqueId());
 		deadPlayers.remove(target.getUniqueId());
 		formerStats.unload(target);
@@ -77,6 +79,17 @@ public class NotQuitePermadeath extends JavaPlugin {
 		DeadPlayer targetStats = deadPlayers.get(target.getUniqueId());
 		Inventory lootTable = targetStats.openInventory();
 		player.openInventory(lootTable);
+	}
+	public static void carry(Player player, Player target) {
+		DeadPlayer targetCorpse = deadPlayers.get(target.getUniqueId());
+		targetCorpse.setCarrier(player.getUniqueId());
+		ItemStack head = new ItemStack(Material.SKULL_ITEM,1);
+		SkullMeta headMeta = (SkullMeta) head.getItemMeta();
+		headMeta.setOwner(player.getName());
+		player.getInventory().addItem(head);
+		player.updateInventory();
+		//TODO give the player a player head of the other person
+		//TODO add a bunch of hooks for corpse carriers
 	}
 	public static final int getUseDistance() {
 		return useDistance;
