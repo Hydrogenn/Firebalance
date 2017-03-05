@@ -7,6 +7,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.SkullType;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -64,7 +65,6 @@ public class NotQuitePermadeath extends JavaPlugin {
 			player.setGameMode(GameMode.SPECTATOR);
 			player.sendMessage(ChatColor.DARK_RED + "You have died. You cannot respawn until someone revives you.");
 		}
-		
 	}
 	
 	public static void revive(Player target) {
@@ -73,6 +73,11 @@ public class NotQuitePermadeath extends JavaPlugin {
 		formerStats.unload(target);
 		target.setGameMode(GameMode.SURVIVAL); //TODO detect default gamemode in server.properties
 		target.sendMessage(ChatColor.AQUA + "You have been revived!");
+		target.sendTitle(ChatColor.AQUA + "You have been revived!",
+				null,
+				10,
+	            50,
+	            10);
 	}
 	
 	public static void loot(Player player, Player target) {
@@ -80,15 +85,26 @@ public class NotQuitePermadeath extends JavaPlugin {
 		Inventory lootTable = targetStats.openInventory();
 		player.openInventory(lootTable);
 	}
+	
 	public static void carry(Player player, Player target) {
+		if (DeadPlayer.isCarrier(player)) {
+			player.sendMessage("You can't carry more than one player!");
+			return;
+		}
+		if (DeadPlayer.isCarried(target)) {
+			player.sendMessage("The corpse must be laid down before reviving.");
+			return;
+		}
 		DeadPlayer targetCorpse = deadPlayers.get(target.getUniqueId());
 		targetCorpse.setCarrier(player.getUniqueId());
 		ItemStack head = new ItemStack(Material.SKULL_ITEM,1);
 		SkullMeta headMeta = (SkullMeta) head.getItemMeta();
-		headMeta.setOwner(player.getName());
+		head.setDurability((short) SkullType.PLAYER.ordinal());
+		headMeta.setOwner(target.getName());
+		head.setItemMeta(headMeta);
 		player.getInventory().addItem(head);
 		player.updateInventory();
-		//TODO give the player a player head of the other person
+		target.setSpectatorTarget(player);
 		//TODO add a bunch of hooks for corpse carriers
 	}
 	public static final int getUseDistance() {

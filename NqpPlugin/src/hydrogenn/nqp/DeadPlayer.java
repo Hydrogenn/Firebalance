@@ -12,7 +12,7 @@ import org.bukkit.inventory.ItemStack;
 public class DeadPlayer {
 
 	private static HashMap<Inventory,UUID> activeInventories = new HashMap<Inventory,UUID>();
-	private static HashMap<UUID,UUID> carriers = new HashMap<UUID,UUID>();
+	private static HashMap<UUID,DeadPlayer> carriers = new HashMap<UUID,DeadPlayer>();
 	
 	private Location location;
 	private Inventory inventory;
@@ -69,7 +69,7 @@ public class DeadPlayer {
 	}
 	public void setCarrier(UUID carrier) {
 		if (this.carrier != null) carriers.remove(this.carrier);
-		if (carrier != null) carriers.put(carrier,uuid);
+		if (carrier != null) carriers.put(carrier,this);
 		this.carrier = carrier;
 	}
 
@@ -112,8 +112,12 @@ public class DeadPlayer {
 		return carriers.containsKey(player.getUniqueId());
 	}
 
-	public static UUID getCarrying(Player player) {
+	public static DeadPlayer getCarrying(Player player) {
 		return carriers.get(player.getUniqueId());
+	}
+
+	public static boolean isCarried(Player target) {
+		return carriers.containsValue(target.getUniqueId());
 	}
 	
 	

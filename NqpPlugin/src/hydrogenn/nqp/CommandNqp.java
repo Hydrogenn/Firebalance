@@ -11,6 +11,8 @@ public class CommandNqp implements CommandExecutor {
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		
+		//FIXME currently requires the other player to be online
+		
 		Player target;
 		try {
 			target = Bukkit.getServer().getPlayer(args[1]);
@@ -46,9 +48,14 @@ public class CommandNqp implements CommandExecutor {
 		}
 		
 		if (args[0].equals("revive")) {
-
-			//TODO make this consume an item in the player's inventory
-			sender.sendMessage("Successfully revived "+target.getDisplayName());
+			
+			if (DeadPlayer.isCarried(target)) {
+				sender.sendMessage("This player is being carried and cannot be revived.");
+			}
+			else {
+				NotQuitePermadeath.revive(target);
+				sender.sendMessage("Successfully revived "+target.getDisplayName());
+			}
 			
 		}
 		
