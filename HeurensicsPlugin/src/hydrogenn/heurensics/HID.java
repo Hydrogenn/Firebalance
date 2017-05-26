@@ -72,16 +72,18 @@ public class HID {
 	
 	/**
 	 * Removes a single trait from a HID.
+	 * @return true if successful, false if no values remain.
 	 * @param absolute If enabled, exactly one trait will be removed every time.
 	 * Otherwise, it may "remove" a trait that has already been removed.
 	 */
-	public void decay(boolean absolute) {
-		if (isAllMissing()) return;
+	public boolean decay(boolean absolute) {
 		int i;
 		do {
-			i = ThreadLocalRandom.current().nextInt(0, 14);
+			i = ThreadLocalRandom.current().nextInt(0, 13);
 		} while (absolute && flagsMissing[i]);
 		flagsMissing[i] = true;
+		if (isAllMissing()) return false;
+		return true;
 	}
 	
 	public boolean isAllMissing() {

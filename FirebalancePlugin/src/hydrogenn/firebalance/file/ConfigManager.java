@@ -85,7 +85,7 @@ public class ConfigManager {
 			
 			if (spec == null) {
 				continue;
-			} //why is this here?
+			}
 
 			File f = new File(players, spec.getUUID() + ".yml");
 			YamlConfiguration conf = YamlConfiguration.loadConfiguration(f);

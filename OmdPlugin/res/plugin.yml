@@ -1,0 +1,7 @@
+name: OnlyMostlyDead
+main: hydrogenn.omd.OnlyMostlyDead
+version: 1.0
+commands:
+  omd:
+    description: Interact with a player corpse.
+    usage: "/omd <playername>"

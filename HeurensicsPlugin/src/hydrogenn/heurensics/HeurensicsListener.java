@@ -29,6 +29,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 
 public class HeurensicsListener implements Listener {
@@ -41,15 +42,15 @@ public class HeurensicsListener implements Listener {
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		Player player = event.getPlayer();
 		UUID uniqueId = player.getUniqueId();
-		Heurensics.addPlayer(uniqueId);
+		HSet.addPlayer(uniqueId);
 	}
 	
 	@EventHandler
 	public void onPlayerLeave(PlayerQuitEvent event) {
 		Player player = event.getPlayer();
 		UUID uniqueId = player.getUniqueId();
-		if (Heurensics.investigators.contains(uniqueId)) {
-			Heurensics.investigators.remove(uniqueId);
+		if (HSet.investigators.contains(uniqueId)) {
+			HSet.investigators.remove(uniqueId);
 		}
 	}
 	
@@ -57,7 +58,7 @@ public class HeurensicsListener implements Listener {
 	public void onBlockRemoved(EntityChangeBlockEvent event) {
 		if (!event.getTo().equals(Material.AIR)) return; //this only concerns blocks that have been turned into air
 		Location blockLocation = event.getBlock().getLocation();
-		Heurensics.removeHSet(blockLocation);
+		HSet.removeHSet(blockLocation);
 	}
 	
 	@EventHandler
@@ -65,7 +66,7 @@ public class HeurensicsListener implements Listener {
 		for ( Location location : getNeighborLocations(event.getBlock())) {
 			mark(
 					location,
-					Heurensics.getId(event.getPlayer()),
+					event.getPlayer(),
 					LogType.BLOCK_DESTROY,
 					1);
 		}
@@ -75,7 +76,7 @@ public class HeurensicsListener implements Listener {
 	public void logPlaceBlock(BlockPlaceEvent event) {
 		mark(
 				event.getBlockPlaced().getLocation(),
-				Heurensics.getId(event.getPlayer()),
+				event.getPlayer(),
 				LogType.BLOCK_PLACE,
 				1);
 	}
@@ -84,14 +85,14 @@ public class HeurensicsListener implements Listener {
 	public void logInteract(PlayerInteractEvent event) {
 		if (event.getHand() != EquipmentSlot.HAND) return;
 		Player player = event.getPlayer();
-		if (Heurensics.isInvestigator(player.getUniqueId())
+		if (HSet.isInvestigator(player.getUniqueId())
 				&& event.getAction() == Action.RIGHT_CLICK_BLOCK
 				&& player.isSneaking())
-			return;
-		if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
+			return; //We don't want investigators to leave marks
+		if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return; //We only care about right-clicks
 		mark(
 				event.getClickedBlock().getLocation(),
-				Heurensics.getId(player),
+				player,
 				LogType.BLOCK_INTERACT,
 				1);
 	}
@@ -102,7 +103,7 @@ public class HeurensicsListener implements Listener {
 		
 		mark(
 				getLocationUnderneath(event.getPlayer()),
-				Heurensics.getId(event.getPlayer()),
+				event.getPlayer(),
 				LogType.PLAYER_MOVE,
 				event.getTo().distance(event.getFrom()));
 	}
@@ -114,7 +115,7 @@ public class HeurensicsListener implements Listener {
 		Player player = (Player) event.getEntity();
 		mark(
 				getLocationUnderneath(player),
-				Heurensics.getId(player),
+				player,
 				LogType.PLAYER_HURT,
 				event.getDamage());
 	}
@@ -125,7 +126,7 @@ public class HeurensicsListener implements Listener {
 		Player player = (Player) event.getEntity();
 		mark(
 				getLocationUnderneath(player),
-				Heurensics.getId(player),
+				player,
 				LogType.PLAYER_DEATH,
 				1);
 	}
@@ -134,20 +135,20 @@ public class HeurensicsListener implements Listener {
 	public void investigate(PlayerInteractEvent event) {
 		Player player = event.getPlayer();
 		if (event.getHand() != EquipmentSlot.HAND) return;
-		if (!Heurensics.isInvestigator(player.getUniqueId())) return;
+		if (!HSet.isInvestigator(player.getUniqueId())) return;
 		if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return; //don't care about anything but right-clicks
 		if (!player.isSneaking()) return; //player must be sneaking to investigate
 		ItemStack item = player.getInventory().getItemInMainHand();
-		HSet hSet = Heurensics.getHSet(event.getClickedBlock().getLocation());
+		HSet hSet = HSet.getHSet(event.getClickedBlock().getLocation());
 		
 		if (hSet == null) {
-			//TODO say if there is a sequence nearby (maybe?)
+			//TODO say if there is a sequence nearby
 			player.sendMessage("No sequence found.");
 			return;
 		}
 		
 		//this is what it takes to detect a water bottle. :\
-		if (item.getType() == Material.POTION && ((PotionMeta)item.getItemMeta()).getBasePotionData().getType()==PotionType.WATER) {
+		if (item.getType()==Material.POTION&&((PotionMeta)item.getItemMeta()).getBasePotionData().getType()==PotionType.WATER) {
 			
 			ItemMeta itemMeta = item.getItemMeta();
 			itemMeta.setDisplayName(ChatColor.WHITE + "Evidence Bottle");
@@ -165,7 +166,7 @@ public class HeurensicsListener implements Listener {
 			item.setItemMeta(itemMeta);
 			player.getInventory().setItemInMainHand(item);
 			
-			Heurensics.removeHSet(event.getClickedBlock().getLocation());
+			HSet.removeHSet(event.getClickedBlock().getLocation());
 		}
 		
 		player.sendMessage("Found sequence "+hSet.getHid()+" on a "+hSet.getLogType().source);
@@ -189,10 +190,12 @@ public class HeurensicsListener implements Listener {
 		return neighbors;
 	}
 	
-	private void mark(Location location, HID id, LogType logType, double weight) {
+	private void mark(Location location, Player player, LogType logType, double weight) {
 		if (location.getBlock().getType().equals(Material.AIR)) return; //leaving a mark on air is useless.
+		if (player.hasPotionEffect(PotionEffectType.INVISIBILITY)) return; //invisible players do not leave marks.
+		HID id = HSet.getId(player);
 		if (Math.random() <= logType.probability * weight) {
-			Heurensics.putHSet(location, new HSet(id,logType));
+			new HSet(id,logType,location);
 		}
 	}
 }

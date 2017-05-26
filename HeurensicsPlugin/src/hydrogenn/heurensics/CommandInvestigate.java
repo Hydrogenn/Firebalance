@@ -15,7 +15,7 @@ public class CommandInvestigate implements CommandExecutor {
 			return true;
 		}
 		Player player = (Player) sender;
-		if (Heurensics.toggleInvestigator(player.getUniqueId())) {
+		if (HSet.toggleInvestigator(player.getUniqueId())) {
 			player.sendMessage(ChatColor.AQUA + "Investigator enabled. Right-click while sneaking to use.");
 			player.sendMessage(ChatColor.AQUA + "Water bottles can be used to store the evidence.");
 		}
