@@ -3,50 +3,70 @@ package hydrogenn.heurensics;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Random;
+import java.util.PriorityQueue;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
-public class HSet {
+public class HSet implements Comparable<HSet> {
 	
 
 	static private HashMap<UUID,HID> playerIds = new HashMap<UUID,HID>();
 	static private HashMap<Location,HSet> globalHeurensics = new HashMap<Location,HSet>(); //any better ideas? these are linked to a block.
+	static private PriorityQueue<HSet> queue = new PriorityQueue<HSet>();
 	
 	static public ArrayList<UUID> investigators = new ArrayList<UUID>();
 	
-	private static int data;
+	private static int data = 0;
 	
 	private Location location;
 	private HID hid;
 	private LogType logType;
+	private long priority;
 	
 
 	public HSet(HID hid, LogType logType, Location location) {
-		this.hid = hid;
-		this.logType = logType;
-		this.location = location;
-		globalHeurensics.put(location, this);
-		data += 13;
-		if (data > Heurensics.getMaxData()) {
-			while (data > Heurensics.getMaxData()) {
-				decayRandom();
-			}
-		}
+		init(hid,logType,location);
 	}
 	
-	public static void decayRandom() {
-		ArrayList<Location> keyList = new ArrayList<Location>(globalHeurensics.keySet());
-		int randomIndex = new Random().nextInt(keyList.size());
-		if (!globalHeurensics.get(keyList.get(randomIndex)).getHid().decay(true)) {
-			globalHeurensics.remove(randomIndex);
+	public HSet(HID hid, LogType logType, Location location, long priority) {
+		init(hid,logType,location);
+		this.priority = priority;
+	}
+	
+	public void init(HID hid, LogType logType, Location location) {
+		this.hid = new HID(hid);
+		this.logType = logType;
+		this.location = location;
+		if (globalHeurensics.containsKey(location))
+			queue.remove(globalHeurensics.get(location));
+		globalHeurensics.put(location, this);
+		queue.add(this);
+		data += hid.flags();
+		if (data > Heurensics.getMaxData()) {
+			decay(data - Heurensics.getMaxData());
+			data = Heurensics.getMaxData();
 		}
-		data--;
+	}
+
+	public static void decay(int times) {
+		while (times > 0) {
+			HSet topOfList = queue.poll();
+			if (!topOfList.getHid().decay()) {
+				globalHeurensics.remove(topOfList.getLocation());
+			}
+			else {
+				topOfList.priority += Heurensics.getDecayWeight();
+				queue.add(topOfList);
+			}
+			times--;
+		}
 	}
 	
 	public HID getHid() {
@@ -119,17 +139,38 @@ public class HSet {
 	}
 
 	public static void loadFromConfig(YamlConfiguration conf) {
-		// TODO Auto-generated method stub
+		
+		World world = null;
+		for (World w : Bukkit.getWorlds()) {
+			if (conf.getString("world").equals(w.getName())) {
+				world = w;
+				break;
+			}
+		}
+		if (world == null) {
+			Bukkit.getLogger().warning("Could not load evidence because it is in a non-existent world!");
+			return;
+		}
+		
+		int x = conf.getInt("x");
+		int y = conf.getInt("y");
+		int z = conf.getInt("z");
+		long priority = conf.getLong("age");
+		Location location = new Location(world,x,y,z);
+		LogType logType = LogType.valueOf(conf.getString("type"));
+		HID hid = HID.fromString(conf.getString("hid"));
+		new HSet(hid, logType, location, priority);
 		
 	}
 
 	public FileConfiguration saveToConfig(YamlConfiguration conf) {
-		conf.set("hid", hid);
-		conf.set("world", location.getWorld());
+		conf.set("hid", hid.toString());
+		conf.set("world", location.getWorld().getName());
 		conf.set("x", location.getX());
 		conf.set("y", location.getY());
 		conf.set("z", location.getZ());
-		conf.set("type", logType);
+		conf.set("type", logType.name());
+		conf.set("age", priority);
 		return conf;
 	}
 
@@ -143,5 +184,14 @@ public class HSet {
 
 	public Location getLocation() {
 		return location;
+	}
+
+	@Override
+	public int compareTo(HSet o) {
+		return (int) (getPriority() - o.getPriority());
+	}
+
+	public long getPriority() {
+		return priority;
 	}
 }

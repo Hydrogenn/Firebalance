@@ -8,7 +8,6 @@ import java.util.UUID;
 import org.bukkit.BanEntry;
 import org.bukkit.BanList.Type;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -19,6 +18,12 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 
 //TODO fix up corpse carrying
 //TODO replace the husk with a dead player
@@ -58,6 +63,13 @@ public class DeadPlayer {
 		dummy.setCustomName(name);
 		dummy.setInvulnerable(true);
 		dummy.setAI(false);
+		dummies.put(dummy, uuid);
+	}
+	
+	public void killDummy() {
+		dummy.remove();
+		dummies.remove(dummy);
+		dummy = null;
 	}
 	
 	
@@ -131,7 +143,7 @@ public class DeadPlayer {
 			playerInventory.setItem(i, contents[i]);
 		}
 		player.updateInventory();
-		dummy.remove();
+		
 	}
 	
 	public Inventory openInventory() {
@@ -260,6 +272,7 @@ public class DeadPlayer {
 			return;
 		}
 		target.setCarrier(player.getUniqueId());
+		target.killDummy();
 	}
 
 	public static void loot(Player player, DeadPlayer target) {
@@ -290,10 +303,11 @@ public class DeadPlayer {
 
 	public static void stopCarrying(Player player) {
 		if (!DeadPlayer.isCarrier(player))
-			player.sendMessage("You're not carrying anything!");
+			player.sendMessage("You're not carrying anyone!");
 		DeadPlayer deadPlayer = DeadPlayer.getCarrying(player);
 		deadPlayer.setLocation(player.getLocation());
 		deadPlayer.setCarrier(null);
+		deadPlayer.makeDummy();
 	}
 
 	public static void addFromConfig(YamlConfiguration config) {
@@ -349,7 +363,7 @@ public class DeadPlayer {
 		config.set("inventory", inventory.getContents());
 		config.set("dead", isStillDead);
 
-		dummy.remove();
+		killDummy();
 		
 		return config;
 	}
@@ -364,6 +378,61 @@ public class DeadPlayer {
 	
 	public static UUID getOwner(Creature dummy) {
 		return dummies.get(dummy);
+	}
+
+	public static void interact(Player player, DeadPlayer deadPlayer) {
+		String deadName = deadPlayer.getName();
+		
+		TextComponent jsonText = new TextComponent("---  Body of "+deadName+"  ---\n");
+		if (!deadPlayer.isStillDead()) {
+			jsonText.addExtra(getTextComponent("Kill",deadName));
+		}
+		else if (DeadPlayer.getCarrying(player) != null) {
+			jsonText.addExtra(getTextComponent("Drop",deadName));
+		} else {
+			jsonText.addExtra(getTextComponent("Revive",deadName));
+			jsonText.addExtra("  ");
+			jsonText.addExtra(getTextComponent("Loot",deadName));
+			jsonText.addExtra("  ");
+			jsonText.addExtra(getTextComponent("Carry",deadName));
+			jsonText.addExtra("  ");
+			jsonText.addExtra(getTextComponent("Disguise",deadName));
+		}
+		player.spigot().sendMessage(jsonText);
+	}
+	
+	private static TextComponent getTextComponent(String type, String name) {
+		TextComponent textComponent = new TextComponent(type);
+		String helpText = "";
+		switch (type) {
+		case "Revive":
+			textComponent.setColor(ChatColor.AQUA);
+			helpText = "Revive this player so they can continue playing.";
+			break;
+		case "Loot":
+			textComponent.setColor(ChatColor.GOLD);
+			helpText = "Open this player's inventory.";
+			break;
+		case "Carry":
+			textComponent.setColor(ChatColor.DARK_GRAY);
+			helpText = "Carry this player somewhere else.";
+			break;
+		case "Disguise":
+			textComponent.setColor(ChatColor.DARK_PURPLE);
+			helpText = "Change your appearance and name to this player.";
+			break;
+		case "Kill":
+			textComponent.setColor(ChatColor.RED);
+			helpText = "Undo a previous revival, so this player stays dead.";
+			break;
+		case "Drop":
+			textComponent.setColor(ChatColor.DARK_GRAY);
+			helpText = "Drop the player you are carrying.";
+			break;
+		}
+		textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/omd "+type.toLowerCase()+" "+name));
+		textComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(helpText).create() ));
+		return textComponent;
 	}
 	
 	

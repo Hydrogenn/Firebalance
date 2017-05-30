@@ -6,7 +6,6 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-//TODO add a help command
 public class CommandOmd implements CommandExecutor {
 
 	@Override
@@ -78,8 +77,16 @@ public class CommandOmd implements CommandExecutor {
 			DeadPlayer.carry(player,target);
 		}
 		
+		else if (args[0].equals("disguise")) {
+			//TODO
+		}
+		
 		else if (args[0].equals("drop")) {
 			DeadPlayer.stopCarrying(player);
+		}
+		
+		else if (args[0].equals("undiguise")) {
+			//TODO
 		}
 		
 		return true;

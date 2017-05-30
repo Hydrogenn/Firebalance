@@ -54,6 +54,7 @@ public class HeurensicsListener implements Listener {
 		}
 	}
 	
+	// TODO MINOR Detect when blocks are turned into air and remove evidence at that spot.
 	@EventHandler
 	public void onBlockRemoved(EntityChangeBlockEvent event) {
 		if (!event.getTo().equals(Material.AIR)) return; //this only concerns blocks that have been turned into air
@@ -99,7 +100,7 @@ public class HeurensicsListener implements Listener {
 	
 	@EventHandler
 	public void logPlayerMove(PlayerMoveEvent event) {
-		if (event.getPlayer().isSneaking()) return; //Sneaking players do not leave footprints
+		if (event.getPlayer().isSneaking() && !Heurensics.detectSneaking()) return;
 		
 		mark(
 				getLocationUnderneath(event.getPlayer()),
@@ -139,11 +140,27 @@ public class HeurensicsListener implements Listener {
 		if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return; //don't care about anything but right-clicks
 		if (!player.isSneaking()) return; //player must be sneaking to investigate
 		ItemStack item = player.getInventory().getItemInMainHand();
-		HSet hSet = HSet.getHSet(event.getClickedBlock().getLocation());
+		Location location = event.getClickedBlock().getLocation();
+		HSet hSet = HSet.getHSet(location);
 		
 		if (hSet == null) {
-			//TODO say if there is a sequence nearby
-			player.sendMessage("No sequence found.");
+			int minDistance = 10;
+			for (int x = -5; x <= 5; x++) {
+				for (int y = -5; y <= 5; y++) {
+					for (int z = -5; z <= 5; z++) {
+						Location nLocation = location.clone().add(x,y,z);
+						HSet nHSet = HSet.getHSet(nLocation);
+						if (nHSet != null) {
+							minDistance = Math.min(minDistance,
+									Math.max(  Math.max(  Math.abs(x),Math.abs(y)  ), Math.abs(z) )  );
+						}
+					}
+				}
+			}
+			if (minDistance == 10)
+				player.sendMessage("No sequence found.");
+			else
+				player.sendMessage("Sequence found "+Integer.toString(minDistance)+" blocks away");
 			return;
 		}
 		
@@ -192,7 +209,7 @@ public class HeurensicsListener implements Listener {
 	
 	private void mark(Location location, Player player, LogType logType, double weight) {
 		if (location.getBlock().getType().equals(Material.AIR)) return; //leaving a mark on air is useless.
-		if (player.hasPotionEffect(PotionEffectType.INVISIBILITY)) return; //invisible players do not leave marks.
+		if (player.hasPotionEffect(PotionEffectType.INVISIBILITY) && !Heurensics.detectInvisible()) return;
 		HID id = HSet.getId(player);
 		if (Math.random() <= logType.probability * weight) {
 			new HSet(id,logType,location);

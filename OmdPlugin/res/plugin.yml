@@ -1,3 +1,4 @@
+depend: [ProtocolLib]
 name: OnlyMostlyDead
 main: hydrogenn.omd.OnlyMostlyDead
 version: 1.0

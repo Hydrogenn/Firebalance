@@ -12,6 +12,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSprintEvent;
+import org.bukkit.inventory.EquipmentSlot;
 
 public class OmdListener implements Listener {
 	
@@ -52,10 +53,12 @@ public class OmdListener implements Listener {
 	
 	@EventHandler
 	public static void onInteractWithCorpse(PlayerInteractEntityEvent e) {
+		if (e.getHand().equals(EquipmentSlot.OFF_HAND)) return; //Don't count the offhand
 		Entity entity = e.getRightClicked();
 		if (entity instanceof Creature && DeadPlayer.isDummy((Creature) entity)) {
-			//TODO add json text that is sent to the user
-			e.getPlayer().sendMessage("Use '/omd <function> "+entity.getCustomName()+"' to interact with this dead person.");
+			Creature dummy = (Creature) entity;
+			DeadPlayer deadPlayer = DeadPlayer.getDeadPlayer(DeadPlayer.getOwner(dummy));
+			DeadPlayer.interact(e.getPlayer(),deadPlayer);
 		}
 	}
 	

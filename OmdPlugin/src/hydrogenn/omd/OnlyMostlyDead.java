@@ -6,7 +6,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import hydrogenn.omd.file.ConfigManager;
 import net.md_5.bungee.api.ChatColor;
 
-
 public class OnlyMostlyDead extends JavaPlugin {
 	
 	private static int useDistance;
@@ -33,8 +32,8 @@ public class OnlyMostlyDead extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new OmdListener(), this);
         
         ConfigManager.init(this);
-        
 	}
+	
 	@Override
     public void onDisable() {
 		ConfigManager.save();

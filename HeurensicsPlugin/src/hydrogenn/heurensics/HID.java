@@ -11,14 +11,19 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class HID {
 	private boolean type;
-	private byte[] flags = new byte[12];
-	private boolean[] flagsMissing = new boolean[13]; //The 13th flag indicates type.
+	private byte[] flags = new byte[9];
 	
-	public HID() {
-		Random random = new Random();
-		type = random.nextBoolean();
-		for (int i = 0; i < 12; i++) {
-			flags[i] = (byte)ThreadLocalRandom.current().nextInt(0, 10);
+	/**
+	 * Generate a new HID.
+	 * @param b Whether or not to generate random values.
+	 */
+	public HID(boolean b) {
+		if (b) {
+			Random random = new Random();
+			type = random.nextBoolean();
+			for (int i = 0; i < 9; i++) {
+				flags[i] = (byte)ThreadLocalRandom.current().nextInt(0, 4);
+			}
 		}
 	}
 	
@@ -28,9 +33,8 @@ public class HID {
 	 */
 	public HID(HID original) {
 		type = original.type;
-		for (int i = 0; i < 12; i++) {
+		for (int i = 0; i < 9; i++) {
 			flags[i] = original.flags[i];
-			flagsMissing[i] = original.flagsMissing[i];
 		}
 	}
 	
@@ -39,57 +43,82 @@ public class HID {
 	 * @param uuid The UUID to use.
 	 */
 	public HID(UUID uuid) {
-		type = uuid.getLeastSignificantBits() % 2 == 0;
-		for (int i = 0; i < 12; i++) {
-			flags[i] = (byte) (uuid.getMostSignificantBits() % (11*i + 11) % 10);
+		type = (uuid.getLeastSignificantBits() & 1) == 0;
+		for (int i = 0; i < 9; i++) {
+			flags[i] = (byte) (uuid.getLeastSignificantBits() >> (1 + (i<<1)) & 3);
 		}
 	}
 
 	public String toString() {
 		String string;
-		if (flagsMissing[12])
-			string = "*";
-		else {
-			if (type)
-				string = "A";
-			else
-				string = "B";
-		}
+		if (type)
+			string = "A";
+		else
+			string = "B";
 		
-		for (int i = 0; i < 12; i++) {
-			if (i % 4 == 0) { //insert a dash after every 4 flags (and 0 itself)
-				string += "-";
+		for (int i = 0; i < 9; i++) {
+			if (i % 3 == 0) { //insert a dash after every 3 flags (and 0 itself)
+				string += "|";
 			}
-			
-			if (flagsMissing[i])
-				string += "*";
-			else
-				string += flags[i];
+			if (flags[i] == 0)
+				string += "ᚁ";
+			if (flags[i] == 1)
+				string += "ᚕ";
+			if (flags[i] == 2)
+				string += "ᚆ";
+			if (flags[i] == 3)
+				string += "ᚖ";
+			if (flags[i] == -1)
+				string += " ";
 		}
 		
 		return string;
 	}
 	
+	public static HID fromString(String string) {
+		HID hid = new HID(false);
+		hid.type = string.charAt(0) == 'A';
+		int skip = 1;
+		for (int i = 0; i < 9; i++) {
+			if (string.charAt(i+skip) == '|') skip++;
+			if (string.charAt(i+skip) == 'ᚁ') hid.flags[i] = 0;
+			else if (string.charAt(i+skip) == 'ᚕ') hid.flags[i] = 1;
+			else if (string.charAt(i+skip) == 'ᚆ') hid.flags[i] = 2;
+			else if (string.charAt(i+skip) == 'ᚖ') hid.flags[i] = 3;
+			else if (string.charAt(i+skip) == ' ') hid.flags[i] = -1;
+		}
+		return hid;
+	}
+	
 	/**
 	 * Removes a single trait from a HID.
-	 * @return true if successful, false if no values remain.
-	 * @param absolute If enabled, exactly one trait will be removed every time.
-	 * Otherwise, it may "remove" a trait that has already been removed.
+	 * @return true if successful, false if only the 'type' remains.
 	 */
-	public boolean decay(boolean absolute) {
+	public boolean decay() {
+		if (isAllMissing()) return false; //only the type remains, the whole thing should be deleted.
 		int i;
 		do {
-			i = ThreadLocalRandom.current().nextInt(0, 13);
-		} while (absolute && flagsMissing[i]);
-		flagsMissing[i] = true;
-		if (isAllMissing()) return false;
+			i = ThreadLocalRandom.current().nextInt(0, 9);
+		} while (flags[i] == -1);
+		flags[i] = -1;
+		if (isAllMissing()) return true;
+		do {
+			i = ThreadLocalRandom.current().nextInt(0, 9);
+		} while (flags[i] == -1);
+		flags[i] += 2;
+		flags[i] %= 4;
 		return true;
 	}
 	
 	public boolean isAllMissing() {
-		for (boolean flagMissing : flagsMissing) {
-			if (!flagMissing) return false;
+		return flags() == 1;
+	}
+
+	public int flags() {
+		int numFlags = 0;
+		for (byte flag : flags) {
+			if (flag != -1) numFlags++;
 		}
-		return true;
+		return numFlags + 1; //the mere fact that it exists means that the type flag is visible
 	}
 }

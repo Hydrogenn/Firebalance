@@ -1,0 +1,37 @@
+#Heurensics config
+
+max-data: 5120
+#The maximum number of individual segments. (Each sequence has 10 segments; 3 for each of 3 sections, and one for type.)
+#Do not worry about performance. Its impact is minimal.
+#Evidence only decays to match this value, so higher values mean more evidence is recorded.
+
+decay-weight: 1440
+#Determines how significant previous decays in a sequence are.
+#A value of 1440 (24 * 60) means that the oldest 24 hours of evidence is staggered.
+#A value of 0 means that the oldest evidence is always completely removed.
+#The oldest segments are always deleted.
+
+place-detect-rate: 0.02
+#As an estimate, 2% will record 1 block for every 50 placed.
+
+break-detect-rate: 0.004
+#As an estimate, 0.4% will record 1 piece of rubble every 50 blocks, but it depends on the amount of air blocks nearby.
+
+interact-detect-rate: 0.02
+#As an estimate, 2% will record 1 fingerprint every 50 uses.
+
+walk-detect-rate: 0.01
+#As an estimate, 1% will record 1 footprint every 100 blocks.
+#Note that 100% is not guarenteed to record all footsteps, unlike all other settings.
+
+damage-detect-rate: 0.02
+#As an estimate, 2% will record 1 bloodstain every 25 hearts of damage.
+
+death-detect-rate: 1
+#100% will record it every time, guarenteed.
+
+detect-sneaking: false
+#whether or not sneaking players can leave behind footsteps.
+
+detect-invisible: false
+#whether or not invisible players can leave behind any evidence.

@@ -27,6 +27,11 @@ public class ConfigManager {
 	}
 	
 	public static void load() {
+		
+		if (!getFile("config.yml").exists()) {
+			plugin.saveResource("config.yml", false);
+			plugin.reloadConfig();
+		}
 
 		File evidence = getFolder("evidence");
 
