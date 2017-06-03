@@ -1,21 +1,43 @@
 package hydrogenn.omd;
 
-import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import net.md_5.bungee.api.ChatColor;
 
 public class CommandOmd implements CommandExecutor {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		
-		if (!(sender instanceof Player)) {
-			for (DeadPlayer deadPlayer : DeadPlayer.getList()) {
-				Bukkit.getLogger().info(deadPlayer.getName());
-			}
+		if (args.length < 1) return false;
+		
+		if (args[0].equals("help")) {
+			String message = ChatColor.GRAY + "On death, you are banned and drop a corpse.\n";
+			message += "Right-clicking a corpse's "+ChatColor.ITALIC+"head"+ChatColor.GRAY+" brings up a menu in chat, with a few options.\n";
+			message += "Every option is self-documented. Click on it to use.\n";
+			message += "Players can revive you if you have died. If no one comes, you are automatically revived in 18 hours.\n";
+			message += "Players can also 'curse' your auto-revival. If 5 people do this, you never get automatically revived.\n";
+			message += "Worth noting is that others can disguise as dead players, carry them around, and have full access to their inventory.";
+			sender.sendMessage(message);
 			return true;
+		}
+		
+		Player player = null;
+		if ((sender instanceof Player)) {
+			player = (Player) sender;
+			
+			if (args[0].equals("drop")) {
+				DeadPlayer.stopCarrying(player);
+				return true;
+			}
+			else if (args[0].equals("undisguise")) {
+				DeadPlayer.stopDisguising(player);
+				return true;
+			}
+			
 		}
 		
 		DeadPlayer target;
@@ -30,11 +52,16 @@ public class CommandOmd implements CommandExecutor {
 			return true;
 		}
 		
-		Player player = (Player) sender;
-		
-		if (player.getLocation().distance(target.getLocation()) > OnlyMostlyDead.getUseDistance()) {
-			player.sendMessage("This player is too far away.");
-			return true;
+		if (player != null) {
+			try {
+				if (player.getLocation().distance(target.getLocation()) > OnlyMostlyDead.getUseDistance()) {
+					player.sendMessage("Could not find dead player: "+args[1]);
+					return true;
+				}
+			} catch (IllegalArgumentException e) {
+				player.sendMessage("Could not find dead player: "+args[1]);
+				return true;
+			}
 		}
 		
 		if (args[0].equals("revive")) {
@@ -64,29 +91,25 @@ public class CommandOmd implements CommandExecutor {
 			}
 		}
 		
-		else if (args[0].equals("loot")) {
-			if (!target.isStillDead()) {
-				sender.sendMessage("That player is just sleeping. It'd be rude to take their stuff!");
+		else if (player != null) {
+
+			if (args[0].equals("loot")) {
+				if (!target.isStillDead()) {
+					sender.sendMessage("That player is just sleeping. It'd be rude to take their stuff!");
+				}
+				else {
+					DeadPlayer.loot(player,target);
+				}
 			}
-			else {
-				DeadPlayer.loot(player,target);
+			else if (args[0].equals("carry")) {
+				DeadPlayer.carry(player,target);
 			}
-		}
-		
-		else if (args[0].equals("carry")) {
-			DeadPlayer.carry(player,target);
-		}
-		
-		else if (args[0].equals("disguise")) {
-			//TODO
-		}
-		
-		else if (args[0].equals("drop")) {
-			DeadPlayer.stopCarrying(player);
-		}
-		
-		else if (args[0].equals("undiguise")) {
-			//TODO
+			else if (args[0].equals("disguise")) {
+				DeadPlayer.disguise(player,target);
+			}
+			else if (args[0].equals("curse")) {
+				DeadPlayer.curse(player,target);
+			}
 		}
 		
 		return true;

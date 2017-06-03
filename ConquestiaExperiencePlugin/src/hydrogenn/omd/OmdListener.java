@@ -2,25 +2,28 @@ package hydrogenn.omd;
 
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.entity.Creature;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSprintEvent;
-
-import net.md_5.bungee.api.ChatColor;
+import org.bukkit.inventory.EquipmentSlot;
 
 public class OmdListener implements Listener {
 	
 	@EventHandler
 	public static void onDeadPlayerJoin(PlayerJoinEvent e) {
 		Player player = e.getPlayer();
-		if (DeadPlayer.isDead(player)) {
+		if (DeadPlayer.isDead(player) && !DeadPlayer.getDeadPlayer(player.getUniqueId()).isStillDead()) {
 			DeadPlayer.revive(player);
 		}
 	}
@@ -32,39 +35,18 @@ public class OmdListener implements Listener {
 		if (DeadPlayer.isDisguised(uuid)) {
 			DeadPlayer.setSkinAndName(DeadPlayer.getDisguise(uuid).getUuid(),player);
 		}
-		e.setJoinMessage(ChatColor.YELLOW + player.getDisplayName() + " has joined the game");
-	}
-	
-	/*
-	@EventHandler
-	public static void onPlayerJoinShowDead(PlayerJoinEvent e) {
-		OnlyMostlyDead.displayCorpsesTo(e.getPlayer());
-	}
-	*/
-	
-	@EventHandler
-	public static void onPlayerMoveIntoView(PlayerMoveEvent e) {
-		Player player = e.getPlayer();
-		for (DeadPlayer deadPlayer : DeadPlayer.getList()) {
-			if (deadPlayer.inRange(e.getTo()) &&
-					!deadPlayer.inRange(e.getFrom())) {
-				deadPlayer.show(player);
-			}
-			else if (!deadPlayer.inRange(e.getTo()) &&
-					deadPlayer.inRange(e.getFrom())) {
-				deadPlayer.hide(player);
-			}
-		}
 	}
 	
 	@EventHandler
-	public static void hideDeathLeaveMessage(PlayerQuitEvent e) {
-		if (DeadPlayer.isDead(e.getPlayer())) {
-			e.setQuitMessage(null);
-		}
+	public static void removeJoinMessage(PlayerJoinEvent e) {
+		e.setJoinMessage(null);
 	}
 	
-	/*
+	@EventHandler
+	public static void removeLeaveMessage(PlayerQuitEvent e) {
+		e.setQuitMessage(null);
+	}
+	
 	@EventHandler
 	public static void radialDeathMessage(PlayerDeathEvent e) {
 		Player victim = e.getEntity();
@@ -75,27 +57,24 @@ public class OmdListener implements Listener {
 		}
 		e.setDeathMessage(null);
 	}
-	*/
 	
-	/*
 	@EventHandler
 	public static void radialChatMessage(AsyncPlayerChatEvent e) {
 		Location loc = e.getPlayer().getLocation();
-		List<Player> recipients = new ArrayList<Player>();
 		for (Player player : e.getRecipients()) {
-			if (player.getLocation().distance(loc) <= OnlyMostlyDead.getChatDistance()) {
-				recipients.add(player);
+			if (player.getLocation().distance(loc) > OnlyMostlyDead.getChatDistance()) {
+				e.getRecipients().remove(player);
 			}
 		}
-		e.getRecipients().clear();
-		e.getRecipients().addAll(recipients);
-	}*/
+	}
 	
 	@EventHandler
 	public static void onPlayerQuitWithCorpose(PlayerQuitEvent e) {
 		Player player = e.getPlayer();
 		if (DeadPlayer.isCarrier(player)) {
-			DeadPlayer.stopCarrying(player);
+			DeadPlayer targetCorpse = DeadPlayer.getCarrying(player);
+			targetCorpse.setCarrier(null);
+			targetCorpse.setLocation(player.getLocation());
 		}
 	}
 	
@@ -103,7 +82,9 @@ public class OmdListener implements Listener {
 	public static void onPlayerDieWithCorpse(PlayerDeathEvent e) {
 		Player player = (Player) e.getEntity();
 		if (DeadPlayer.isCarrier(player)) {
-			DeadPlayer.stopCarrying(player);
+			DeadPlayer targetCorpse = DeadPlayer.getCarrying(player);
+			targetCorpse.setCarrier(null);
+			targetCorpse.setLocation(player.getLocation());
 		}
 	}
 	
@@ -116,7 +97,13 @@ public class OmdListener implements Listener {
 	
 	@EventHandler
 	public static void onInteractWithCorpse(PlayerInteractEntityEvent e) {
-		e.getPlayer().sendMessage("Okay great you interacted with something");
+		if (e.getHand().equals(EquipmentSlot.OFF_HAND)) return; //Don't count the offhand
+		Entity entity = e.getRightClicked();
+		if (entity instanceof Creature && DeadPlayer.isDummy((Creature) entity)) {
+			Creature dummy = (Creature) entity;
+			DeadPlayer deadPlayer = DeadPlayer.getDeadPlayer(DeadPlayer.getOwner(dummy));
+			DeadPlayer.interact(e.getPlayer(),deadPlayer);
+		}
 	}
 	
 	@EventHandler
