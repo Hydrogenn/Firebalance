@@ -74,6 +74,7 @@ public class DeadPlayer {
 	private boolean isStillDead;
 	private EntityHuman dummy;
 	private long banEnd;
+	private int xpLevel;
 	
 	public DeadPlayer() {
 		
@@ -90,6 +91,7 @@ public class DeadPlayer {
 		cursors = new ArrayList<UUID>();
 		isStillDead = true;
 		banEnd = (long) (System.currentTimeMillis() + 0.75 * 86400000);
+		xpLevel = player.getLevel() / 2;
 		makeDummy();
 	}
 	
@@ -427,6 +429,7 @@ public class DeadPlayer {
 		target.sendMessage(ChatColor.AQUA + "You have been revived! Welcome back.");
 		target.setHealth(5);
 		target.setFoodLevel(8);
+		target.setLevel(formerStats.xpLevel);
 	}
 
 	public static void addDeadPlayer(Player player) {
@@ -576,6 +579,7 @@ public class DeadPlayer {
 		float z = config.getInt("z") + 0.5F;
 		boolean isStillDead = config.getBoolean("dead");
 		long banEnd = config.getLong("auto-revive-date");
+		int xpLevel = config.getInt("experience-level");
 		
 		List<UUID> cursors = new ArrayList<UUID>();
 		for (String cursor : (List<String>) config.getStringList("cursors")) {
@@ -600,6 +604,7 @@ public class DeadPlayer {
 		newDeadPlayer.setMainInventory(inventory);
 		newDeadPlayer.makeDummy();
 		newDeadPlayer.banEnd = banEnd;
+		newDeadPlayer.xpLevel = xpLevel;
 		
 		DeadPlayer.deadPlayers.put(uuid,newDeadPlayer);
 
@@ -616,6 +621,7 @@ public class DeadPlayer {
 		config.set("inventory", inventory.getContents());
 		config.set("dead", isStillDead);
 		config.set("auto-revive-date", banEnd);
+		config.set("experience-level", xpLevel);
 
 		List<String> nCursors = new ArrayList<String>();
 		for (UUID cursor : cursors) {
