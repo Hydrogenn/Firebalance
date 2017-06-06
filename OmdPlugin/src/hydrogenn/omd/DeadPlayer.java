@@ -741,7 +741,6 @@ public class DeadPlayer {
 
 	
 	public void hide(Player player) {
-		player.sendMessage("Hiding");
 		delogFakePlayer(player);
 		PacketPlayOutEntityDestroy removeEntity = new PacketPlayOutEntityDestroy(dummy.getId());
 		((CraftPlayer) player).getHandle().playerConnection.sendPacket(removeEntity);
@@ -749,7 +748,6 @@ public class DeadPlayer {
 
 	@SuppressWarnings("deprecation")
 	public void show(Player player) {
-		player.sendMessage("Showing");
 		if (carrier != null) return;
 		logFakePlayer(player);
 		Location blockLoc = location.clone();

@@ -3,6 +3,7 @@ package hydrogenn.mobBorder;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
@@ -13,6 +14,9 @@ public class MobBorderPlugin extends JavaPlugin {
 
 	@Override
 	public void onEnable() {
+		
+		Bukkit.getPluginCommand("mobbuff").setExecutor(new CommandGetMobBuff());
+		
 		getServer().getPluginManager().registerEvents(new MobBorderListener(), this);
 
 	}

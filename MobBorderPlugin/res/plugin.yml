@@ -1,3 +1,8 @@
 name: MobBorder
 main: hydrogenn.mobBorder.MobBorderPlugin
 version: 1.0
+commands:
+  mobbuff:
+    description: Get the mob buff of your current area.
+    usage: "/mobbuff"
+    aliases: "/buff"

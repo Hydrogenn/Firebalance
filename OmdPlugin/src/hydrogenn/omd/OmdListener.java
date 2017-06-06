@@ -7,7 +7,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -112,11 +111,6 @@ public class OmdListener implements Listener {
 		Player player = e.getEntity();
 		e.getDrops().clear();
 		DeadPlayer.addDeadPlayer(player);
-	}
-	
-	@EventHandler
-	public static void onInteractWithCorpse(PlayerInteractEntityEvent e) {
-		e.getPlayer().sendMessage("Okay great you interacted with something");
 	}
 	
 	@EventHandler
