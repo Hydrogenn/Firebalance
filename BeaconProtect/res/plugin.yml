@@ -1,0 +1,8 @@
+name: BeaconProtect
+description: Expensive grief protection.
+main: hydrogenn.beacon.BeaconProtect
+version: 1.0
+commands:
+  beacon:
+    usage: "/beacon <help/sabotage/check>"
+    description: Commands for BeaconProtect.
