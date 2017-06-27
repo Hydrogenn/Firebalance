@@ -14,6 +14,7 @@ import java.util.List;
 
 @Deprecated
 public class CommandNoteFB implements CommandExecutor {
+
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (args.length < 1) {
