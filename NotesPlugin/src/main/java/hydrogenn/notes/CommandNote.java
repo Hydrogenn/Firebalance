@@ -1,4 +1,4 @@
-package main.java.hydrogenn.notes;
+package hydrogenn.notes;
 
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
