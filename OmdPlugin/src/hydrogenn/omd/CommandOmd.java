@@ -29,11 +29,11 @@ public class CommandOmd implements CommandExecutor {
 		if ((sender instanceof Player)) {
 			player = (Player) sender;
 			
-			if (args[0].equals("drop")) {
+			if (args[0].equalsIgnoreCase("drop")) {
 				DeadPlayer.stopCarrying(player);
 				return true;
 			}
-			else if (args[0].equals("undisguise")) {
+			else if (args[0].equalsIgnoreCase("undisguise")) {
 				DeadPlayer.stopDisguising(player);
 				return true;
 			}
@@ -64,50 +64,39 @@ public class CommandOmd implements CommandExecutor {
 			}
 		}
 		
-		if (args[0].equals("revive")) {
+		if (args[0].equalsIgnoreCase("revive")) {
 			
-			if (target.getCarrier() != null) {
-				sender.sendMessage("This player is being carried and cannot be revived.");
-			}
-			else if (target.isBeingLooted()) {
-				sender.sendMessage("This player is being looted and cannot be revived.");
-			}
-			else if (!target.isStillDead()) {
-				sender.sendMessage("This player is just sleeping. (What do you mean, it looks like a zombie?)");
+			if (target.isRevived()) {
+				sender.sendMessage("This player is just sleeping.");
 			}
 			else {
-				target.setStillDead(false);
+				target.setManuallyRevived(true);
 				sender.sendMessage("Successfully revived "+target.getName());
 			}
 		}
 		
-		else if (args[0].equals("kill")) {
-			if (target.isStillDead()) {
+		else if (args[0].equalsIgnoreCase("kill")) {
+			if (!target.isRevived()) {
 				sender.sendMessage("This player is still definitely dead.");
 			}
 			else {
-				target.setStillDead(true);
-				sender.sendMessage("You have killed it (again).");
+				target.setManuallyRevived(false);
+				sender.sendMessage("You have killed it.");
 			}
 		}
 		
 		else if (player != null) {
 
-			if (args[0].equals("loot")) {
-				if (!target.isStillDead()) {
-					sender.sendMessage("That player is just sleeping. It'd be rude to take their stuff!");
-				}
-				else {
-					DeadPlayer.loot(player,target);
-				}
+			if (args[0].equalsIgnoreCase("loot")) {
+				DeadPlayer.loot(player,target);
 			}
-			else if (args[0].equals("carry")) {
+			else if (args[0].equalsIgnoreCase("carry")) {
 				DeadPlayer.carry(player,target);
 			}
-			else if (args[0].equals("disguise")) {
+			else if (args[0].equalsIgnoreCase("disguise")) {
 				DeadPlayer.disguise(player,target);
 			}
-			else if (args[0].equals("curse")) {
+			else if (args[0].equalsIgnoreCase("curse")) {
 				DeadPlayer.curse(player,target);
 			}
 		}

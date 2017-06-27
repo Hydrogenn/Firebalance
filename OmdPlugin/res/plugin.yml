@@ -1,7 +1,7 @@
 depend: [ProtocolLib]
 name: OnlyMostlyDead
 main: hydrogenn.omd.OnlyMostlyDead
-version: 1.1
+version: 1.2
 commands:
   omd:
     description: Interact with a player corpse.

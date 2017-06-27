@@ -1,0 +1,13 @@
+name: Points
+main: hydrogenn.points.pointsPlugin
+version: 1.0
+commands:
+  discord:
+    description: Get a link to the discord channel.
+    usage: "/discord"
+  vote:
+    description: Get a link to all places where you can vote.
+    usage: "/vote"
+  donate:
+    description: Get a link to donate.
+    usage: "/donate"

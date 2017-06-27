@@ -1,9 +1,7 @@
 package hydrogenn.beacon.file;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -20,14 +18,16 @@ import org.bukkit.inventory.ItemStack;
 public class BeaconSpec {
 	
 	private static HashMap<Location,BeaconSpec> beaconCache = new HashMap<Location,BeaconSpec>();
-	private static List<UUID> saboteurs = new ArrayList<UUID>();
 
 	private Location location;
 	private long expiration;
 	private UUID owner;
 	
-	private static final long maxBeaconLength = 2 * 24 * 60 * 60 * 1000; //2 days; only used when increasing
-	private static final long minBeaconLength = 5 * 60 * 1000; //5 minutes; only used when decreasing
+	private static final long MAX_BEACON_LENGTH = 4 * 24 * 60 * 60 * 1000; //4 days
+	public static final float IRON_TIME = 1f / 192f; //starts at 30 minutes
+	public static final float GOLD_TIME = 1f / 24f; // starts at 4 hours
+	public static final float EMERALD_TIME = 1f / 10f; // starts at 9.6 hours
+	public static final float DIAMOND_TIME = 1f / 4f; // starts at 1 day
 	
 	private BeaconSpec(Location location, UUID owner) {
 		this.location = location;
@@ -79,33 +79,16 @@ public class BeaconSpec {
 		}
 	}
 	
-	private long lengthen(long durationOf) {
+	private long lengthen(float durationOf) {
+		long timeUntilFull;
 		if (!isEnabled()) {
-			expiration = System.currentTimeMillis() + durationOf;
+			timeUntilFull = MAX_BEACON_LENGTH;
+			expiration = System.currentTimeMillis();
 		}
 		else {
-			long timeUntilFull = maxBeaconLength - (expiration - System.currentTimeMillis());
-			double percentToKeep = (double) timeUntilFull / (double) maxBeaconLength;
-			long realDurationOf = (long) (percentToKeep * durationOf);
-			expiration += realDurationOf;
+			timeUntilFull = MAX_BEACON_LENGTH - (expiration - System.currentTimeMillis());
 		}
-		return expiration;
-	}
-	
-	private long shorten(long durationOf) {
-		if (!isEnabled()) {
-			expiration = System.currentTimeMillis() + 1000;
-			return expiration;
-		}
-		else if (expiration - System.currentTimeMillis() < minBeaconLength) {
-			return expiration;
-		}
-		else {
-			long timeUntilEmpty = (expiration - System.currentTimeMillis()) - minBeaconLength;
-			double percentToKeep = (double) timeUntilEmpty / (double) (maxBeaconLength - minBeaconLength);
-			long realDurationOf = (long) (percentToKeep * durationOf);
-			expiration -= realDurationOf;
-		}
+		expiration += (timeUntilFull * durationOf);
 		return expiration;
 	}
 
@@ -171,29 +154,19 @@ public class BeaconSpec {
 
 	public static long update(Location location, ItemStack item, UUID uuid) {
 		BeaconSpec beaconSpec = beaconCache.get(location);
-		if (saboteurs.contains(uuid))
-			return beaconSpec.shorten(durationOf(item.getType()));
 		return beaconSpec.lengthen(durationOf(item.getType()));
 	}
-	
-	public static boolean toggleSabotage(Player player) {
-		UUID uuid = player.getUniqueId();
-		if (!saboteurs.contains(uuid)) {
-			return saboteurs.add(uuid);
-		}
-		return !saboteurs.remove(uuid);
-	}
 
-	public static long durationOf(Material material) {
+	public static float durationOf(Material material) {
 		switch (material) {
 		case DIAMOND:
-			return 24 * 60 * 60 * 1000;
+			return DIAMOND_TIME;
 		case EMERALD:
-			return 24 * 60 * 60 * 1000;
+			return EMERALD_TIME;
 		case GOLD_INGOT:
-			return 6 * 60 * 60 * 1000;
+			return GOLD_TIME;
 		case IRON_INGOT:
-			return 30 * 60 * 1000;
+			return IRON_TIME;
 		default:
 			return 0;
 		}
@@ -205,6 +178,12 @@ public class BeaconSpec {
 
 	public long getDuration() {
 		return expiration - System.currentTimeMillis();
+	}
+
+	public static boolean isActive(Location location) {
+		if (!beaconCache.containsKey(location)) return false;
+		BeaconSpec bSpec = beaconCache.get(location);
+		return bSpec.isEnabled();
 	}
 	
 }

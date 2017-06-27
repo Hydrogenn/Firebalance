@@ -24,21 +24,6 @@ import hydrogenn.beacon.file.BeaconSpec;
 import hydrogenn.beacon.lib.TimeLib;
 
 public class BeaconListener implements Listener {
-
-	@EventHandler(ignoreCancelled = true)
-	public static void beaconPlaced(BlockPlaceEvent e) {
-		if (e.getBlock().getType() == Material.BEACON) {
-			BeaconSpec.cache(e.getBlock(), e.getPlayer());
-			PlayerMessage.NEW_BEACON.send(e.getPlayer());
-		}
-	}
-	
-	@EventHandler(ignoreCancelled = true)
-	public static void beaconDestroyed(BlockBreakEvent e) {
-		if (e.getBlock().getType() == Material.BEACON) {
-			BeaconSpec.remove(e.getBlock());
-		}
-	}
 	
 	//TODO add an InventoryClickEvent to register to the existence of a beacon modifier here.
 	@EventHandler
@@ -54,9 +39,17 @@ public class BeaconListener implements Listener {
 	}
 	
 	@EventHandler(ignoreCancelled = true)
-	public static void modifyBlockInRange(BlockPlaceEvent e) {
+	public static void placeBlockInRange(BlockPlaceEvent e) {
 		if (blockModifyEvent(e)) {
 			PlayerMessage.PROTECTED.send(e.getPlayer());
+		}
+	}
+
+	@EventHandler(ignoreCancelled = true)
+	public static void beaconPlaced(BlockPlaceEvent e) {
+		if (e.getBlock().getType() == Material.BEACON) {
+			BeaconSpec.cache(e.getBlock(), e.getPlayer());
+			PlayerMessage.NEW_BEACON.send(e.getPlayer());
 		}
 	}
 	
@@ -64,6 +57,13 @@ public class BeaconListener implements Listener {
 	public static void breakBlockInRange(BlockBreakEvent e) {
 		if (blockModifyEvent(e)) {
 			PlayerMessage.PROTECTED.send(e.getPlayer());
+		}
+	}
+	
+	@EventHandler(ignoreCancelled = true)
+	public static void beaconDestroyed(BlockBreakEvent e) {
+		if (e.getBlock().getType() == Material.BEACON && !BeaconSpec.isActive(e.getBlock().getLocation())) {
+			BeaconSpec.remove(e.getBlock());
 		}
 	}
 

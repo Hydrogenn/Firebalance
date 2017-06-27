@@ -1,0 +1,8 @@
+name: Kingdoms
+description: Factions, but without grief protection.
+main: hydrogenn.kingdoms.Kingdoms
+version: 1.0
+commands:
+  k:
+    description: All commands relating to kingdoms
+    usage: /k help

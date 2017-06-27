@@ -1,0 +1,25 @@
+#Points config
+
+#The plugin will search through every category you put here and create a command for each.
+#Every link placed beneath will be shown when the command is used.
+#They cannot be named, and are instead listed in order with a number.
+
+#An example has been provided. Please remove the examples and replace them with the intended values.
+
+#This is required - do not remove
+links:
+  #multiple listings - return many links
+  vote:
+    - http://minecraft-mp.com/server/162439/vote/
+    - https://minecraft-server.net/vote/firebalance/
+    - http://minecraftservers.org/vote/440511
+    - http://minecraft-server-list.com/server/398754/vote/
+    - http://topg.org/Minecraft/in-465226
+  
+  #one listing - return one link
+  discord:
+    - https://discord.gg/yywTN34
+  
+  #empty listing - take the command, but do not return any links
+  donate:
+    []

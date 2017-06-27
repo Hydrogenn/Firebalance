@@ -24,6 +24,7 @@ public class OnlyMostlyDead extends JavaPlugin {
 	private static int chatDistance;
 	private static int viewDistance;
 	private static String banMessage;
+	private static String sleepMessage;
 	
 	private static ProtocolManager protocolManager;
 	private static OnlyMostlyDead accessor;
@@ -35,15 +36,19 @@ public class OnlyMostlyDead extends JavaPlugin {
 		accessor = this;
 		//Set up configs
         config.addDefault("use-distance", 10);
-        config.addDefault("chat-distance", 80);
-        config.addDefault("view-distance", 30);
+        config.addDefault("chat-distance", 120);
+        config.addDefault("view-distance", 80);
+        config.addDefault("sleep-message", ChatColor.AQUA + "Sweet dreams!" + "\n" +
+        		ChatColor.RESET + "You have not left a body behind. If the server is empty, it will become daytime." + "\n" +
+        		"You will never need to set your spawnpoint, so don't worry about that.");
         config.addDefault("ban-message", ChatColor.DARK_RED + "You have died! You can only return when someone has revived you." +
         		"\n" + ChatColor.RESET + "This server has no contact. Just check in every now and then.");
         config.options().copyDefaults(true);
         saveConfig();
-        
-        useDistance = config.getInt("use-distance");
+
         banMessage = config.getString("ban-message");
+        sleepMessage = config.getString("sleep-message");
+        useDistance = config.getInt("use-distance");
         viewDistance = config.getInt("view-distance");
         
 		// Register command
@@ -96,7 +101,9 @@ public class OnlyMostlyDead extends JavaPlugin {
 	public static String getBanMessage() {
 		return banMessage;
 	}
-
+	public static String getSleepMessage() {
+		return sleepMessage;
+	}
 	public static ProtocolManager getProtocol() {
 		return protocolManager;
 	}
@@ -106,7 +113,7 @@ public class OnlyMostlyDead extends JavaPlugin {
 
 					@Override
 					public void run() {
-						player.sendMessage("Welcome delayed");
+						if (!player.isValid()) return;
 						for (DeadPlayer deadPlayer : DeadPlayer.getList()) {
 							if (deadPlayer.inRange(player.getLocation())) {
 								deadPlayer.show(player);

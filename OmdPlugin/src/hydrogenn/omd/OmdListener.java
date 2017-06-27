@@ -1,27 +1,36 @@
 package hydrogenn.omd;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSprintEvent;
+import org.bukkit.inventory.EquipmentSlot;
 
 import net.md_5.bungee.api.ChatColor;
 
 public class OmdListener implements Listener {
 	
+	static List<UUID> sleepers = new ArrayList<UUID>();
+	
 	@EventHandler
 	public static void onDeadPlayerJoin(PlayerJoinEvent e) {
 		Player player = e.getPlayer();
-		if (DeadPlayer.isDead(player)) {
-			DeadPlayer.revive(player);
-		}
+		DeadPlayer.revive(player);
 	}
 	
 	@EventHandler
@@ -34,12 +43,43 @@ public class OmdListener implements Listener {
 		e.setJoinMessage(ChatColor.YELLOW + player.getDisplayName() + " has joined the game");
 	}
 	
-	/*
+	@EventHandler
+	public static void onPlayerJoinEmpty(PlayerJoinEvent e) {
+		if (Bukkit.getOnlinePlayers().size() == 1) {
+			for (World world : Bukkit.getWorlds()) {
+				world.setTime(0);
+			}
+		}
+	}
+	
+	@EventHandler
+	public static void onInteractBed(PlayerInteractEvent e) {
+		if (e.getAction() != Action.RIGHT_CLICK_BLOCK) return;
+		if (e.getHand() != EquipmentSlot.HAND) return;
+		if (e.getClickedBlock() == null) return;
+		if (e.getClickedBlock().getType() != Material.BED_BLOCK) return;
+		Player player = e.getPlayer();
+		sleepers.add(player.getUniqueId());
+		player.kickPlayer(OnlyMostlyDead.getSleepMessage());
+	}
+	
+	@EventHandler
+	public static void dropBodyOnLeave(PlayerQuitEvent e) {
+		Player player = e.getPlayer();
+		UUID uuid = player.getUniqueId();
+		if (sleepers.contains(uuid)) {
+			sleepers.remove(uuid);
+			e.setQuitMessage(ChatColor.YELLOW + player.getDisplayName() +" has gone to bed.");
+		}
+		else {
+			DeadPlayer.addDeadPlayer(e.getPlayer(), false);
+		}
+	}
+	
 	@EventHandler
 	public static void onPlayerJoinShowDead(PlayerJoinEvent e) {
 		OnlyMostlyDead.displayCorpsesTo(e.getPlayer());
 	}
-	*/
 	
 	@EventHandler
 	public static void onPlayerMoveIntoView(PlayerMoveEvent e) {
@@ -51,15 +91,39 @@ public class OmdListener implements Listener {
 			}
 			else if (!deadPlayer.inRange(e.getTo()) &&
 					deadPlayer.inRange(e.getFrom())) {
-				deadPlayer.hide(player);
+				deadPlayer.hide(player,true);
 			}
 		}
 	}
 	
 	@EventHandler
 	public static void hideDeathLeaveMessage(PlayerQuitEvent e) {
-		if (DeadPlayer.isDead(e.getPlayer())) {
+		if (DeadPlayer.isBodyAndWasDead(e.getPlayer())) {
 			e.setQuitMessage(null);
+		}
+	}
+	
+	@EventHandler
+	public static void playerInteractNearBody(PlayerInteractEvent e) {
+		if (e.getHand() == EquipmentSlot.OFF_HAND) return;
+		Player player = e.getPlayer();
+		if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+			Location loc = e.getClickedBlock().getLocation();
+			for (DeadPlayer deadPlayer : DeadPlayer.getList()) {
+				try {
+				if (deadPlayer.getLocation().distanceSquared(loc) <= 4)
+					DeadPlayer.interact(player,deadPlayer);
+				} catch (IllegalArgumentException error) {continue;} //different dimension is okay.
+			}
+		}
+		if (e.getAction() == Action.RIGHT_CLICK_AIR) {
+			Location loc = player.getLocation();
+			for (DeadPlayer deadPlayer : DeadPlayer.getList()) {
+				try {
+				if (deadPlayer.getLocation().distanceSquared(loc) <= 4)
+					DeadPlayer.interact(player,deadPlayer);
+				} catch (IllegalArgumentException error) {continue;}
+			}
 		}
 	}
 	
@@ -110,7 +174,46 @@ public class OmdListener implements Listener {
 	public static void onPlayerDeath(PlayerDeathEvent e) {
 		Player player = e.getEntity();
 		e.getDrops().clear();
-		DeadPlayer.addDeadPlayer(player);
+		DeadPlayer.addDeadPlayer(player,true);
+	}
+	
+	
+	/**
+	 * Detects when a compass is used, and acts accordingly:
+	 * <ul>
+	 * <li> The closest dead player is now the player's spawn, which makes the compass point to it. </li>
+	 * <li> Manually revived players are skipped. </li>
+	 * <li> The range is limited to 500 blocks. </li>
+	 * </ul>
+	 */
+	@EventHandler
+	public static void onUseCompass(PlayerInteractEvent e) {
+		if (!(e.getAction().equals(Action.RIGHT_CLICK_AIR) || e.getAction().equals(Action.RIGHT_CLICK_BLOCK))) return;
+		if (e.getItem() == null) return;
+		if (e.getItem().getType().equals(Material.COMPASS)) {
+			Player player = e.getPlayer();
+			Location pLocation = e.getPlayer().getLocation();
+			Location bLocation = null;
+			double sqDistance = 500*500;
+			for (DeadPlayer deadPlayer : DeadPlayer.getList()) {
+				if (deadPlayer.isRevived()) continue;
+				Location dLocation = deadPlayer.getLocation();
+				if (dLocation.getWorld().equals(pLocation.getWorld())) {
+					double nsqDistance = dLocation.distanceSquared(pLocation);
+					if (nsqDistance < sqDistance) {
+						sqDistance = nsqDistance;
+						bLocation = dLocation;
+					}
+				}
+			}
+			if (bLocation == null) {
+				player.sendMessage("Couldn't find a dead player nearby.");
+			}
+			else {
+				player.sendMessage("Compass updated.");
+				player.setCompassTarget(bLocation);
+			}
+		}
 	}
 	
 	@EventHandler
@@ -123,8 +226,8 @@ public class OmdListener implements Listener {
 	@EventHandler
 	public static void detectPlayerRunWithCorpse(PlayerToggleSprintEvent e) {
 		Player player = e.getPlayer();
-		if (!player.isSprinting() && DeadPlayer.isCarrier(player))
-			DeadPlayer.stopCarrying(player);
+		if (DeadPlayer.isCarrier(player))
+			e.setCancelled(true);
 	}
 	
 }

@@ -2,6 +2,7 @@ package hydrogenn.mobBorder;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -56,18 +57,19 @@ public class MobBorderListener implements Listener {
 	@EventHandler
 	public static void mobKillEvent(EntityDeathEvent e) {
 		
-		Entity entity = e.getEntity();
+		LivingEntity entity = e.getEntity();
+		Player killer = entity.getKiller();
 
-		if (e.getEntity().getKiller() == null) return; //must have been killed by a player
-		if (e.getEntity().getType() == EntityType.PLAYER) return;
+		if (killer == null) return; //must have been killed by a player
+		if (entity.getType() == EntityType.PLAYER) return;
 		
 		int mLevel = MobBorderPlugin.getLevelByLocation(entity.getLocation());
-		int pLevel = e.getEntity().getKiller().getLevel();
+		int pLevel = killer.getLevel();
 		int relativeLevel = mLevel - pLevel;
 		
 		if (relativeLevel <= 0) return;
 		else {
-			e.setDroppedExp((int) (e.getDroppedExp() * (1 + 0.25*mLevel)));
+			e.setDroppedExp((int) (e.getDroppedExp() * (1 + 0.5*relativeLevel)));
 		}
 	}
 	

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -22,13 +23,15 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.craftbukkit.v1_11_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_11_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_11_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_12_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.PropertyMap;
@@ -38,21 +41,21 @@ import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.minecraft.server.v1_11_R1.BlockPosition;
-import net.minecraft.server.v1_11_R1.EntityHuman;
-import net.minecraft.server.v1_11_R1.EntityPlayer;
-import net.minecraft.server.v1_11_R1.EnumGamemode;
-import net.minecraft.server.v1_11_R1.PacketPlayOutBed;
-import net.minecraft.server.v1_11_R1.PacketPlayOutEntityDestroy;
-import net.minecraft.server.v1_11_R1.PacketPlayOutEntityTeleport;
-import net.minecraft.server.v1_11_R1.PacketPlayOutNamedEntitySpawn;
-import net.minecraft.server.v1_11_R1.PacketPlayOutPlayerInfo;
-import net.minecraft.server.v1_11_R1.PacketPlayOutPlayerInfo.EnumPlayerInfoAction;
-import net.minecraft.server.v1_11_R1.PacketPlayOutPosition;
-import net.minecraft.server.v1_11_R1.PacketPlayOutPosition.EnumPlayerTeleportFlags;
-import net.minecraft.server.v1_11_R1.PacketPlayOutRespawn;
-import net.minecraft.server.v1_11_R1.PlayerConnection;
-import net.minecraft.server.v1_11_R1.PlayerInteractManager;
+import net.minecraft.server.v1_12_R1.BlockPosition;
+import net.minecraft.server.v1_12_R1.EntityHuman;
+import net.minecraft.server.v1_12_R1.EntityPlayer;
+import net.minecraft.server.v1_12_R1.EnumGamemode;
+import net.minecraft.server.v1_12_R1.PacketPlayOutBed;
+import net.minecraft.server.v1_12_R1.PacketPlayOutEntityDestroy;
+import net.minecraft.server.v1_12_R1.PacketPlayOutEntityTeleport;
+import net.minecraft.server.v1_12_R1.PacketPlayOutNamedEntitySpawn;
+import net.minecraft.server.v1_12_R1.PacketPlayOutPlayerInfo;
+import net.minecraft.server.v1_12_R1.PacketPlayOutPlayerInfo.EnumPlayerInfoAction;
+import net.minecraft.server.v1_12_R1.PacketPlayOutPosition;
+import net.minecraft.server.v1_12_R1.PacketPlayOutPosition.EnumPlayerTeleportFlags;
+import net.minecraft.server.v1_12_R1.PacketPlayOutRespawn;
+import net.minecraft.server.v1_12_R1.PlayerConnection;
+import net.minecraft.server.v1_12_R1.PlayerInteractManager;
 
 //TODO fix up corpse carrying
 //TODO replace the husk with a dead player
@@ -64,6 +67,12 @@ public class DeadPlayer {
 	private static HashMap<UUID,DeadPlayer> disguises = new HashMap<UUID,DeadPlayer>();
 	private static HashMap<Integer,UUID> owners = new HashMap<Integer,UUID>();
 	
+	private static final List<PotionEffect> revivalPotionEffects = new ArrayList<PotionEffect>(
+		Arrays.asList(
+			(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 160, 4)),
+			(new PotionEffect(PotionEffectType.WEAKNESS, 160, 4))
+	));
+	
 	private Location location;
 	private Inventory inventory;
 	private String name;
@@ -71,7 +80,8 @@ public class DeadPlayer {
 	private UUID carrier; //awful people who drag you around
 	private UUID disguiser; //awful people who pretend they're like you
 	private List<UUID> cursors; //awful people who want you gone and awaaaaaaay
-	private boolean isStillDead;
+	private boolean wasDead;
+	private boolean isNotManuallyRevived;
 	private EntityHuman dummy;
 	private long banEnd;
 	private int xpLevel;
@@ -80,7 +90,7 @@ public class DeadPlayer {
 		
 	}
 	
-	public DeadPlayer(Player player) {
+	public DeadPlayer(Player player, boolean dead) {
 		setLocation(player.getLocation());
 		name = player.getName();
 		inventory = Bukkit.createInventory(null,45,name);
@@ -89,10 +99,16 @@ public class DeadPlayer {
 		carrier = null;
 		disguiser = null;
 		cursors = new ArrayList<UUID>();
-		isStillDead = true;
+		wasDead = dead;
+		isNotManuallyRevived = dead;
 		banEnd = (long) (System.currentTimeMillis() + 0.75 * 86400000);
 		xpLevel = player.getLevel() / 2;
-		makeDummy();
+		if (dead) {
+			makeDummy();
+			player.spigot().respawn();
+			ban();
+			player.kickPlayer(OnlyMostlyDead.getBanMessage());
+		}
 	}
 	
 	public void makeDummy() {
@@ -106,7 +122,7 @@ public class DeadPlayer {
 					new PlayerInteractManager(((CraftWorld) getLocation().getWorld()).getHandle()));
 			Field ff = fakeProfile.getClass().getDeclaredField("name");
     		ff.setAccessible(true);
-    		ff.set(fakeProfile, ChatColor.RED + getName());
+    		ff.set(fakeProfile, getName());
 			dummy.setLocation(location.getX(), location.getY(), location.getZ(), location.getPitch(), location.getYaw());
 			dummy.setInvulnerable(true);
 			owners.put(dummy.getId(), uuid);
@@ -130,9 +146,9 @@ public class DeadPlayer {
 		}
 	}
 	
-	public void killDummy() {
+	public void killDummy(boolean hide) {
 		for (Player player : Bukkit.getOnlinePlayers()) {
-			hide(player);
+			hide(player,hide);
 		}
 		owners.remove(dummy);
 		dummy = null;
@@ -194,24 +210,29 @@ public class DeadPlayer {
 		this.disguiser = disguiser;
 	}
 
-	public boolean isStillDead() {
-		return isStillDead;
+	public boolean isRevived() {
+		return !isNotManuallyRevived;
 	}
 	
 	private void ban() {
 		Bukkit.getBanList(Type.NAME).addBan(
 				name, OnlyMostlyDead.getBanMessage(), Date.from(Instant.ofEpochMilli(banEnd)), "Only Mostly Dead");
 	}
+	
+	private void pardon() {
+		BanEntry banEntry = Bukkit.getBanList(Type.NAME).getBanEntry(name);
+		if (banEntry != null && banEntry.getSource().equals("Only Mostly Dead")) {
+			Bukkit.getBanList(Type.NAME).pardon(name);
+		}
+	}
 
-	public void setStillDead(boolean isStillDead) {
-		this.isStillDead = isStillDead;
-		if (isStillDead == false) {
-			BanEntry banEntry = Bukkit.getBanList(Type.NAME).getBanEntry(name);
-			if (banEntry != null && banEntry.getSource().equals("Only Mostly Dead")) {
-				Bukkit.getBanList(Type.NAME).pardon(name);
-			}
+	public void setManuallyRevived(boolean isManuallyRevived) {
+		isNotManuallyRevived = !isManuallyRevived;
+		if (isManuallyRevived) {
+			pardon();
 		}
 		else {
+			wasDead = true;
 			ban();
 		}
 	}
@@ -238,12 +259,17 @@ public class DeadPlayer {
 		return activeInventories.containsValue(uuid);
 	}
 
-	public static boolean isDead(Player player) {
-		if (deadPlayers.containsKey( player.getUniqueId() ) )
+	public static boolean isBodyAndWasDead(Player player) {
+		UUID uuid = player.getUniqueId();
+		if (deadPlayers.containsKey( uuid ) && deadPlayers.get(uuid).wasDead() )
 			return true;
 		return false;
 	}
 	
+	private boolean wasDead() {
+		return wasDead;
+	}
+
 	public boolean inRange(Location location) {
 		try {
 			return this.getLocation().distance(location) <= OnlyMostlyDead.getViewDistance();
@@ -363,7 +389,7 @@ public class DeadPlayer {
 			return;
 		}
 		target.setCarrier(player.getUniqueId());
-		target.killDummy();
+		target.killDummy(true);
 		player.spigot().sendMessage(getTextComponent("Drop",target.getName()));
 	}
 
@@ -408,7 +434,7 @@ public class DeadPlayer {
 					target.banEnd - System.currentTimeMillis()));
 		}
 		catch (IllegalArgumentException e) {
-			player.sendMessage(target.getName() + " still isn't banned.");
+			player.sendMessage(target.getName() + " has been cursed, but still isn't banned.");
 		}
 	}
 
@@ -418,27 +444,28 @@ public class DeadPlayer {
 	}
 
 	public static void revive(Player target) {
+		if (!deadPlayers.containsKey(target.getUniqueId())) return; //save the trouble if no body exists
 		DeadPlayer formerStats = deadPlayers.get(target.getUniqueId());
 		deadPlayers.remove(target.getUniqueId());
 		formerStats.setDisguiser(null);
 		formerStats.setCarrier(null);
 		formerStats.unload(target);
-		formerStats.killDummy();
+		formerStats.killDummy(false);
 		target.setGameMode(GameMode.SURVIVAL); //TODO detect default gamemode in server.properties
 		target.teleport(formerStats.getLocation());
-		target.sendMessage(ChatColor.AQUA + "You have been revived! Welcome back.");
-		target.setHealth(5);
-		target.setFoodLevel(8);
-		target.setLevel(formerStats.xpLevel);
+		if (formerStats.wasDead()) {
+			target.sendMessage(ChatColor.AQUA + "You have been revived! Welcome back.");
+			target.setHealth(5);
+			target.setFoodLevel(8);
+			target.setLevel(formerStats.xpLevel);
+			target.addPotionEffects(revivalPotionEffects);
+		}
 	}
 
-	public static void addDeadPlayer(Player player) {
+	public static void addDeadPlayer(Player player, boolean dead) {
 		if (!deadPlayers.containsKey(player.getUniqueId())) {
-			DeadPlayer deadPlayer = new DeadPlayer(player);
+			DeadPlayer deadPlayer = new DeadPlayer(player,dead);
 			deadPlayers.put(player.getUniqueId(),deadPlayer);
-			player.spigot().respawn();
-			deadPlayer.ban();
-			player.kickPlayer(OnlyMostlyDead.getBanMessage());
 		}
 	}
 
@@ -482,7 +509,7 @@ public class DeadPlayer {
 			jsonText.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(
 					breakdown).create() ));
 		}
-		if (!deadPlayer.isStillDead()) {
+		if (deadPlayer.isRevived()) {
 			jsonText.addExtra(getTextComponent("Kill",deadName));
 		}
 		else {
@@ -524,7 +551,7 @@ public class DeadPlayer {
 			break;
 		case "Carry":
 			textComponent.setColor(ChatColor.DARK_GRAY);
-			helpText = "Carry this player somewhere else.";
+			helpText = "Carry this player somewhere else. (You cannot sprint while doing this.)";
 			break;
 		case "Disguise":
 			textComponent.setColor(ChatColor.DARK_PURPLE);
@@ -536,7 +563,7 @@ public class DeadPlayer {
 			break;
 		case "Drop":
 			textComponent.setColor(ChatColor.DARK_GRAY);
-			helpText = "Drop the player you are carrying. (/omd drop | sprinting)";
+			helpText = "Drop the player you are carrying. (/omd drop)";
 			break;
 		case "Undisguise":
 			textComponent.setColor(ChatColor.LIGHT_PURPLE);
@@ -577,7 +604,16 @@ public class DeadPlayer {
 		float x = config.getInt("x") + 0.5F;
 		float y = config.getInt("y");
 		float z = config.getInt("z") + 0.5F;
-		boolean isStillDead = config.getBoolean("dead");
+		boolean isRevived;
+		boolean wasDead;
+		if (!config.contains("dead")) { //backwards compatibility
+			isRevived = config.getBoolean("revived");
+			wasDead = config.getBoolean("was-dead");
+		}
+		else {
+			isRevived = !config.getBoolean("dead");
+			wasDead = true;
+		}
 		long banEnd = config.getLong("auto-revive-date");
 		int xpLevel = config.getInt("experience-level");
 		
@@ -597,7 +633,8 @@ public class DeadPlayer {
 		newDeadPlayer.setName(name);
 		newDeadPlayer.setUuid(uuid);
 		newDeadPlayer.setLocation(location);
-		newDeadPlayer.isStillDead = isStillDead;
+		newDeadPlayer.wasDead = wasDead;
+		newDeadPlayer.isNotManuallyRevived = !isRevived;
 		newDeadPlayer.setCarrier(null);
 		newDeadPlayer.setDisguiser(null);
 		newDeadPlayer.cursors = cursors;
@@ -619,7 +656,8 @@ public class DeadPlayer {
 		config.set("uuid", uuid.toString());
 		config.set("name", name);
 		config.set("inventory", inventory.getContents());
-		config.set("dead", isStillDead);
+		config.set("revived", !isNotManuallyRevived);
+		config.set("was-dead", wasDead);
 		config.set("auto-revive-date", banEnd);
 		config.set("experience-level", xpLevel);
 
@@ -629,7 +667,7 @@ public class DeadPlayer {
 		}
 		config.set("cursors", nCursors);
 
-		killDummy();
+		killDummy(true);
 		
 		return config;
 	}
@@ -657,7 +695,9 @@ public class DeadPlayer {
             
     		Field ff = playerProfile.getClass().getDeclaredField("name");
     		ff.setAccessible(true);
-    		ff.set(playerProfile, ChatColor.stripColor(changeProfile.getName()));
+    		ff.set(playerProfile, changeProfile.getName());
+    		
+    		player.setDisplayName(changeProfile.getName());
          
             PropertyMap propertyMap = playerProfile.getProperties();
             propertyMap.get("textures").clear();
@@ -740,8 +780,9 @@ public class DeadPlayer {
 	}
 
 	
-	public void hide(Player player) {
-		delogFakePlayer(player);
+	public void hide(Player player, boolean hide) {
+		if (dummy == null) return;
+		if (hide) delogFakePlayer(player);
 		PacketPlayOutEntityDestroy removeEntity = new PacketPlayOutEntityDestroy(dummy.getId());
 		((CraftPlayer) player).getHandle().playerConnection.sendPacket(removeEntity);
 	}
@@ -809,12 +850,12 @@ public class DeadPlayer {
 			banTime = 23;
 			break;
 		case 4:
-			banTime = 365 * 1000; //a millenia ought to do it.
+			banTime = 365 * 1000; //a millennium ought to do it.
 			break;
 		default:
 			throw new IllegalArgumentException("It's gotta be either 0 to 4 previous bans.");
 		}
-		return (long) (banTime * 86400000); //converts days to milliseconds
+		return (long) (banTime * 86400000); //converts milliseconds to days
 	}
 	
 }
