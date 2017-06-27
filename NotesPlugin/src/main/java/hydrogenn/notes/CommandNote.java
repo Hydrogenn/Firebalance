@@ -15,22 +15,31 @@ import java.util.List;
 
 public class CommandNote implements CommandExecutor {
 
-    @Override
+	final ChatColor prefix = ChatColor.WHITE; //TODO add chatcolors with dyes
+	
+    @SuppressWarnings("deprecation")
+	@Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (!(sender instanceof Player)) {
             sender.sendMessage("Unfortunately, you cannot hold paper.");
             return true;
         }
 
+        //Check if help should be sent
         if (args.length < 1 || args[0].equals("help")) {
             sendHelp(sender);
             return true;
         }
 
+        //Cast the sender to a player, which is confirmed at the start
+        //The line in the middle was intended as a micro-optimization
+        //The computer will read this millions of times, we will only read it once or twice (Hopefully.)
         Player player = (Player) sender;
 
+        
         ItemStack item = player.getInventory().getItemInMainHand();
 
+        //Why is there a test for Material.AIR? whatever
         if (item == null || item.getType() == Material.AIR) {
             player.sendMessage("Hey, you're kind of forgetting something. The paper?");
             return true;
@@ -41,25 +50,20 @@ public class CommandNote implements CommandExecutor {
             return true;
         }
 
-        ChatColor prefix = ChatColor.WHITE; // TODO: Implement color prefixes with dyes
-
         ItemMeta itemMeta = item.getItemMeta();
-        if (itemMeta.getDisplayName() == null && !args[0].equals("name") && !args[0].equals("copy")) {
-            player.sendMessage("You can only write on named paper. Who knows why.");
-            return true;
-        }
 
         List<String> lore = itemMeta.getLore();
-
         if (lore == null) {
             lore = new ArrayList<>();
         }
 
-        if (isSigned(lore) && changesContent(args[0])) {
+        //
+        if (isSigned(lore) && legalAfterSigning(args[0])) {
             player.sendMessage("This has been signed. No further changes can be made.");
             return true;
         }
 
+        //Build the new text that is to be used
         StringBuilder builder = new StringBuilder();
         for (int i = numArgs(args[0]); i < args.length; i++) {
             String string = args[i];
@@ -68,39 +72,45 @@ public class CommandNote implements CommandExecutor {
             }
             builder.append(string);
         }
+        String newText = prefix + ChatColor.translateAlternateColorCodes('&', builder.toString());
 
         if (args[0].equals("name")) {
-            if (args.length < 2) {
+        	
+            if (args.length - numArgs(args[0]) <= 0) {
                 itemMeta.setDisplayName(null);
             } else {
-                itemMeta.setDisplayName(prefix + builder.toString());
+                itemMeta.setDisplayName(newText);
             }
 
+            //clear the description entirely
             itemMeta.setLore(null);
+            
             item.setItemMeta(itemMeta);
+            
         } else if (args[0].equals("desc")) {
+        	
             if (args[1].equals("set")) {
                 if (lore.size() > 0) {
                     lore.remove(lore.size() - 1); //simply remove the last line of lore before adding a new one.
-                }
+                } //hacky, but it's fine really
             }
 
-            String textToAdd = prefix + ChatColor.translateAlternateColorCodes('&', builder.toString());
-
-            if (args[1].equals("remove")) {
-                if (itemMeta.getLore().size() == 0) {
-                    player.sendMessage("Done!");
+            if (args[1].equals("remove")) { //do something completely different if removing text
+                if (lore.size() == 0) {
+                    player.sendMessage("Done!"); //there's nothing to remove lol
+                    return true;
                 } else {
-                    try {
+                    try { //for invalid input
                         for (int i = lore.size() - Integer.parseInt(args[2]); i >= 0 && i < lore.size(); ) {
-                            lore.remove(i);
+                            lore.remove(i); //this works, just trust me
                         }
                     } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
-                        lore.remove(lore.size() - 1);
+                    	if (lore.size() == 0)
+                    		lore.remove(lore.size() - 1);
                     }
                 }
-            } else {
-                lore.add(textToAdd);
+            } else { //otherwise do the intended functionality
+                lore.add(newText);
             }
 
             itemMeta.setLore(lore);
@@ -108,95 +118,116 @@ public class CommandNote implements CommandExecutor {
 
         } else if (args[0].equals("sign")) {
 
-            int copyLevel = 0;
+            int stampLevel = 0; //how many times the stamp can be copied
 
             if (args.length > 1 && args[1].equals("copy")) {
-                if (!canBeCopied(lore)) {
-                    player.sendMessage(firstSigner(lore) + " probably wouldn't appreciate that.");
-                    return true;
-                } else {
-                    if (args.length > 2) {
-                        try {
-                            copyLevel = Math.abs(Integer.parseInt(args[2]));
-                        } catch (NumberFormatException e) {
-                            copyLevel = 1;
-                        }
-                    } else {
-                        copyLevel = 1;
+                if (args.length > 2) {
+                    try {
+                        stampLevel = Math.abs(Integer.parseInt(args[2]));
+                    } catch (NumberFormatException e) {
+                        stampLevel = 1;
                     }
+                } else {
+                    stampLevel = 1;
                 }
             }
 
-            if (hasSigned(player.getName(), lore)) {
-                player.sendMessage("Signing twice might sound fun, but will it get you anywhere?");
+            if (hasSignature(player.getName(), lore)) {
+                player.sendMessage("Remind me again why you need to sign twice?");
                 return true;
             }
 
-            String copyString;
+            String stampTrailingString;
 
-            if (copyLevel == 0) {
-                copyString = "";
+            if (stampLevel == 0) {
+                stampTrailingString = "";
             } else {
-                copyString = " " + StringUtils.repeat("*", copyLevel);
+                stampTrailingString = " " + StringUtils.repeat("*", stampLevel);
             }
 
-            lore.add(ChatColor.GRAY.toString() + ChatColor.ITALIC + player.getName() + copyString);
+            lore.add(ChatColor.GRAY.toString() + ChatColor.ITALIC + player.getName() + stampTrailingString);
             itemMeta.setLore(lore);
             item.setItemMeta(itemMeta);
 
         } else if (args[0].equals("copy")) {
-            ItemStack otherItem = player.getInventory().getItemInOffHand();
-            if (otherItem == null || otherItem.getType() == Material.AIR) {
+            ItemStack stampItem = player.getInventory().getItemInOffHand();
+            if (stampItem == null || stampItem.getType() == Material.AIR) {
                 player.sendMessage("Um, you're forgetting something. The stamp?");
                 return true;
             }
 
-            if (otherItem.getType() != Material.PAPER) {
+            if (stampItem.getType() != Material.PAPER) {
                 player.sendMessage("That doesn't work as a stamp.");
                 return true;
             }
 
-            ItemMeta otherMeta = otherItem.getItemMeta();
-            if (!otherMeta.hasDisplayName()) {
+            ItemMeta stampMeta = stampItem.getItemMeta();
+            if (!stampMeta.hasDisplayName()) {
                 player.sendMessage("The paper must be named to act as a stamp.");
                 return true;
             }
 
-            List<String> otherLore = otherMeta.hasLore() ? otherMeta.getLore() : new ArrayList<>();
+            List<String> otherLore = stampMeta.hasLore() ? stampMeta.getLore() : new ArrayList<>();
             otherLore = lowerSignage(otherLore);
-            otherMeta.setLore(otherLore);
-            item.setItemMeta(otherMeta);
+            stampMeta.setLore(otherLore);
+            item.setItemMeta(stampMeta);
         }
 
         player.updateInventory();
         return true;
     }
 
+    
+    private boolean isSigned(List<String> lore) {
+		for (String line : lore) {
+			if (isSignature(line))
+				return true;
+		}
+		return false;
+	}
+
+
+	/**
+     * Returns a copy of the given description, but with any signatures replaced as necessary.
+     * Specifically, all signatures have a single star removed from the end of them.
+     * If there are no stars at the end, it removes the signature line altogether.
+     * @param description
+     * @return
+     */
     private List<String> lowerSignage(List<String> description) {
+    	
         List<Integer> linesToRemove = new ArrayList<>();
         for (int i = 0; i < description.size(); i++) {
+        	
             String line = description.get(i);
-            if (line.contains(ChatColor.GRAY.toString() + ChatColor.ITALIC)) {
+            
+            if (isSignature(line)) {
+            	
                 if (StringUtils.countMatches(line, "*") > 1) {
+                	
                     description.set(i, line.substring(0, line.length() - 1));
+                    
                 } else if (StringUtils.countMatches(line, "*") == 1) {
+                	
                     description.set(i, line.substring(0, line.indexOf(" ")));
+                    
                 } else {
-                    linesToRemove.add(i); //cannot be removed in this scope, so this is done instead.
+                	
+                    linesToRemove.add(i);
+                    
                 }
             }
-        }
-
-        int linesRemoved = 0;
-        for (int index : linesToRemove) { //assumes that the lines are in order, which they are.
-            description.remove(index - linesRemoved);
-            linesRemoved++;
         }
 
         return description;
     }
 
-    private int numArgs(String string) {
+    private boolean isSignature(String line) {
+		return !line.startsWith(ChatColor.WHITE.toString());
+	}
+
+
+	private int numArgs(String string) {
         return string.equals("desc") ? 2 : 1;
     }
 
@@ -216,82 +247,34 @@ public class CommandNote implements CommandExecutor {
         sender.sendMessage(messages);
     }
 
-    private boolean changesContent(String command) throws IllegalArgumentException {
+    /**
+     * Returns whether the given command is legal for signed notes in the main hand.
+     * @param command
+     */
+    private boolean legalAfterSigning(String command) {
         switch (command) {
-            case "name":
-            case "desc":
-                return true;
             case "sign":
+                return true;
+            case "desc":
                 return false;
+            case "name":
+            	return false; //Clearing the note by renaming it should not be allowed
             case "copy":
-                throw new IllegalArgumentException("Attempted to determine whether '/note copy' changes the content, which it does for one paper but not the other");
+                return false; //Clearing the note by renaming it should not be allowed
         }
 
         throw new IllegalArgumentException();
     }
 
-    private boolean canBeCopied(List<String> description) {
-        if (description == null) {
-            return true;
-        }
-
-        for (String line : description) {
-            if (line.contains(ChatColor.GRAY.toString() + ChatColor.ITALIC)) {
-                return line.contains("*");
-            }
-        }
-
-        return true;
-    }
-
-    private boolean hasSigned(String username, List<String> description) {
+    private boolean hasSignature(String username, List<String> description) {
         if (description == null) {
             return false;
         }
 
         for (String line : description) {
-            if (line.contains(ChatColor.GRAY.toString() + ChatColor.ITALIC + username + " ")) {
+            if (isSignature(line))
                 return true;
-            } else if (line.equals(ChatColor.GRAY.toString() + ChatColor.ITALIC + username)) {
-                return true;
-            }
         }
-
         return false;
     }
-
-    private String firstSigner(List<String> description) {
-        if (description == null) {
-            return null;
-        }
-
-        for (String line : description) {
-            if (line.contains(ChatColor.GRAY.toString() + ChatColor.ITALIC)) {
-                return removeStars(line);
-            }
-        }
-
-        return null;
-    }
-
-    private boolean isSigned(List<String> description) {
-        return firstSigner(description) != null;
-    }
-
-    private String removeStars(String name) { //removes stars if present and the space before it in a name.
-        if (name.contains("*")) {
-            name = name.substring(0, name.indexOf("*") - 1);
-        }
-
-        return name;
-    }
 }
-
-/*
-  Paste Bin:
-  if (args[0].equals("desc") && (args.length<2 || (
-  !args[1].equals("set") &&
-  !args[1].equals("add") &&
-  !args[1].equals("remove") ) ) ) return false;
- */
-
