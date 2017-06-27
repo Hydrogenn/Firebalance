@@ -10,12 +10,18 @@
     <name>Notes</name>
     <description>Run commands after a certain amount of time and show the timer through the XP bar</description>
 
+    <repositories>
+        <repository>
+            <id>spigot-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
-            <groupId>hydrogenn</groupId>
-            <artifactId>firebalance</artifactId>
-            <version>1.4.2</version>
-            <scope>provided</scope>
+            <groupId>org.bukkit</groupId>
+            <artifactId>bukkit</artifactId>
+            <version>1.12-R0.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

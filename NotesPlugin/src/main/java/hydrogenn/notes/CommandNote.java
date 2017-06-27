@@ -18,18 +18,13 @@ public class CommandNote implements CommandExecutor {
     @Override
     @SuppressWarnings("deprecation")
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (args.length < 1) {
-            sendHelp(sender);
-            return true;
-        }
-
-        if (args[0].equals("help")) {
-            sendHelp(sender);
-            return true;
-        }
-
         if (!(sender instanceof Player)) {
             sender.sendMessage("Unfortunately, you cannot hold paper.");
+            return true;
+        }
+
+        if (args.length < 1 || args[0].equals("help")) {
+            sendHelp(sender);
             return true;
         }
 
@@ -37,16 +32,17 @@ public class CommandNote implements CommandExecutor {
 
         ItemStack item = player.getInventory().getItemInMainHand();
 
-        if (item == null) {
+        if (item == null || item.getType() == Material.AIR) {
             player.sendMessage("Hey, you're kind of forgetting something. The paper?");
             return true;
         }
+
         if (item.getType() != Material.PAPER) {
             player.sendMessage("You probably don't want to try writing on that.");
             return true;
         }
 
-        ChatColor prefix = ChatColor.WHITE; //TODO implement color prefixes with dyes
+        ChatColor prefix = ChatColor.WHITE; // TODO: Implement color prefixes with dyes
 
         ItemMeta itemMeta = item.getItemMeta();
         if (itemMeta.getDisplayName() == null && !args[0].equals("name") && !args[0].equals("copy")) {
@@ -84,7 +80,6 @@ public class CommandNote implements CommandExecutor {
             itemMeta.setLore(null);
             item.setItemMeta(itemMeta);
         } else if (args[0].equals("desc")) {
-
             if (args[1].equals("set")) {
                 if (lore.size() > 0) {
                     lore.remove(lore.size() - 1); //simply remove the last line of lore before adding a new one.
@@ -137,29 +132,35 @@ public class CommandNote implements CommandExecutor {
             }
 
             String copyString;
+
             if (copyLevel == 0) {
                 copyString = "";
             } else {
                 copyString = " " + StringUtils.repeat("*", copyLevel);
             }
+
             lore.add(ChatColor.GRAY.toString() + ChatColor.ITALIC + player.getName() + copyString);
             itemMeta.setLore(lore);
             item.setItemMeta(itemMeta);
+
         } else if (args[0].equals("copy")) {
             ItemStack otherItem = player.getInventory().getItemInOffHand();
             if (otherItem == null) {
                 player.sendMessage("Um, you're forgetting something. The stamp?");
                 return true;
             }
+
             if (otherItem.getType() != Material.PAPER) {
                 player.sendMessage("That doesn't work as a stamp.");
                 return true;
             }
+
             ItemMeta otherMeta = otherItem.getItemMeta();
             if (otherMeta.getDisplayName() == null) {
                 player.sendMessage("The paper must be named to act as a stamp.");
                 return true;
             }
+
             List<String> otherLore = otherMeta.getLore();
             otherLore = lowerSignage(otherLore);
             otherMeta.setLore(otherLore);
