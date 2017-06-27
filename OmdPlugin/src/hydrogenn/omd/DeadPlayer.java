@@ -770,6 +770,8 @@ public class DeadPlayer {
 	}
 
 	public void logFakePlayer(Player viewer) {
+		EntityPlayer dummy = (EntityPlayer) getDummy();
+		if (dummy == null) return;
 		PacketPlayOutPlayerInfo fakePacket = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER,(EntityPlayer) getDummy());
 		((CraftPlayer)viewer).getHandle().playerConnection.sendPacket(fakePacket);
 	}
