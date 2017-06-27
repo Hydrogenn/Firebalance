@@ -1,4 +1,4 @@
-package hydrogenn.notes;
+package main.java.hydrogenn.notes;
 
 import org.bukkit.plugin.java.JavaPlugin;
 

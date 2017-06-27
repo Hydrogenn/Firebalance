@@ -1,4 +1,4 @@
-package hydrogenn.notes;
+package main.java.hydrogenn.notes;
 
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
@@ -16,7 +16,6 @@ import java.util.List;
 public class CommandNote implements CommandExecutor {
 
     @Override
-    @SuppressWarnings("deprecation")
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (!(sender instanceof Player)) {
             sender.sendMessage("Unfortunately, you cannot hold paper.");
