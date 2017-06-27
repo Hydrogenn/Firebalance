@@ -86,6 +86,8 @@ public class CommandNote implements CommandExecutor {
                 }
             }
 
+            String textToAdd = prefix + ChatColor.translateAlternateColorCodes('&', builder.toString());
+
             if (args[1].equals("remove")) {
                 if (itemMeta.getLore().size() == 0) {
                     player.sendMessage("Done!");
@@ -99,7 +101,7 @@ public class CommandNote implements CommandExecutor {
                     }
                 }
             } else {
-                lore.add(prefix + builder.toString());
+                lore.add(textToAdd);
             }
 
             itemMeta.setLore(lore);
@@ -145,7 +147,7 @@ public class CommandNote implements CommandExecutor {
 
         } else if (args[0].equals("copy")) {
             ItemStack otherItem = player.getInventory().getItemInOffHand();
-            if (otherItem == null) {
+            if (otherItem == null || otherItem.getType() == Material.AIR) {
                 player.sendMessage("Um, you're forgetting something. The stamp?");
                 return true;
             }
@@ -156,12 +158,12 @@ public class CommandNote implements CommandExecutor {
             }
 
             ItemMeta otherMeta = otherItem.getItemMeta();
-            if (otherMeta.getDisplayName() == null) {
+            if (!otherMeta.hasDisplayName()) {
                 player.sendMessage("The paper must be named to act as a stamp.");
                 return true;
             }
 
-            List<String> otherLore = otherMeta.getLore();
+            List<String> otherLore = otherMeta.hasLore() ? otherMeta.getLore() : new ArrayList<>();
             otherLore = lowerSignage(otherLore);
             otherMeta.setLore(otherLore);
             item.setItemMeta(otherMeta);
@@ -196,17 +198,14 @@ public class CommandNote implements CommandExecutor {
     }
 
     private int numArgs(String string) {
-        if (string.equals("desc")) {
-            return 2;
-        }
-        return 1;
+        return string.equals("desc") ? 2 : 1;
     }
 
     private void sendHelp(CommandSender sender) {
         String[] messages = {
                 "All commands assume you have a paper in your main hand.",
-                "/note help: You are here. (Does not require a paper.)",
-                "/note name <text>: Change the name of a note without xp cost.",
+                "/note help: You are here. (Does not require a paper)",
+                "/note name <text>: Change the name of a note without XP cost.",
                 "/note desc add <text>: Add a line of description to a note.",
                 "/note desc set <text>: Set the last line of description to a note.",
                 "/note desc remove [# of lines]: Remove the last few lines of a note.",
@@ -221,7 +220,6 @@ public class CommandNote implements CommandExecutor {
     private boolean changesContent(String command) throws IllegalArgumentException {
         switch (command) {
             case "name":
-                return true;
             case "desc":
                 return true;
             case "sign":
@@ -278,17 +276,7 @@ public class CommandNote implements CommandExecutor {
     }
 
     private boolean isSigned(List<String> description) {
-        if (description == null) {
-            return false;
-        }
-
-        for (String line : description) {
-            if (line.contains(ChatColor.GRAY.toString() + ChatColor.ITALIC)) {
-                return true;
-            }
-        }
-
-        return false;
+        return firstSigner(description) != null;
     }
 
     private String removeStars(String name) { //removes stars if present and the space before it in a name.
