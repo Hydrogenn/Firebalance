@@ -36,7 +36,7 @@ public class CommandRank extends CommandClass {
 						if (!target.getKingdom().equals(kingdom)) {
 							player.sendMessage("You can't tell them what to do.");
 						}
-						else if (!kingdom.isLeader(player.getUniqueId())) {
+						else if (!kingdom.hasAllPermission(player.getUniqueId())) {
 							player.sendMessage("You can't tell anyone what to do...");
 						}	
 						else {

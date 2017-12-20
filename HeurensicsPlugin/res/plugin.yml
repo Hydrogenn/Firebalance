@@ -6,4 +6,4 @@ commands:
   investigate:
     description: Toggle whether you investigate all blocks that you shift-right-click.
     usage: "/investigate"
-    aliases: "/i"
+    aliases: ["/i"]

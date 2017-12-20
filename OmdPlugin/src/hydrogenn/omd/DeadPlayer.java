@@ -75,7 +75,6 @@ public class DeadPlayer {
 	
 	private Location location;
 	private Inventory inventory;
-	private String name;
 	private UUID uuid;
 	private UUID carrier; //awful people who drag you around
 	private UUID disguiser; //awful people who pretend they're like you
@@ -92,10 +91,9 @@ public class DeadPlayer {
 	
 	public DeadPlayer(Player player, boolean dead) {
 		setLocation(player.getLocation());
-		name = player.getName();
-		inventory = Bukkit.createInventory(null,45,name);
-		inventory.setContents(player.getInventory().getContents());
 		uuid = player.getUniqueId();
+		inventory = Bukkit.createInventory(null,45,getName());
+		inventory.setContents(player.getInventory().getContents());
 		carrier = null;
 		disguiser = null;
 		cursors = new ArrayList<UUID>();
@@ -103,11 +101,13 @@ public class DeadPlayer {
 		isNotManuallyRevived = dead;
 		banEnd = (long) (System.currentTimeMillis() + 0.75 * 86400000);
 		xpLevel = player.getLevel() / 2;
+		makeDummy();
 		if (dead) {
-			makeDummy();
 			player.spigot().respawn();
 			ban();
 			player.kickPlayer(OnlyMostlyDead.getBanMessage());
+			if (isDisguised(player.getUniqueId()))
+				stopDisguising(player);
 		}
 	}
 	
@@ -182,10 +182,7 @@ public class DeadPlayer {
 		this.location = location;
 	}
 	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
+		return Bukkit.getOfflinePlayer(getUuid()).getName();
 	}
 	public UUID getUuid() {
 		return uuid;
@@ -216,13 +213,13 @@ public class DeadPlayer {
 	
 	private void ban() {
 		Bukkit.getBanList(Type.NAME).addBan(
-				name, OnlyMostlyDead.getBanMessage(), Date.from(Instant.ofEpochMilli(banEnd)), "Only Mostly Dead");
+				getName(), OnlyMostlyDead.getBanMessage(), Date.from(Instant.ofEpochMilli(banEnd)), "Only Mostly Dead");
 	}
 	
 	private void pardon() {
-		BanEntry banEntry = Bukkit.getBanList(Type.NAME).getBanEntry(name);
+		BanEntry banEntry = Bukkit.getBanList(Type.NAME).getBanEntry(getName());
 		if (banEntry != null && banEntry.getSource().equals("Only Mostly Dead")) {
-			Bukkit.getBanList(Type.NAME).pardon(name);
+			Bukkit.getBanList(Type.NAME).pardon(getName());
 		}
 	}
 
@@ -460,6 +457,10 @@ public class DeadPlayer {
 			target.setLevel(formerStats.xpLevel);
 			target.addPotionEffects(revivalPotionEffects);
 		}
+		else {
+			target.sendMessage(ChatColor.RED + "Because you did not sleep in a bed, your body was left behind. "
+					+ "Anyone could have killed you or stolen from your inventory.");
+		}
 	}
 
 	public static void addDeadPlayer(Player player, boolean dead) {
@@ -585,8 +586,6 @@ public class DeadPlayer {
 	private long banEnd;
 	 */
 	public static void addFromConfig(YamlConfiguration config) {
-
-		String name = config.getString("name");
 		
 		World world = null;
 		for (World w : Bukkit.getWorlds()) {
@@ -596,7 +595,7 @@ public class DeadPlayer {
 			}
 		}
 		if (world == null) {
-			Bukkit.getLogger().warning("Could not load the dead player "+name+" because they are in a non-existent world!");
+			Bukkit.getLogger().warning("Could not load the dead player "+config.getName()+" because they are in a non-existent world!");
 			return;
 		}
 		
@@ -622,16 +621,16 @@ public class DeadPlayer {
 			cursors.add(UUID.fromString(cursor));
 		}
 		
-		@SuppressWarnings("unchecked")
-		ItemStack[] itemstacks = ((List<ItemStack>) config.getList("inventory")).toArray(new ItemStack[45]);
-		Inventory inventory = Bukkit.createInventory(null,45,name);
-		inventory.setContents(itemstacks);
-		
 		Location location = new Location(world,x,y,z);
 		
 		DeadPlayer newDeadPlayer = new DeadPlayer();
-		newDeadPlayer.setName(name);
 		newDeadPlayer.setUuid(uuid);
+		
+		@SuppressWarnings("unchecked")
+		ItemStack[] itemstacks = ((List<ItemStack>) config.getList("inventory")).toArray(new ItemStack[45]);
+		Inventory inventory = Bukkit.createInventory(null,45,newDeadPlayer.getName());
+		inventory.setContents(itemstacks);
+		
 		newDeadPlayer.setLocation(location);
 		newDeadPlayer.wasDead = wasDead;
 		newDeadPlayer.isNotManuallyRevived = !isRevived;
@@ -654,7 +653,6 @@ public class DeadPlayer {
 		config.set("z", location.getBlockZ());
 		config.set("world", location.getWorld().getName());
 		config.set("uuid", uuid.toString());
-		config.set("name", name);
 		config.set("inventory", inventory.getContents());
 		config.set("revived", !isNotManuallyRevived);
 		config.set("was-dead", wasDead);
@@ -769,14 +767,12 @@ public class DeadPlayer {
 		
 	}
 
-	public void logFakePlayer(Player viewer) {
-		EntityPlayer dummy = (EntityPlayer) getDummy();
-		if (dummy == null) return;
+	private void logFakePlayer(Player viewer) {
 		PacketPlayOutPlayerInfo fakePacket = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER,(EntityPlayer) getDummy());
 		((CraftPlayer)viewer).getHandle().playerConnection.sendPacket(fakePacket);
 	}
 	
-	public void delogFakePlayer(Player viewer) {
+	private void delogFakePlayer(Player viewer) {
 		PacketPlayOutPlayerInfo fakePacket = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER,(EntityPlayer) getDummy());
 		((CraftPlayer)viewer).getHandle().playerConnection.sendPacket(fakePacket);
 	}

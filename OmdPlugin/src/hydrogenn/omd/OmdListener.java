@@ -18,7 +18,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerToggleSprintEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.EquipmentSlot;
 
 import net.md_5.bungee.api.ChatColor;
@@ -71,7 +71,7 @@ public class OmdListener implements Listener {
 			sleepers.remove(uuid);
 			e.setQuitMessage(ChatColor.YELLOW + player.getDisplayName() +" has gone to bed.");
 		}
-		else {
+		else if (!player.isBanned()) {
 			DeadPlayer.addDeadPlayer(e.getPlayer(), false);
 		}
 	}
@@ -83,6 +83,21 @@ public class OmdListener implements Listener {
 	
 	@EventHandler
 	public static void onPlayerMoveIntoView(PlayerMoveEvent e) {
+		Player player = e.getPlayer();
+		for (DeadPlayer deadPlayer : DeadPlayer.getList()) {
+			if (deadPlayer.inRange(e.getTo()) &&
+					!deadPlayer.inRange(e.getFrom())) {
+				deadPlayer.show(player);
+			}
+			else if (!deadPlayer.inRange(e.getTo()) &&
+					deadPlayer.inRange(e.getFrom())) {
+				deadPlayer.hide(player,true);
+			}
+		}
+	}
+	
+	@EventHandler
+	public static void onPlayerTeleportIntoView(PlayerTeleportEvent e) {
 		Player player = e.getPlayer();
 		for (DeadPlayer deadPlayer : DeadPlayer.getList()) {
 			if (deadPlayer.inRange(e.getTo()) &&
@@ -163,14 +178,6 @@ public class OmdListener implements Listener {
 	}
 	
 	@EventHandler
-	public static void onPlayerDieWithCorpse(PlayerDeathEvent e) {
-		Player player = (Player) e.getEntity();
-		if (DeadPlayer.isCarrier(player)) {
-			DeadPlayer.stopCarrying(player);
-		}
-	}
-	
-	@EventHandler
 	public static void onPlayerDeath(PlayerDeathEvent e) {
 		Player player = e.getEntity();
 		e.getDrops().clear();
@@ -221,13 +228,6 @@ public class OmdListener implements Listener {
 		if (DeadPlayer.isActiveInventory(e.getInventory())) {
 			DeadPlayer.closeInventory(e.getInventory());
 		}
-	}
-	
-	@EventHandler
-	public static void detectPlayerRunWithCorpse(PlayerToggleSprintEvent e) {
-		Player player = e.getPlayer();
-		if (DeadPlayer.isCarrier(player))
-			e.setCancelled(true);
 	}
 	
 }

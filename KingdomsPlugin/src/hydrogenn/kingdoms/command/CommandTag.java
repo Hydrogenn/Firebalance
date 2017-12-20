@@ -21,28 +21,30 @@ public class CommandTag extends CommandClass {
 			Player player = (Player) sender;
 			PlayerSpec spec = PlayerSpec.getSpec(player);
 			Kingdom kingdom = spec.getKingdom();
+			String tag = ChatColor.translateAlternateColorCodes('&',args[0]);
+			String textTag = ChatColor.stripColor(tag);
 			if (kingdom == null) {
 				player.sendMessage("Remind me again what you're changing the tag of?");
 			}
 			else {
-				if (!kingdom.isLeader(player.getUniqueId())) {
+				if (!kingdom.hasNamePermission(player)) {
 					player.sendMessage("You have permission to do that? Yep... believable.");
 				}
-				else if (args[0].length() == 0) {
+				else if (textTag.length() == 0) {
 					player.sendMessage(ChatColor.GRAY + "[] /tag: "+ ChatColor.WHITE +"A fine choice. Very distinct.");
 				}
-				else if (args[0].length() > 4) {
-					player.sendMessage(ChatColor.GRAY + "["+args[0]+"] /tag: "+ ChatColor.WHITE +"Doesn't this seem a bit long of a tag?");
+				else if (textTag.length() > 5) {
+					player.sendMessage(ChatColor.GRAY + "["+tag+ChatColor.GRAY+"] /tag: "+ ChatColor.WHITE +"Doesn't this seem a bit long of a tag?");
 				}
 				else {
-					Kingdom other = Kingdom.getByTag(args[0]);
+					Kingdom other = Kingdom.getByTag(tag);
 					if (other != null) {
 						String nameOfOther = PlayerSpec.getByUUID(other.getLeader()).getName();
-						player.sendMessage(ChatColor.GRAY + "["+args[0]+"] "+nameOfOther+": "+ ChatColor.WHITE +"Someone's beat you to it, pal!");
+						player.sendMessage(ChatColor.GRAY + "["+tag+ChatColor.GRAY+"] "+nameOfOther+": "+ ChatColor.WHITE +"Someone's beat you to it, pal!");
 					}
 					else {
-						kingdom.setTag(args[0]);
-						player.sendMessage(ChatColor.GRAY + "["+args[0]+"] /tag: "+ ChatColor.WHITE +"Tag changed. Hope you like it ;)");
+						kingdom.setTag(tag);
+						player.sendMessage("Tag changed.");
 					}
 				}
 			}

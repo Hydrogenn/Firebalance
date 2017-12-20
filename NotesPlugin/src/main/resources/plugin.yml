@@ -5,6 +5,3 @@ commands:
   note:
     description: Modifies a note.
     usage: "/note help"
-  stamp:
-    description: Copies a held stamp to a held paper.
-    usage: /stamp

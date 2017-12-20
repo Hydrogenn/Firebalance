@@ -2,13 +2,13 @@ package hydrogenn.points;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Points extends JavaPlugin {
@@ -22,14 +22,16 @@ public class Points extends JavaPlugin {
     public void onEnable() {
         
         ConfigManager.init(this);
+        FileConfiguration config = getConfig();
         
 		///agh automatically register comamnds is pain.
         
-		// Register command
-        getCommand("vote").setExecutor(new CommandLink(this));
-        getCommand("donate").setExecutor(new CommandLink(this));
-        getCommand("discord").setExecutor(new CommandLink(this));
-        getCommand("forums").setExecutor(new CommandLink(this));
+        ConfigurationSection linksInConfig = config.getConfigurationSection("links");
+        
+        for (String key : linksInConfig.getKeys(false)) {
+        	links.put(key, (ArrayList<String>) linksInConfig.getStringList(key));
+        	new CommandLink(key, this);
+        }
         
 	}
 	
@@ -44,5 +46,11 @@ public class Points extends JavaPlugin {
 
 	public Set<Entry<UUID,Integer>> getEntries() {
 		return points.entrySet();
+	}
+
+	public void loadFromConfig(YamlConfiguration conf) {
+		for (String key: conf.getKeys(false)) {
+			points.put(UUID.fromString(key), conf.getInt(key));
+		}
 	}
 }

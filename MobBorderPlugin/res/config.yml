@@ -1,0 +1,28 @@
+#Config for MobBorders
+
+#Indicates how many blocks one must travel before wild mobs level up.
+#With this setting, every thousand blocks is worth about 6 levels.
+#It is reasonable to expect no one past 12k (lvl 72), and few past 7k (lvl 42).
+#This world border size is ideal for small and medium size servers.
+blocks-to-level-up: 166.6667
+
+#Indicates the relative damage output of mobs that are one level higher.
+#With this setting, mobs a mere 4 levels above you will deal double damage.
+damage-buff: 0.25
+
+#Indicates the relative damage reduced of mobs that are one level higher.
+#With this setting, mobs a mere 4 levels above you will take half damage.
+health-buff: 0.25
+
+#Indicates the relative expirience dropped by mobs that are one level higher.
+#With this setting, mobs a paltry 2 levels above you will yield double experience.
+experience-yield: 0.5
+
+#Whether any of this affects PvP.
+#If so, players' levels are capped at the regional buff.
+#Examples:
+#  Bob (lv 20) v Alice (lv 15) in lv 20+ territory: Bob has 225% buff, with 5 levels ahead of her.
+#  Lv 18 territory: Bob has 175% buff against Alice. Bob is capped at lv 18, so only 3 levels ahead of Alice.
+#  Lv 15- territory: Bob has no buff. Both players are forced to an equal and lower level.
+#This does not affect experience yields.
+affects-pvp: false

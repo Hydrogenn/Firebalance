@@ -24,7 +24,7 @@ public class CommandInvite extends CommandClass {
 			if (kingdom == null) {
 				player.sendMessage("Invite them to where, exactly?");
 			}
-			else if (!kingdom.isLeader(player.getUniqueId())) {
+			else if (!kingdom.hasInvitePermission(player)) {
 				sender.sendMessage("You cannot do that! You aren't the leader.");
 			}
 			else {
@@ -37,6 +37,7 @@ public class CommandInvite extends CommandClass {
 				}
 				else {
 					kingdom.invite(target.getUniqueId());
+					sender.sendMessage("Invite sent.");
 					target.sendMessage("You have been invited to "+kingdom.getName()+". You may join at any time.");
 				}
 			}

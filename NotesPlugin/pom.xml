@@ -6,9 +6,9 @@
 
     <groupId>hydrogenn</groupId>
     <artifactId>notes</artifactId>
-    <version>1.4</version>
+    <version>1.5</version>
     <name>Notes</name>
-    <description>Run commands after a certain amount of time and show the timer through the XP bar</description>
+    <description>Run commands after a certain amount of time and show the timer through the XP bar -- wait, that's not quite right. This one lets you write on paper.</description>
 
     <repositories>
         <repository>

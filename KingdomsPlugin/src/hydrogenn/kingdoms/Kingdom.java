@@ -11,6 +11,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 
 public class Kingdom {
 	
@@ -19,6 +20,9 @@ public class Kingdom {
 	private ArrayList<UUID> members = new ArrayList<UUID>();
 	private ArrayList<UUID> invited = new ArrayList<UUID>();
 	private ArrayList<UUID> chainOfCommand = new ArrayList<UUID>();
+	private int capitalRank = 1;
+	private int nameRank = 1;
+	private int inviteRank = 1;
 	private String name = null;
 	private String tag = "";
 	private Location spawn = null;
@@ -30,12 +34,15 @@ public class Kingdom {
 		register();
 	}
 
-	public Kingdom(String name, String tag, Location spawn, ArrayList<UUID> members, ArrayList<UUID> chainOfCommand) {
+	public Kingdom(String name, String tag, Location spawn, ArrayList<UUID> members, ArrayList<UUID> chainOfCommand, int capitalRank, int nameRank, int inviteRank) {
 		this.name = name;
 		this.tag = tag;
 		this.spawn = spawn;
 		this.members = members;
 		this.chainOfCommand = chainOfCommand;
+		this.capitalRank = capitalRank;
+		this.nameRank = nameRank;
+		this.inviteRank = inviteRank;
 		register();
 	}
 
@@ -64,6 +71,8 @@ public class Kingdom {
 	public void remove(UUID uuid) {
 		members.remove(uuid);
 		chainOfCommand.remove(uuid);
+		if (members.size() == 0)
+			kingdoms.remove(name);
 	}
 	
 	private void register() {
@@ -100,10 +109,32 @@ public class Kingdom {
 		this.spawn = spawn;
 	}
 
-	public boolean isLeader(UUID uuid) {
-		if (chainOfCommand.get(0).equals(uuid))
-			return true;
-		return false;
+	public boolean hasCapitalPermission(Player player) {
+		return chainOfCommand.subList(0, capitalRank).contains(player.getUniqueId());
+	}
+
+	public void setCapitalPermission(int rank) {
+		capitalRank = rank;
+	}
+
+	public boolean hasInvitePermission(Player player) {
+		return chainOfCommand.subList(0, inviteRank).contains(player.getUniqueId());
+	}
+
+	public void setInvitePermission(int rank) {
+		inviteRank = rank;
+	}
+
+	public boolean hasNamePermission(Player player) {
+		return chainOfCommand.subList(0, nameRank).contains(player.getUniqueId());
+	}
+
+	public void setNamePermission(int rank) {
+		nameRank = rank;
+	}
+
+	public boolean hasAllPermission(UUID uuid) {
+		return chainOfCommand.get(0).equals(uuid);
 	}
 
 	public boolean isInvited(UUID uuid) {
@@ -150,7 +181,7 @@ public class Kingdom {
 			World world = null;
 			String worldName = conf.getString("spawn-world");
 			for (World tWorld : Bukkit.getWorlds()) {
-				if (tWorld.getName() == worldName) {
+				if (tWorld.getName().equals(worldName)) {
 					world = tWorld;
 					break;
 				}
@@ -174,7 +205,10 @@ public class Kingdom {
 		for (String member : conf.getStringList("leaders")) {
 			chainOfCommand.add(UUID.fromString(member));
 		}
-		new Kingdom(name,tag,spawn,members,chainOfCommand);
+		int capitalRank = conf.getInt("capital-rank");
+		int nameRank = conf.getInt("name-rank");
+		int inviteRank = conf.getInt("invite-rank");
+		new Kingdom(name,tag,spawn,members,chainOfCommand,capitalRank,nameRank,inviteRank);
 	}
 
 	public FileConfiguration saveToConfig(YamlConfiguration conf) {
@@ -196,10 +230,13 @@ public class Kingdom {
 		}
 		conf.set("members", memberStrings);
 		List<String> leaderStrings = new ArrayList<String>();
-		for (UUID member : members) {
+		for (UUID member : chainOfCommand) {
 			leaderStrings.add(member.toString());
 		}
 		conf.set("leaders", leaderStrings);
+		conf.set("capital-rank", capitalRank);
+		conf.set("name-rank", nameRank);
+		conf.set("invite-rank", inviteRank);
 		return conf;
 	}
 	

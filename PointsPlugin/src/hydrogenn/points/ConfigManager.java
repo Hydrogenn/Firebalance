@@ -2,14 +2,10 @@ package hydrogenn.points;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map.Entry;
 import java.util.UUID;
 
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.plugin.Plugin;
 
 /**
  * Manages file i/o. Inspired by Rayzr's implementation in Firebalance.
@@ -18,9 +14,9 @@ import org.bukkit.plugin.Plugin;
  */
 public class ConfigManager {
 	
-	private static Plugin plugin;
+	private static Points plugin;
 	
-	public static void init(Plugin plugin) {
+	public static void init(Points plugin) {
 		ConfigManager.plugin = plugin;
 		load();
 	}
@@ -33,17 +29,12 @@ public class ConfigManager {
 	
 	public static void loadPoints() {
 		
-		File disguises = getFolder("points");
+		File points = getFile("points.yml");
 
-		List<File> files = Arrays.asList(disguises.listFiles());
+		YamlConfiguration conf = YamlConfiguration.loadConfiguration(points);
 
-		for (File f : files) {
-
-			YamlConfiguration conf = YamlConfiguration.loadConfiguration(f);
-
-			//TODO load points from config
-
-		}
+		plugin.loadFromConfig(conf);
+		
 	}
 	
 	public static void save() {
@@ -55,23 +46,17 @@ public class ConfigManager {
 	public static void savePoints() {
 
 
-		File points = getFolder("points");
+		File points = getFile("points.yml");
+		YamlConfiguration conf = YamlConfiguration.loadConfiguration(points);
+
+		for (Entry<UUID,Integer> entry : plugin.getEntries()) {
+			conf.set(entry.getKey().toString(), entry.getValue());
+		}
 		
-		for (File file : points.listFiles()) {
-			file.delete();
-		};
-
-		for (Entry<UUID,Integer> entry : ((Points)plugin).getEntries()) {
-			File f = new File(points, Bukkit.getOfflinePlayer(entry.getKey()).getName() + ".yml");
-			YamlConfiguration conf = YamlConfiguration.loadConfiguration(f);
-
-			/*
-			try {
-				//TODO save to config
-			} catch (IOException e) {
-				e.printStackTrace();
-			}*/
-
+		try {
+			conf.save(points);
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 
 	}

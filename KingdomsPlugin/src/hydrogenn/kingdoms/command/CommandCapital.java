@@ -24,12 +24,12 @@ public class CommandCapital extends CommandClass {
 				player.sendMessage("Okay, setting the spawn of "+ChatColor.ITALIC+"nobody"+ChatColor.RESET+" to right here.");
 			}
 			else {
-				if (!kingdom.isLeader(player.getUniqueId())) {
-					player.sendMessage("This sets the capital. Which you cannot do, peasant.");
+				if (!kingdom.hasCapitalPermission(player)) {
+					player.sendMessage("This sets the capital. Which you cannot do, "+ChatColor.ITALIC+"peasant"+ChatColor.RESET+".");
 				}
 				else {
-					player.sendMessage("Spawn is now here, and not anywhere else.");
 					kingdom.setSpawn(player.getLocation());
+					player.sendMessage("Spawn is now here, and not anywhere else.");
 				}
 			}
 		}

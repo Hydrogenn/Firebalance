@@ -24,9 +24,9 @@ public class CommandNote implements CommandExecutor {
             sender.sendMessage("Unfortunately, you cannot hold paper.");
             return true;
         }
-
+        
         //Check if help should be sent
-        if (args.length < 1 || args[0].equals("help")) {
+        if (args.length < 1 || args[0].equals("help") || !isValidCommand(args[0])) {
             sendHelp(sender);
             return true;
         }
@@ -58,7 +58,7 @@ public class CommandNote implements CommandExecutor {
         }
 
         //
-        if (isSigned(lore) && legalAfterSigning(args[0])) {
+        if (isSigned(lore) && !legalAfterSigning(args[0])) {
             player.sendMessage("This has been signed. No further changes can be made.");
             return true;
         }
@@ -178,7 +178,21 @@ public class CommandNote implements CommandExecutor {
     }
 
     
-    private boolean isSigned(List<String> lore) {
+    private boolean isValidCommand(String cmd) {
+		if (cmd.equals("name")) {
+			return true;
+		} else if (cmd.equals("desc")) {
+			return true;
+		} else if (cmd.equals("sign")) {
+			return true;
+		} else if (cmd.equals("copy")) {
+			return true;
+		}
+		return false;
+	}
+
+
+	private boolean isSigned(List<String> lore) {
 		for (String line : lore) {
 			if (isSignature(line))
 				return true;
@@ -262,8 +276,7 @@ public class CommandNote implements CommandExecutor {
             case "copy":
                 return false; //Clearing the note by renaming it should not be allowed
         }
-
-        throw new IllegalArgumentException();
+        return true; //won't do anything
     }
 
     private boolean hasSignature(String username, List<String> description) {

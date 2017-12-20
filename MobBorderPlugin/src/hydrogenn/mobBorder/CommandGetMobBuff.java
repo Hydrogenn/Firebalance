@@ -7,6 +7,12 @@ import org.bukkit.entity.Player;
 
 public class CommandGetMobBuff implements CommandExecutor {
 
+	MobBorderPlugin plugin;
+	
+	CommandGetMobBuff(MobBorderPlugin plugin) {
+		this.plugin = plugin;
+	}
+	
 	@Override
 	public boolean onCommand(CommandSender sender, Command arg1, String arg2, String[] arg3) {
 		if (!(sender instanceof Player)) {
@@ -15,16 +21,10 @@ public class CommandGetMobBuff implements CommandExecutor {
 		}
 		Player player = (Player) sender;
 		int pLevel = player.getLevel();
-		int mLevel = MobBorderPlugin.getLevelByLocation(player.getLocation());
+		int mLevel = plugin.getLevelByLocation(player.getLocation());
 		
-		int mBuff;
-		if (pLevel < mLevel) {
-			mBuff = 100 + 25*(mLevel - pLevel);
-		}
-		else {
-			mBuff = 100;
-		}
-		player.sendMessage("Mob level: "+mLevel+" (Buff at "+mBuff+"%)");
+		String mBuff = plugin.getDisplayBuff(mLevel,pLevel);
+		player.sendMessage("Mob level: "+mLevel+" ("+mBuff+")");
 		return true;
 	}
 

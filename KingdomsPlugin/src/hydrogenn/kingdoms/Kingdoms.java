@@ -1,17 +1,6 @@
 
 package hydrogenn.kingdoms;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.bukkit.Bukkit;
@@ -23,7 +12,9 @@ import hydrogenn.kingdoms.command.CommandCreate;
 import hydrogenn.kingdoms.command.CommandGoHomeYourDrunk;
 import hydrogenn.kingdoms.command.CommandInvite;
 import hydrogenn.kingdoms.command.CommandJoin;
+import hydrogenn.kingdoms.command.CommandList;
 import hydrogenn.kingdoms.command.CommandManager;
+import hydrogenn.kingdoms.command.CommandPermission;
 import hydrogenn.kingdoms.command.CommandRank;
 import hydrogenn.kingdoms.command.CommandRename;
 import hydrogenn.kingdoms.command.CommandRetire;
@@ -33,52 +24,6 @@ import hydrogenn.kingdoms.file.ConfigManager;
 public class Kingdoms extends JavaPlugin {
 	
 	FileConfiguration config = getConfig();
-
-	public void storeObject(String input, String file) {
-		String dir = getDataFolder() + File.separator + "firebalance." + file;
-		try (BufferedWriter writer = new BufferedWriter(
-				new OutputStreamWriter(new FileOutputStream(dir, true), "utf-8"))) {
-			writer.write(input);
-			writer.newLine();
-		} catch (UnsupportedEncodingException e) {
-			Bukkit.getLogger().info("Unsupported Encoding");
-		} catch (FileNotFoundException e) {
-			Bukkit.getLogger().info("File Not Found");
-		} catch (IOException e) {
-			Bukkit.getLogger().info("IO Exception");
-		}
-	}
-
-	public void clearObject(String file) {
-		String dir = getDataFolder() + File.separator + "firebalance." + file;
-		try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(dir), "utf-8"))) {
-			writer.write("");
-		} catch (UnsupportedEncodingException e) {
-			Bukkit.getLogger().info("Unsupported Encoding");
-		} catch (FileNotFoundException e) {
-			Bukkit.getLogger().info("File Not Found");
-		} catch (IOException e) {
-			Bukkit.getLogger().info("IO Exception");
-		}
-	}
-
-	public ArrayList<String> displayObjects(String file) {
-		String dir = "plugins/Firebalance/firebalance." + file;
-		ArrayList<String> lineList = new ArrayList<>();
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(dir), "utf-8"))) {
-			String line = null;
-			while ((line = reader.readLine()) != null) {
-				lineList.add(line);
-			}
-		} catch (UnsupportedEncodingException e) {
-			Bukkit.getLogger().info("Unsupported Encoding");
-		} catch (FileNotFoundException e) {
-			Bukkit.getLogger().info("File Not Found");
-		} catch (IOException e) {
-			Bukkit.getLogger().info("IO Exception");
-		}
-		return lineList;
-	}
 
 	@Override
 	public void onEnable() {
@@ -94,6 +39,8 @@ public class Kingdoms extends JavaPlugin {
 		cmdm.registerCommand(new CommandRename());
 		cmdm.registerCommand(new CommandTag());
 		cmdm.registerCommand(new CommandRetire());
+		cmdm.registerCommand(new CommandPermission());
+		cmdm.registerCommand(new CommandList());
 		this.getCommand("k").setExecutor(cmdm);
 		
 

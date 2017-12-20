@@ -22,11 +22,11 @@ public class CommandRetire extends CommandClass {
 			Player player = (Player) sender;
 			PlayerSpec spec = PlayerSpec.getSpec(player);
 			Kingdom kingdom = spec.getKingdom();
-			if (kingdom == null || kingdom.isLeader(player.getUniqueId())) {
+			if (kingdom == null || !kingdom.hasAllPermission(player.getUniqueId())) {
 				player.sendMessage("Retire from what, exactly?");
 			} else {
 				kingdom.removeFromChain(player.getUniqueId());
-				player.sendMessage("Done and done! Free at last! Now you can go fish or something.");
+				player.sendMessage("Done and done! Free at last! Now you can do whatever you want.");
 			}
 		}
 		return true;

@@ -28,7 +28,7 @@ public class CommandRename extends CommandClass {
 				player.sendMessage("Remind me again what you're changing the name of?");
 			}
 			else {
-				if (!kingdom.isLeader(player.getUniqueId())) {
+				if (!kingdom.hasNamePermission(player)) {
 					player.sendMessage("You can definitely do that, you being leader and all.");
 				}
 				else if (name.length() == 0) {
