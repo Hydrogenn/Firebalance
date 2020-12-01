@@ -17,4 +17,4 @@ Firebalance iteration #2 (Summer 2016):
  - Only Mostly Dead: Now, mostly dead, is slightly alive. This allows you to make your servers hardcore-lite; players cannot participate in the server for 24 hours after death. This can also be used to disguise as other players and ban them. This did most of the heavy lifting for Firebalance v2 and still needs some repair and cleanup for a public release.
  - KingdomsPlugin: Added as a compromise to the players who asked for it. A very simple hierarchy system that allows you to create kingdoms. Has no hooks into actual gameplay and is merely aesthetic, unlike Firebalance Factions.
  
- Many other plugins exist that are unlisted. We'll update this list shortly.
+ Many other plugins exist that are unlisted. This list will be updated.
