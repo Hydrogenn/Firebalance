@@ -1,7 +1,7 @@
 # Firebalance
 Most of these plugins were used at one point or another for the Firebalance server. Firebalance was a custom coded war server; however, after discovering that CivCraft was doing most of the same content with some improvement and a much larger userbase, I stopped maintaining the server.
 
-Firebalance iteration #1 (Summer 2015):
+Firebalance iteration #1 (Summer 2016):
  - Firebalance Factions: A light factions plugin where there can never be more than 3 factions, by design; fully functional, but not significantly better than what is available. It has not been released.
  - [Notes](https://www.spigotmc.org/resources/notes-1-12-release.56679/) for 1.12: Allows writing on paper with a GUI, which could be used for short messages, political documents or for currency.
  - Locks: Allows locking chests with lock items, complete with a lockpick mechanism where you can assemble and dissassemble locks to make a matching key. Will release soon.
@@ -9,8 +9,10 @@ Firebalance iteration #1 (Summer 2015):
  - Quotable Rules: A rules-list plugin that allows any player to quote any rule and place it in chat anonymously
  - Swear Filter: Simple plugin for filtering out swear words from chat. Written by Rayzr.
 
-Firebalance iteration #2 (Summer 2016):
+Assorted:
  - BattleBricks: Allows you to play a simple duel minigame where you react to prompts. You use special bricks to fight which can be leveled up by combat or manually. Written by Rayzr with heavy modification to the gameplay by Hyreon.
+
+Firebalance iteration #2 (Summer 2017):
  - BeaconProtect: Beacons can be used as grief protection in a brief area. The beacon must be broken to turn it off, and they affect everyone equally. This may become public after being simplified, however [Citadel](https://dev.bukkit.org/projects/citadel) seems to provide a better context-free grief protection.
  - [MobBorder](https://www.spigotmc.org/resources/mobborder.43170/): My favorite plugin so far! This creates a more natural world border by increasing the difficulty of mobs as you go farther.
  - Heurensics: A fairly complex forensics plugin that records some player activity, such as placing or destroying blocks. Complete with a DNA system hooked into player UUIDs and decay over time, this will make tracking down suspects always possible but never easy.
